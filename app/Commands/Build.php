@@ -164,7 +164,7 @@ class Build extends Command
             file_put_contents($dest, $output);
         }
 
-        $this->info('Build Complete');
+        $this->info('Build Complete.');
     }
 
     /**
