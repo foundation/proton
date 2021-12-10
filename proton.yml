@@ -1,7 +1,9 @@
 paths:
-  pages: pages
-  partials: partials
-  layouts: layouts
-  data: data
-  dist: dist
-debug: true
+  batch: sample/batch
+  data: sample/data
+  dist: sample/dist
+  helpers: sample/helpers
+  layouts: sample/layouts
+  pages: sample/pages
+  partials: sample/partials
+debug: false

@@ -2,9 +2,7 @@
 CLI Tool for compiling web assets
 
 
-https://www.youtube.com/watch?v=a96l2UlcChw&list=PLxFwlLOncxFITSCR6iuw4Nkas1QoiemNV&index=7
-https://laravel-zero.com/docs/installation
-
+### Todo
 
 * YAML front matter
   * Dynamically set layout from Front Matter
@@ -15,6 +13,7 @@ https://laravel-zero.com/docs/installation
 * Layout Rules (config to set default layout for a folder)
 * Helpers folder for custom Twig macros?
 * Option to print out data
+* init option to create folders and config file
 
 
 ### Ideas

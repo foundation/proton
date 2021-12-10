@@ -1,10 +1,8 @@
-# Managed by Composer
-/bin/*
-!bin/console
-!bin/symfony_requirements
-/vendor/
+/vendor
+/.idea
+/.vscode
+/.vagrant
+.phpunit.result.cache
 
-# Build data
-/build/
-/dist/
-/proton-cache/
+/sample/dist
+/.proton-cache
