@@ -1,0 +1,7 @@
+paths:
+  pages: pages
+  partials: partials
+  layouts: layouts
+  data: data
+  dist: dist
+debug: true

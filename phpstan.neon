@@ -1,0 +1,16 @@
+parameters:
+	level: 8
+	inferPrivatePropertyTypeFromConstructor: true
+	checkMissingIterableValueType: false
+	reportUnmatchedIgnoredErrors: false
+	paths:
+		- src
+		- config
+		- tests
+	ignoreErrors:
+		- message: '#Trying to invoke#'
+		  path: config
+		- message: '#Undefined variable: \$settings#'
+		  path: config
+		- message: '#Offset .+ does not exist on array#'
+		  path: config

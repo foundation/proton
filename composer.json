@@ -1,0 +1,7 @@
+{
+    "require": {
+        "twig/twig": "^3.3",
+        "pug/twig": "^1.2",
+        "webuni/front-matter": "^1.3"
+    }
+}
