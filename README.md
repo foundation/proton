@@ -40,6 +40,10 @@ proton build
 * `batch`: Batch create pages based on an array of items in your data. This could allow you to create multiple items (such as products) based on the same page but with different data defined within your data.
 
 
+## Default Content Block
+
+If no content blocks are defined in your page template, a default `content` block will be added so that you can leverage the content inside of your layouts.
+
 ## Todo / Ideas
 
 * Refactor all code into classes

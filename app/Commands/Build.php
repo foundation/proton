@@ -180,6 +180,10 @@ class Build extends Command
             // Setup page layout unless set to none
             $layout = $pageData[LAYOUTKEY] ?? $layout;
             if ("none" !== $layout) {
+                // Assign default content block if none defined in page template
+                if (false === strpos($pageContent, ENDBLOCK)) {
+                    $pageContent = "{% block content %}". $pageContent . "{% endblock %}";
+                }
                 $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
             }
 
