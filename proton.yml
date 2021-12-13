@@ -7,3 +7,4 @@ paths:
   pages: sample/pages
   partials: sample/partials
 debug: false
+autoindex: true

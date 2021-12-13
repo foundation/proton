@@ -39,7 +39,6 @@ proton build
 
 ## Todo / Ideas
 
-* AutoIndex Option to output home.html -> home/index.html
 * Layout Rules (config to set default layout for a folder)
 * Create different pages dynamically based off different data. Maybe `batch` folder?
 

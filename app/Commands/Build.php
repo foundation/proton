@@ -46,9 +46,10 @@ class Build extends Command
                 "data"     => "data",
                 "dist"     => "dist",
             ],
-            "debug"   => false,
-            "minify"  => false,
-            "layouts" => [
+            "debug"     => false,
+            "minify"    => false,
+            "autoindex" => false,
+            "layouts"   => [
                 "default" => "default.html",
                 "rules" => [
                     "blog" => "blog.html"
@@ -175,6 +176,18 @@ class Build extends Command
             ]);
             // Render the page template
             $output = $twig->render("@pages/$page", $pageData);
+
+            // Auto Index
+            if ($config->autoindex && !strstr($page, "index")) {
+                $info = pathinfo($page);
+                $name = "index.";
+                $name .= $info["extension"] ?? "html";
+                $indexPath = [$info["filename"], $name];
+                if ("." !== $info["dirname"]) {
+                    array_unshift($indexPath, $info["dirname"]);
+                }
+                $page = implode(DIRECTORY_SEPARATOR, $indexPath);
+            }
 
             // Custom Destination in FrontMatter
             if (array_key_exists(OUTPUTDEST, $pageData)) {
