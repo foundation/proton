@@ -11,6 +11,7 @@ const DEFAULTDATA = "data";
 const OUTPUTKEY   = "output";
 const LAYOUTKEY   = "layout";
 const BATCHKEY    = "batch";
+const ENDBLOCK    = "endblock";
 
 class Build extends Command
 {
@@ -169,6 +170,11 @@ class Build extends Command
                     $layout = $ruleLayout;
                     break;
                 }
+            }
+
+            // Assign default content block if none defined in page template
+            if (false === strpos($pageContent, ENDBLOCK)) {
+                $pageContent = "{% block content %}". $pageContent . "{% endblock %}";
             }
 
             // Setup page layout unless set to none

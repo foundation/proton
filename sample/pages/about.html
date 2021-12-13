@@ -1,18 +1,3 @@
-{% import "forms.html" as forms %}
+<h1>About Us</h1>
 
-{% block title %}Index{% endblock %}
-
-{% block head %}
-{{ parent() }}
-<style type="text/css">
-    .important { color: #336699; }
-</style>
-{% endblock %}
-
-{% block content %}
-<h1>Index</h1>
 {% include "important.html" %}
-<p>{{ forms.input('username') }}</p>
-<p>{{ forms.input('password', null, 'password') }}</p>
-{% endblock %}
-
