@@ -1,6 +1,19 @@
 # proton
 
-CLI Tool for compiling web assets. This project is in very early stages. Any feedback would be appreciated.
+CLI Tool for compiling web assets. This project is meant to replace the popular [panini](https://github.com/foundation/panini) site generator.
+
+Managing NPM dependencies has become a difficult task. Both of our development
+tools and front end libraries are managed by the same package manager. Too often
+we have to deal with dependency conflicts between libraries and tools that we
+want to use. Proton helps to combat this problem.
+
+Proton is built with PHP. This means that it's dependencies lay 100% outside of
+your project's dependency chain.
+
+Proton leverages [Twig](https://twig.symfony.com) to bring you a powerful, flexible
+and fast templating system. Check out the [Twig Templates for Designers](https://twig.symfony.com/doc/3.x/templates.html) docs.
+
+This project is in very early stages. Any feedback would be appreciated.
 
 ## Installation
 
