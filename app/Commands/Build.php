@@ -8,6 +8,7 @@ use Symfony\Component\Yaml\Yaml;
 
 const CONFIGFILES = [".proton", "proton.yml"];
 const DEFAULTDATA = "data";
+const OUTPUTDEST  = "output";
 
 class Build extends Command
 {
@@ -176,9 +177,9 @@ class Build extends Command
             $output = $twig->render("@pages/$page", $pageData);
 
             // Custom Destination in FrontMatter
-            if (array_key_exists("dest", $pageData)) {
+            if (array_key_exists(OUTPUTDEST, $pageData)) {
                 // replace page name with new dest name
-                $page = $pageData["dest"];
+                $page = $pageData[OUTPUTDEST];
             }
 
             $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $page;

@@ -31,15 +31,24 @@ You can see an example of how to setup proton in the [sample folder](https://git
 proton build
 ```
 
+## Special Front Matter Variables
+
+* `layout`: defines the layout to use for the page. If no layout is defined the default layout defined in the configuration will be used. You can set this to `none` in order to have no default layout set.
+* `output`: This sets the destination name of the page when it gets compiled into the configured `dist` folder.
+
+
 ## Todo / Ideas
+
+* AutoIndex Option to output home.html -> home/index.html
+* Layout Rules (config to set default layout for a folder)
+* Create different pages dynamically based off different data. Maybe `batch` folder?
 
 * PUG support
 * Markdown
 * Minify HTML
-* AutoIndex Option to output home.html -> home/index.html
-* Layout Rules (config to set default layout for a folder)
 * debug Option to print out data
 * init option to create folders and config file
-* Create different pages dynamically based off different data. Maybe `batch` folder?
 * Inky + Inky Extra Twig extensions
-* Check that all config paths exist on load
+* Check that all config paths exist on load (maybe a verify cli option)
+* data cli option to output global data or data for a specific page
+* Refactor all code into classes
