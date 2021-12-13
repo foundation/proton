@@ -2,8 +2,8 @@ paths:
   batch: sample/batch
   data: sample/data
   dist: sample/dist
-  helpers: sample/helpers
   layouts: sample/layouts
+  macros: sample/macros
   pages: sample/pages
   partials: sample/partials
 debug: false

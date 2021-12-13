@@ -38,7 +38,7 @@ class Build extends Command
         $config = [
             "paths" => [
                 "batch"    => "batch",
-                "helpers"  => "helpers",
+                "macros"   => "macros",
                 "pages"    => "pages",
                 "partials" => "partials",
                 "layouts"  => "layouts",
@@ -108,7 +108,7 @@ class Build extends Command
         //----------------------------------
         // Twig FS Loader + FrontMatter
         //----------------------------------
-        $fsLoader = new \Twig\Loader\FilesystemLoader([$config->paths->partials, $config->paths->helpers]);
+        $fsLoader = new \Twig\Loader\FilesystemLoader([$config->paths->partials, $config->paths->macros]);
         $fsLoader->addPath($config->paths->pages, "pages");
         $fsLoader->addPath($config->paths->layouts, "layouts");
         $frontMatter = new \Webuni\FrontMatter\FrontMatter();
@@ -157,11 +157,9 @@ class Build extends Command
             // Merge page data with global data
             $pageData = array_merge($data, $pageData);
 
-            print_r($pageData);
-
-            // Auto extend the layout if defined in the FrontMatter
-            if (array_key_exists("layout", $pageData)) {
-                $layout = $pageData["layout"];
+            // Setup page layout unless set to none
+            $layout = $pageData["layout"] ?? $config->layouts->default;
+            if ("none" !== $layout) {
                 $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
             }
 
