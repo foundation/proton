@@ -1,7 +1,7 @@
 {
     "name": "foundation/proton",
     "description": "Proton Site Builder",
-    "keywords": ["framework", "foundation", "cli", "static site"],
+    "keywords": ["framework", "foundation", "cli", "static site", "twig", "cms"],
     "homepage": "https://github.com/foundation/proton",
     "type": "project",
     "license": "MIT",
