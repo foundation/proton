@@ -46,11 +46,11 @@ If no content blocks are defined in your page template, a default `content` bloc
 
 ## Todo / Ideas
 
+* Minify HTML
+
 * Refactor all code into classes
 * PUG support
-* Markdown
-* Minify HTML
-* debug Option to print out data
+* Better output logging with debug flag for more output
 * init option to create folders and config file
 * Inky + Inky Extra Twig extensions
 * Check that all config paths exist on load (maybe a verify cli option)

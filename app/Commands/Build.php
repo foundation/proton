@@ -5,6 +5,8 @@ namespace App\Commands;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 use Symfony\Component\Yaml\Yaml;
+use Aptoma\Twig\Extension\MarkdownExtension;
+use Aptoma\Twig\Extension\MarkdownEngine\MichelfMarkdownEngine;
 
 const CONFIGFILES = [".proton", "proton.yml"];
 const DEFAULTDATA = "data";
@@ -156,7 +158,8 @@ class Build extends Command
             }
             $document = $frontMatter->parse($document);
             $pageData = $document->getData();
-            $pageContent = $document->getContent();
+            $pageContent = $document->getContent()??"No Content Found";
+            $pageExt = pathinfo($pagePath, PATHINFO_EXTENSION);
 
             // Merge page data with global data
             $pageData = array_merge($data, $pageData);
@@ -187,6 +190,14 @@ class Build extends Command
                 $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
             }
 
+            // Auto process markdown pages
+            if ("md" === $pageExt) {
+                // Start markdown tag after all start blocks
+                $pageContent = preg_replace('/\{\%\s+block\s+(\S+)\s+\%\}/', '{% block ${1} %}{% markdown %}', $pageContent)??$pageContent;
+                // end markdown tags before all endblocks
+                $pageContent = preg_replace('/\{\%\s+endblock\s+\%\}/', '{% endmarkdown %}{% endblock %}', $pageContent)??$pageContent;
+            }
+
             // Create the Twig Chain Loader
             $loader = new \Twig\Loader\ArrayLoader([
                 "@pages/$page" => $pageContent,
@@ -196,9 +207,11 @@ class Build extends Command
                 'cache' => ".proton-cache",
                 'debug' => $config->debug
             ]);
+            // Markdown Support
+            $engine = new MichelfMarkdownEngine();
+            $twig->addExtension(new MarkdownExtension($engine));
 
-            //-- Output Batch vs Individual
-
+            // Output Batch vs Individual
             if (array_key_exists(BATCHKEY, $pageData)) {
                 $batch = $pageData[BATCHKEY];
                 foreach ($data[$batch] as $batchKey => $batchData) {
@@ -206,13 +219,17 @@ class Build extends Command
                     $output = $twig->render("@pages/$page", $pageData);
 
                     $info = pathinfo($page);
+
+                    $ext = $info["extension"]??"html";
+                    if ("md" === $ext || "pug" === $ext) {
+                        $ext = "html";
+                    }
+
                     if ($config->autoindex) {
-                        $name = "index.";
-                        $name .= $info["extension"] ?? "html";
+                        $name = "index.$ext";
                         $pagePath = [$batchKey, $name];
                     } else {
-                        $name = "$batchKey.";
-                        $name .= $info["extension"] ?? "html";
+                        $name = "$batchKey.$ext";
                         $pagePath = [$name];
                     }
                     if ("." !== $info["dirname"]) {
@@ -234,8 +251,12 @@ class Build extends Command
                 // Auto Index
                 if ($config->autoindex && !strstr($page, "index")) {
                     $info = pathinfo($page);
-                    $name = "index.";
-                    $name .= $info["extension"] ?? "html";
+
+                    $ext = $info["extension"]??"html";
+                    if ("md" === $ext || "pug" === $ext) {
+                        $ext = "html";
+                    }
+                    $name = "index.$ext";
                     $indexPath = [$info["filename"], $name];
                     if ("." !== $info["dirname"]) {
                         array_unshift($indexPath, $info["dirname"]);

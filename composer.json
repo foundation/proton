@@ -17,7 +17,9 @@
     ],
     "require": {
         "php": "^7.3|^8.0",
+        "aptoma/twig-markdown": "^3.4",
         "laravel-zero/phar-updater": "^1.0.6",
+        "michelf/php-markdown": "^1.9",
         "pug/twig": "^1.2",
         "twig/twig": "^3.3",
         "webuni/front-matter": "^1.3"
