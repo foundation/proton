@@ -52,7 +52,7 @@ class Build extends Command
             "layouts"   => [
                 "default" => "default.html",
                 "rules" => [
-                    "blog" => "blog.html"
+                    // "blog" => "blog.html",
                 ]
             ]
         ];
@@ -159,8 +159,19 @@ class Build extends Command
             // Merge page data with global data
             $pageData = array_merge($data, $pageData);
 
+            // Default Layout
+            $layout = $config->layouts->default;
+
+            // Layout Rules
+            foreach ($config->layouts->rules as $ruleMatch => $ruleLayout) {
+                if (0 === strpos($page, $ruleMatch)) {
+                    $layout = $ruleLayout;
+                    break;
+                }
+            }
+
             // Setup page layout unless set to none
-            $layout = $pageData["layout"] ?? $config->layouts->default;
+            $layout = $pageData["layout"] ?? $layout;
             if ("none" !== $layout) {
                 $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
             }

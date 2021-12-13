@@ -7,4 +7,9 @@ paths:
   pages: sample/pages
   partials: sample/partials
 debug: false
+minify: false
 autoindex: true
+layouts:
+  default: default.html
+  rules:
+    subfolder: subfolder.html

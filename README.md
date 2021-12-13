@@ -39,7 +39,6 @@ proton build
 
 ## Todo / Ideas
 
-* Layout Rules (config to set default layout for a folder)
 * Create different pages dynamically based off different data. Maybe `batch` folder?
 
 * PUG support
