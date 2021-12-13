@@ -106,18 +106,12 @@ class Build extends Command
         }
 
         //----------------------------------
-        // Init Twig Environment
+        // Twig FS Loader + FrontMatter
         //----------------------------------
-        $frontMatter = \Webuni\FrontMatter\Twig\TwigCommentFrontMatter::create();
-        $loader = new \Twig\Loader\FilesystemLoader([$config->paths->partials]);
-        $loader->addPath($config->paths->pages, "pages");
-        $loader->addPath($config->paths->layouts, "layouts");
-        $converter = \Webuni\FrontMatter\Twig\DataToTwigConvertor::vars();
-        $loader = new \Webuni\FrontMatter\Twig\FrontMatterLoader($frontMatter, $loader, $converter);
-        $twig = new \Twig\Environment($loader, [
-            'cache' => ".proton-cache",
-            'debug' => $config->debug
-        ]);
+        $fsLoader = new \Twig\Loader\FilesystemLoader([$config->paths->partials, $config->paths->helpers]);
+        $fsLoader->addPath($config->paths->pages, "pages");
+        $fsLoader->addPath($config->paths->layouts, "layouts");
+        $frontMatter = new \Webuni\FrontMatter\FrontMatter();
 
         //----------------------------------
         // Fetch all pages
@@ -150,11 +144,44 @@ class Build extends Command
         // Process all pages
         //----------------------------------
         foreach ($pages as $page) {
-            $layout = $twig->load('@layouts/second.html');
-            $data["layout"] = $layout;
-            // $twig->display("@pages/$page", $data);
+            // FrontMatter
+            $pagePath = $config->paths->pages. DIRECTORY_SEPARATOR .$page;
+            $document = file_get_contents($pagePath);
+            if (!$document) {
+                throw new \Exception("Error reading in page: $page");
+            }
+            $document = $frontMatter->parse($document);
+            $pageData = $document->getData();
+            $pageContent = $document->getContent();
 
-            $output = $twig->render("@pages/$page", ['layout' => $layout]);
+            // Merge page data with global data
+            $pageData = array_merge($data, $pageData);
+
+            print_r($pageData);
+
+            // Auto extend the layout if defined in the FrontMatter
+            if (array_key_exists("layout", $pageData)) {
+                $layout = $pageData["layout"];
+                $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
+            }
+
+            // Create the Twig Chain Loader
+            $loader = new \Twig\Loader\ArrayLoader([
+                "@pages/$page" => $pageContent,
+            ]);
+            $loader = new \Twig\Loader\ChainLoader([$loader, $fsLoader]);
+            $twig = new \Twig\Environment($loader, [
+                'cache' => ".proton-cache",
+                'debug' => $config->debug
+            ]);
+            // Render the page template
+            $output = $twig->render("@pages/$page", $pageData);
+
+            // Custom Destination in FrontMatter
+            if (array_key_exists("dest", $pageData)) {
+                // replace page name with new dest name
+                $page = $pageData["dest"];
+            }
 
             $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $page;
             $destDir = dirname($dest);

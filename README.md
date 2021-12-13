@@ -33,7 +33,6 @@ proton build
 
 ## Todo / Ideas
 
-* Dynamically set layout from Front Matter
 * PUG support
 * Markdown
 * Minify HTML
