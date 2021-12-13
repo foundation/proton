@@ -37,24 +37,23 @@ class Build extends Command
         // Config Load
         //----------------------------------
         $config = [
-            "paths" => [
-                "batch"    => "batch",
-                "macros"   => "macros",
-                "pages"    => "pages",
-                "partials" => "partials",
-                "layouts"  => "layouts",
-                "data"     => "data",
-                "dist"     => "dist",
-            ],
+            "autoindex" => true,
             "debug"     => false,
             "minify"    => false,
-            "autoindex" => false,
             "layouts"   => [
                 "default" => "default.html",
                 "rules" => [
                     // "blog" => "blog.html",
                 ]
-            ]
+            ],
+            "paths" => [
+                "data"     => "data",
+                "dist"     => "dist",
+                "layouts"  => "layouts",
+                "macros"   => "macros",
+                "pages"    => "pages",
+                "partials" => "partials",
+            ],
         ];
         // Config file override
         foreach (CONFIGFILES as $configFile) {

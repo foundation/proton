@@ -1,0 +1,9 @@
+batch1:
+  name: Batch Item 1
+  content: This is a test of batch item 1
+batch2:
+  name: Batch Item 2
+  content: This is a test of batch item 2
+batch3:
+  name: Batch Item 3
+  content: This is a test of batch item 3
