@@ -43,8 +43,6 @@ proton build
 ## Todo / Ideas
 
 * Refactor all code into classes
-* Create different pages dynamically based off different data. Maybe `batch` folder?
-
 * PUG support
 * Markdown
 * Minify HTML

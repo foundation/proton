@@ -8,7 +8,9 @@ use Symfony\Component\Yaml\Yaml;
 
 const CONFIGFILES = [".proton", "proton.yml"];
 const DEFAULTDATA = "data";
-const OUTPUTDEST  = "output";
+const OUTPUTKEY   = "output";
+const LAYOUTKEY   = "layout";
+const BATCHKEY    = "batch";
 
 class Build extends Command
 {
@@ -47,12 +49,12 @@ class Build extends Command
                 ]
             ],
             "paths" => [
-                "data"     => "data",
                 "dist"     => "dist",
-                "layouts"  => "layouts",
-                "macros"   => "macros",
-                "pages"    => "pages",
-                "partials" => "partials",
+                "data"     => "src/data",
+                "layouts"  => "src/layouts",
+                "macros"   => "src/macros",
+                "pages"    => "src/pages",
+                "partials" => "src/partials",
             ],
         ];
         // Config file override
@@ -170,7 +172,7 @@ class Build extends Command
             }
 
             // Setup page layout unless set to none
-            $layout = $pageData["layout"] ?? $layout;
+            $layout = $pageData[LAYOUTKEY] ?? $layout;
             if ("none" !== $layout) {
                 $pageContent = "{% extends \"@layouts/$layout\" %}".$pageContent;
             }
@@ -184,33 +186,66 @@ class Build extends Command
                 'cache' => ".proton-cache",
                 'debug' => $config->debug
             ]);
-            // Render the page template
-            $output = $twig->render("@pages/$page", $pageData);
 
-            // Auto Index
-            if ($config->autoindex && !strstr($page, "index")) {
-                $info = pathinfo($page);
-                $name = "index.";
-                $name .= $info["extension"] ?? "html";
-                $indexPath = [$info["filename"], $name];
-                if ("." !== $info["dirname"]) {
-                    array_unshift($indexPath, $info["dirname"]);
+            //-- Output Batch vs Individual
+
+            if (array_key_exists(BATCHKEY, $pageData)) {
+                $batch = $pageData[BATCHKEY];
+                foreach ($data[$batch] as $batchKey => $batchData) {
+                    $pageData[BATCHKEY] = $batchData;
+                    $output = $twig->render("@pages/$page", $pageData);
+
+                    $info = pathinfo($page);
+                    if ($config->autoindex) {
+                        $name = "index.";
+                        $name .= $info["extension"] ?? "html";
+                        $pagePath = [$batchKey, $name];
+                    } else {
+                        $name = "$batchKey.";
+                        $name .= $info["extension"] ?? "html";
+                        $pagePath = [$name];
+                    }
+                    if ("." !== $info["dirname"]) {
+                        array_unshift($pagePath, $info["dirname"]);
+                    }
+                    $pageOut = implode(DIRECTORY_SEPARATOR, $pagePath);
+
+                    $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $pageOut;
+                    $destDir = dirname($dest);
+                    if (!file_exists($destDir)) {
+                        mkdir($destDir, 0777, true);
+                    }
+                    file_put_contents($dest, $output);
                 }
-                $page = implode(DIRECTORY_SEPARATOR, $indexPath);
-            }
+            } else {
+                // Render the page template
+                $output = $twig->render("@pages/$page", $pageData);
 
-            // Custom Destination in FrontMatter
-            if (array_key_exists(OUTPUTDEST, $pageData)) {
-                // replace page name with new dest name
-                $page = $pageData[OUTPUTDEST];
-            }
+                // Auto Index
+                if ($config->autoindex && !strstr($page, "index")) {
+                    $info = pathinfo($page);
+                    $name = "index.";
+                    $name .= $info["extension"] ?? "html";
+                    $indexPath = [$info["filename"], $name];
+                    if ("." !== $info["dirname"]) {
+                        array_unshift($indexPath, $info["dirname"]);
+                    }
+                    $page = implode(DIRECTORY_SEPARATOR, $indexPath);
+                }
 
-            $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $page;
-            $destDir = dirname($dest);
-            if (!file_exists($destDir)) {
-                mkdir($destDir, 0777, true);
+                // Custom Destination in FrontMatter
+                if (array_key_exists(OUTPUTKEY, $pageData)) {
+                    // replace page name with new dest name
+                    $page = $pageData[OUTPUTKEY];
+                }
+
+                $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $page;
+                $destDir = dirname($dest);
+                if (!file_exists($destDir)) {
+                    mkdir($destDir, 0777, true);
+                }
+                file_put_contents($dest, $output);
             }
-            file_put_contents($dest, $output);
         }
 
         $this->info('Build Complete.');
