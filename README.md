@@ -25,6 +25,8 @@ Proton requires that you have [Composer](https://getcomposer.org) installed. It 
 composer global require foundation/proton
 ```
 
+Make sure that you add the composer global installation folder to your shell PATH. By default it should be in the following location: `~/.composer/vendor/bin`
+
 ## Build
 
 You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file. Then you can run the following command to build your site.
