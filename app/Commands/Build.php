@@ -45,6 +45,7 @@ class Build extends Command
             "defaultExt" => "html",
             "autoindex"  => true,
             "debug"      => false,
+            "pretty"     => true,
             "minify"     => false,
             "layouts"    => [
                 "default" => "default.html",
@@ -233,6 +234,14 @@ class Build extends Command
                     $pageData[BATCHKEY] = $batchData;
                     $output = $twig->render("@pages/$page", $pageData);
 
+                    if ($config->minify) {
+                        $parser = \WyriHaximus\HtmlCompress\Factory::constructSmallest();
+                        $output = $parser->compress($output);
+                    } elseif ($config->pretty) {
+                        $indenter = new \Gajus\Dindent\Indenter();
+                        $output = $indenter->indent($output);
+                    }
+
                     $batchPath = $filePath;
                     array_push($batchPath, $batchKey);
 
@@ -251,6 +260,14 @@ class Build extends Command
             } else {
                 // Render the page template
                 $output = $twig->render("@pages/$page", $pageData);
+
+                if ($config->minify) {
+                    $parser = \WyriHaximus\HtmlCompress\Factory::constructSmallest();
+                    $output = $parser->compress($output);
+                } elseif ($config->pretty) {
+                    $indenter = new \Gajus\Dindent\Indenter();
+                    $output = $indenter->indent($output);
+                }
 
                 array_push($filePath, $filename);
 

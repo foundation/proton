@@ -46,8 +46,6 @@ If no content blocks are defined in your page template, a default `content` bloc
 
 ## Todo / Ideas
 
-* Minify HTML
-
 * Refactor all code into classes
 * Better output logging with debug flag for more output
 * init option to create folders and config file
