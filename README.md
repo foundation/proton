@@ -78,6 +78,35 @@ Lastly, macros are basically functions that allow you to pass parameters in orde
 
 If no content blocks are defined in your page template, a default `content` block will be added so that you can leverage the content inside of your layouts.
 
+### Markdown
+
+In order to process content as markdown inside of a template, you simple need to make sure that the file extension of the template is `md`. Example: `template.md`
+
+You can also use markdown in parts of your template with a markdown filter. 
+
+```
+{% markdown %}
+### Header
+
+This is my content
+{% endmarkdown %}
+```
+
+### Pug
+
+You can process a template using Pug simply by giving the file that `pug` extension. Example: `template.pug`
+
+### Page Destinations
+
+All templates will be named the exact same name in the exact same folder structure inside of the configured `dist` folder. There are the following exceptions:
+
+* All templates with `pug`, `twig` and `md` extensions will become `html` files by default. You can change this with the `defaultExt` configuration value. 
+* You can customize the path and filename that a page gets output to via the `output` parameter set inside of a page's frontmatter.
+
+### Page Formatting
+
+You can use the `pretty` and `minify` configuration values to determine if the output of a page's HTML will be minified or indented to look "pretty". 
+
 ## Data Overview
 
 Storing data inside Proton is very flexible to work with Manu different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. However, this folder is configurable.
@@ -150,6 +179,31 @@ title: My awesome webpage
 ---
 
 My Page Content...
+```
+
+## Configuration
+
+At the root of your project you can create a config file called either `proton.yml` or `.proton.yml`. 
+
+```yaml
+autoindex: true
+debug: false
+defaultExt: html
+minify: false
+pretty: true
+paths:
+  batch: sample/batch
+  data: sample/data
+  dist: sample/dist
+  layouts: sample/layouts
+  macros: sample/macros
+  pages: sample/pages
+  partials: sample/partials
+layouts:
+  default: default.html
+  rules:
+    subfolder: subfolder.html
+    blog: blog.html
 ```
 
 
