@@ -14,9 +14,8 @@ layout: default.html
 {% endblock %}
 
 {% block content %}
-<h1>Index</h1>
+h1 Index
 {% include "important.html" %}
-<p>{{ forms.input('username') }}</p>
-<p>{{ forms.input('password', null, 'password') }}</p>
+p {{ forms.input('username') }}
+p {{ forms.input('password', null, 'password') }}
 {% endblock %}
-

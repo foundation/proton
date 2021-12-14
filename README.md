@@ -49,7 +49,6 @@ If no content blocks are defined in your page template, a default `content` bloc
 * Minify HTML
 
 * Refactor all code into classes
-* PUG support
 * Better output logging with debug flag for more output
 * init option to create folders and config file
 * Inky + Inky Extra Twig extensions

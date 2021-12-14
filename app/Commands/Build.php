@@ -196,6 +196,8 @@ class Build extends Command
                 $pageContent = preg_replace('/\{\%\s+block\s+(\S+)\s+\%\}/', '{% block ${1} %}{% markdown %}', $pageContent)??$pageContent;
                 // end markdown tags before all endblocks
                 $pageContent = preg_replace('/\{\%\s+endblock\s+\%\}/', '{% endmarkdown %}{% endblock %}', $pageContent)??$pageContent;
+            } elseif ("pug" === $pageExt) {
+                $pageContent = \Phug\PugToTwig::convert($pageContent);
             }
 
             // Create the Twig Chain Loader
@@ -211,6 +213,18 @@ class Build extends Command
             $engine = new MichelfMarkdownEngine();
             $twig->addExtension(new MarkdownExtension($engine));
 
+            $info = pathinfo($page);
+            $ext = $info["extension"]??"html";
+            $filename = $info["filename"];
+            $dirname = $info["dirname"];
+            if ("md" === $ext || "pug" === $ext || "twig" === $ext) {
+                $ext = "html";
+            }
+            $filePath = [];
+            if ("." !== $dirname) {
+                array_push($filePath, $dirname);
+            }
+
             // Output Batch vs Individual
             if (array_key_exists(BATCHKEY, $pageData)) {
                 $batch = $pageData[BATCHKEY];
@@ -218,24 +232,13 @@ class Build extends Command
                     $pageData[BATCHKEY] = $batchData;
                     $output = $twig->render("@pages/$page", $pageData);
 
-                    $info = pathinfo($page);
-
-                    $ext = $info["extension"]??"html";
-                    if ("md" === $ext || "pug" === $ext) {
-                        $ext = "html";
-                    }
+                    $batchPath = $filePath;
+                    array_push($batchPath, $batchKey);
 
                     if ($config->autoindex) {
-                        $name = "index.$ext";
-                        $pagePath = [$batchKey, $name];
-                    } else {
-                        $name = "$batchKey.$ext";
-                        $pagePath = [$name];
+                        array_push($batchPath, "index");
                     }
-                    if ("." !== $info["dirname"]) {
-                        array_unshift($pagePath, $info["dirname"]);
-                    }
-                    $pageOut = implode(DIRECTORY_SEPARATOR, $pagePath);
+                    $pageOut = implode(DIRECTORY_SEPARATOR, $batchPath).".$ext";
 
                     $dest = $config->paths->dist . DIRECTORY_SEPARATOR . $pageOut;
                     $destDir = dirname($dest);
@@ -248,21 +251,14 @@ class Build extends Command
                 // Render the page template
                 $output = $twig->render("@pages/$page", $pageData);
 
+                array_push($filePath, $filename);
+
                 // Auto Index
                 if ($config->autoindex && !strstr($page, "index")) {
-                    $info = pathinfo($page);
-
-                    $ext = $info["extension"]??"html";
-                    if ("md" === $ext || "pug" === $ext) {
-                        $ext = "html";
-                    }
-                    $name = "index.$ext";
-                    $indexPath = [$info["filename"], $name];
-                    if ("." !== $info["dirname"]) {
-                        array_unshift($indexPath, $info["dirname"]);
-                    }
-                    $page = implode(DIRECTORY_SEPARATOR, $indexPath);
+                    array_push($filePath, "index");
                 }
+
+                $page = implode(DIRECTORY_SEPARATOR, $filePath).".$ext";
 
                 // Custom Destination in FrontMatter
                 if (array_key_exists(OUTPUTKEY, $pageData)) {
