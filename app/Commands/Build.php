@@ -42,10 +42,11 @@ class Build extends Command
         // Config Load
         //----------------------------------
         $config = [
-            "autoindex" => true,
-            "debug"     => false,
-            "minify"    => false,
-            "layouts"   => [
+            "defaultExt" => "html",
+            "autoindex"  => true,
+            "debug"      => false,
+            "minify"     => false,
+            "layouts"    => [
                 "default" => "default.html",
                 "rules" => [
                     // "blog" => "blog.html",
@@ -214,11 +215,11 @@ class Build extends Command
             $twig->addExtension(new MarkdownExtension($engine));
 
             $info = pathinfo($page);
-            $ext = $info["extension"]??"html";
+            $ext = $info["extension"]??$config->defaultExt;
             $filename = $info["filename"];
             $dirname = $info["dirname"];
             if ("md" === $ext || "pug" === $ext || "twig" === $ext) {
-                $ext = "html";
+                $ext = $config->defaultExt;
             }
             $filePath = [];
             if ("." !== $dirname) {
