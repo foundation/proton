@@ -15,6 +15,8 @@ and fast templating system. Check out the [Twig Templates for Designers](https:/
 
 This project is in very early stages. Any feedback would be appreciated.
 
+**PLEASE DO NOT USE THIS FOR PRODUCTION PROJECTS. BREAKING CHANGES MAY BE MADE AT ANY TIME FOR NOW**
+
 ## Installation
 
 Proton requires that you have [Composer](https://getcomposer.org) installed. It may be easiest to then install proton globally on your computer. You can do this with the following command.
@@ -31,17 +33,22 @@ You can see an example of how to setup proton in the [sample folder](https://git
 proton build
 ```
 
+## Special Front Matter Variables
+
+* `layout`: defines the layout to use for the page. If no layout is defined the default layout defined in the configuration will be used. You can set this to `none` in order to have no default layout set.
+* `output`: This sets the destination name of the page when it gets compiled into the configured `dist` folder.
+* `batch`: Batch create pages based on an array of items in your data. This could allow you to create multiple items (such as products) based on the same page but with different data defined within your data.
+
+
+## Default Content Block
+
+If no content blocks are defined in your page template, a default `content` block will be added so that you can leverage the content inside of your layouts.
+
 ## Todo / Ideas
 
-* Dynamically set layout from Front Matter
-* PUG support
-* Markdown
-* Minify HTML
-* Layout Rules (config to set default layout for a folder)
-* Helpers folder for custom Twig macros?
-* debug Option to print out data
+* Refactor all code into classes
+* Better output logging with debug flag for more output
 * init option to create folders and config file
-* Create different pages dynamically based off different data. Maybe `batch` folder?
-* AutoIndex Option to output home.html -> home/index.html
-* Output option to manually define the name of the published page
 * Inky + Inky Extra Twig extensions
+* Check that all config paths exist on load (maybe a verify cli option)
+* data cli option to output global data or data for a specific page

@@ -1,0 +1,11 @@
+---
+layout: default.html
+batch: items
+---
+
+{% block title %}{{ batch.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ batch.name }}</h1>
+<p>{{ batch.content }}</p>
+{% endblock %}
