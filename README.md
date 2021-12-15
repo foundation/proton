@@ -56,10 +56,16 @@ Make sure that you add the composer global installation folder to your shell PAT
 
 You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file.
 
+You can use the following command to create the default structure needed for proton. You can optionally add the `--config` option to generate a config file as well.
+
+```sh
+$ proton init --config
+```
+
 Then you can run the following command to build your site.
 
 ```sh
-proton build
+$ proton build
 ```
 
 ## Template Overview
@@ -181,6 +187,15 @@ title: My awesome webpage
 My Page Content...
 ```
 
+### Debugging Data
+
+You can use the `data` command with proton to analyze the data that proton will use to build your pages. This can help you visualize how proton builds the data strucute. You can also pass an optional `--page` parameter in order to take into account a page's front matter so you can see the exact data strcutre used to build a single page.
+
+```sh
+$ proton data
+$ proton data --page=subfolder/index.html
+```
+
 ## Configuration
 
 At the root of your project you can create a config file called either `proton.yml` or `.proton.yml`.
@@ -206,11 +221,7 @@ layouts:
     blog: blog.html
 ```
 
-
 ## Todo / Ideas
 
 * Better output logging with debug flag for more output
-* init option to create folders and config file
 * Inky + Inky Extra Twig extensions
-* Check that all config paths exist on load (maybe a verify cli option)
-* data cli option to output global data or data for a specific page

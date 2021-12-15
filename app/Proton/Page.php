@@ -44,6 +44,11 @@ class Page
         return array_key_exists(self::BATCHKEY, $this->data);
     }
 
+    public function dumpData(): void
+    {
+        print_r($this->data);
+    }
+
     private function processPage(Data $data): void
     {
         $path = $this->config->settings->paths->pages. DIRECTORY_SEPARATOR .$this->name;
