@@ -5,7 +5,7 @@ Just like an actual proton is only one part of an atom, Proton is just one piece
 This project is meant to replace the popular [panini](https://github.com/foundation/panini) site generator.
 
 ```
-This project is in very early stages. Any feedback would be appreciated.
+This project is in beta. Any feedback would be appreciated.
 
 PLEASE DO NOT USE THIS FOR PRODUCTION PROJECTS.
 ```
