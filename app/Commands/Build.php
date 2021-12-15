@@ -21,7 +21,6 @@ class Build extends Command
      */
     public function handle()
     {
-
         //----------------------------------
         // Config Load
         //----------------------------------
@@ -34,8 +33,12 @@ class Build extends Command
         //----------------------------------
         // Clear out dist files
         //----------------------------------
-        $this->info('Cleaning previous builds.');
         $fsManager = new \App\Proton\FilesystemManager($config);
+        if (!$fsManager->pathsExist()) {
+            $this->error('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
+            return;
+        }
+        $this->info('Cleaning previous builds.');
         $fsManager->cleanupDist();
 
         //----------------------------------
