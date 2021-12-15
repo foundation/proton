@@ -13,14 +13,14 @@ class Init extends Command
      */
     protected $signature = 'init
 
-                            {--config: Init a config file with default values (optional)}';
+                            {--config : Init a config file with default values (optional)}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Create the folder needed to build your site';
+    protected $description = 'Create the folders needed to build with proton';
 
     /**
      * Execute the console command.

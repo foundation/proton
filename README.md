@@ -1,4 +1,4 @@
-# Proton - CLI Tool for compiling web pages
+# Proton - CLI Tool for compiling web pages and email
 
 Just like an actual proton is only one part of an atom, Proton is just one piece of the core for your project. It is not intended to be a full fledged CMS. It does zero management of your JavaScript, CSS, Assets or any kind of API that you website may require. Proton can compile your webpage assets into HTML, PHP or whatever language you may require.
 
@@ -219,4 +219,12 @@ layouts:
   rules:
     subfolder: subfolder.html
     blog: blog.html
+```
+
+## Updating Proton
+
+Updating proton could not be easier. You simply need to run the `self-update` command to update to the most recent version.
+
+```sh
+$ proton self-update
 ```

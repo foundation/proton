@@ -2,9 +2,7 @@
 
 namespace App\Commands;
 
-use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Yaml\Yaml;
 
 class Build extends Command
 {
@@ -12,7 +10,7 @@ class Build extends Command
     protected $signature = 'build';
 
     // The description of the command.
-    protected $description = 'Build your site';
+    protected $description = 'Build all pages';
 
     /**
      * Execute the console command.
