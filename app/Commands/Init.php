@@ -13,7 +13,7 @@ class Init extends Command
      */
     protected $signature = 'init
 
-                            {--config: Init a config file with default values (optional)}';
+                            {--config : Init a config file with default values (optional)}';
 
     /**
      * The description of the command.
