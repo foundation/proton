@@ -12,7 +12,7 @@ class Build extends Command
     protected $signature = 'build';
 
     // The description of the command.
-    protected $description = 'Build your site';
+    protected $description = 'Build all pages';
 
     /**
      * Execute the console command.
