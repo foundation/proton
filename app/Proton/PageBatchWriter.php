@@ -50,8 +50,6 @@ class PageBatchWriter extends PageWriter
         // Extension
         $ext = $this->findExtension();
 
-        print_r($filePath);
-
         return implode(DIRECTORY_SEPARATOR, $filePath).".$ext";
     }
 }
