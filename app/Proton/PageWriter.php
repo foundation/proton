@@ -54,7 +54,7 @@ class PageWriter
         return $this->twig->render("@pages/".$this->page->name, $data);
     }
 
-    protected function buildPagePath(string $filename=null): string
+    protected function buildPagePath(): string
     {
         // If output name defined in page data, return that
         if (array_key_exists(self::OUTPUTKEY, $this->page->data)) {
@@ -69,8 +69,7 @@ class PageWriter
         }
 
         // Filename
-        $filename = $filename??$this->page->filename;
-        array_push($filePath, $filename);
+        array_push($filePath, $this->page->filename);
 
         // Auto Index
         if ($this->config->settings->autoindex && !$this->pageIsIndex()) {
