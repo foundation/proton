@@ -10,8 +10,8 @@ use Symfony\Component\Yaml\Yaml;
 class Config
 {
     const CONFIGFILES = [
-        ".proton",
         "proton.yml",
+        ".proton.yml",
     ];
     const DEFAULTS = [
         "defaultExt" => "html",
@@ -43,6 +43,26 @@ class Config
         $this->settings = self::getSettings();
     }
 
+    public function initConfigFile(): bool
+    {
+        if (!$this->configFileExists()) {
+            $yaml = Yaml::dump($this->settings, 2, 4, Yaml::DUMP_OBJECT_AS_MAP);
+            file_put_contents(self::CONFIGFILES[0], $yaml);
+            return true;
+        }
+        return false;
+    }
+
+    public function configFileExists(): bool
+    {
+        foreach (self::CONFIGFILES as $configFile) {
+            if (file_exists($configFile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function dump(): void
     {
         print_r($this->settings);
@@ -59,6 +79,7 @@ class Config
         foreach (self::CONFIGFILES as $configFile) {
             if (file_exists($configFile)) {
                 $config = array_merge($config, Yaml::parseFile($configFile));
+                break;
             }
         }
         // Make it an object
