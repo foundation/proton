@@ -1,5 +1,4 @@
 paths:
-  batch: sample/batch
   data: sample/data
   dist: sample/dist
   layouts: sample/layouts

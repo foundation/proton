@@ -12,7 +12,7 @@ PLEASE DO NOT USE THIS FOR PRODUCTION PROJECTS. BREAKING CHANGES MAY BE MADE AT 
 
 ## Proton Features
 
-Here are a list of the main features of Proton and how it can help you. 
+Here are a list of the main features of Proton and how it can help you.
 
 ### Reduce NPM Dependencies
 
@@ -20,23 +20,23 @@ Managing NPM dependencies has become a difficult task. Both of our development t
 
 ### Twig Templates
 
-Proton leverages [Twig](https://twig.symfony.com) to bring you a powerful, flexible and fast templating system. Check out the [Twig Templates for Designers](https://twig.symfony.com/doc/3.x/templates.html) docs. If you like Handlebars, you will be blown away with Twig. 
+Proton leverages [Twig](https://twig.symfony.com) to bring you a powerful, flexible and fast templating system. Check out the [Twig Templates for Designers](https://twig.symfony.com/doc/3.x/templates.html) docs. If you like Handlebars, you will be blown away with Twig.
 
-Twig templates can be written in multiple formats. Markdown and Pug will be compiled down to HTML. All other languages, like HTML and PHP, will pass through into the compiled webpages. 
+Twig templates can be written in multiple formats. Markdown and Pug will be compiled down to HTML. All other languages, like HTML and PHP, will pass through into the compiled webpages.
 
-You can add front matter to your templates in order to customize options and provide page specific data. 
+You can add front matter to your templates in order to customize options and provide page specific data.
 
-### Template Inheritance 
+### Template Inheritance
 
-There are 4 levels of templates that you can use: layouts, pages, partials and macros. 
+There are 4 levels of templates that you can use: layouts, pages, partials and macros.
 
 Pages are the core template type. You will create pages for each public page that you want on your site (batching aside, see below). Each page can inherit from one layout. Partials and macros allow you to create reusable components that you can use across all of your pages.
 
 ### Data Storage
 
-Data can be stored in either YAML or JSON files. You can have multiple data files named differently. All data files are stored in one giant data structure during page compilation. This means that every page has full access to all pages. 
+Data can be stored in either YAML or JSON files. You can have multiple data files named differently. All data files are stored in one giant data structure during page compilation. This means that every page has full access to all pages.
 
-Data stored in the YAML frontmatter on each page will override the global data. 
+Data stored in the YAML frontmatter on each page will override the global data.
 
 ### Batch Generate Pages
 
@@ -54,23 +54,29 @@ Make sure that you add the composer global installation folder to your shell PAT
 
 ## Getting Started
 
-You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file. 
+You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file.
+
+You can use the following command to create the default structure needed for proton. You can optionally add the `--config` option to generate a config file as well.
+
+```sh
+$ proton init --config
+```
 
 Then you can run the following command to build your site.
 
 ```sh
-proton build
+$ proton build
 ```
 
 ## Template Overview
 
 Layouts are the highest level of template. These traditionally contain the base HTML for your webpage. This could include the page `<head>` and the basic layouts for your webpages. You can have multiple layouts that can be used across your pages. A page can only have one layout.
 
-Layouts may also contain content blocks. These blocks of content can be overwritten in pages. For example, a layout may have a content block for the header, main content, sidebar and footer. These are on top of the data variables that you can also inject into your templates for further customization. 
+Layouts may also contain content blocks. These blocks of content can be overwritten in pages. For example, a layout may have a content block for the header, main content, sidebar and footer. These are on top of the data variables that you can also inject into your templates for further customization.
 
-Partials allow you to create reusable pieces of content that can be used across multiple pages or possible multiple times on that same page. Partials are great for navigation, CTAs, subscription forms and more. 
+Partials allow you to create reusable pieces of content that can be used across multiple pages or possible multiple times on that same page. Partials are great for navigation, CTAs, subscription forms and more.
 
-Lastly, macros are basically functions that allow you to pass parameters in order to generate content in your pages. You can use these macros as many times as you want. 
+Lastly, macros are basically functions that allow you to pass parameters in order to generate content in your pages. You can use these macros as many times as you want.
 
 **Make sure that you thoroughly review the [Twig for Template Designers](https://twig.symfony.com/doc/3.x/templates.html) documentation.**
 
@@ -82,7 +88,7 @@ If no content blocks are defined in your page template, a default `content` bloc
 
 In order to process content as markdown inside of a template, you simple need to make sure that the file extension of the template is `md`. Example: `template.md`
 
-You can also use markdown in parts of your template with a markdown filter. 
+You can also use markdown in parts of your template with a markdown filter.
 
 ```
 {% markdown %}
@@ -100,12 +106,12 @@ You can process a template using Pug simply by giving the file that `pug` extens
 
 All templates will be named the exact same name in the exact same folder structure inside of the configured `dist` folder. There are the following exceptions:
 
-* All templates with `pug`, `twig` and `md` extensions will become `html` files by default. You can change this with the `defaultExt` configuration value. 
+* All templates with `pug`, `twig` and `md` extensions will become `html` files by default. You can change this with the `defaultExt` configuration value.
 * You can customize the path and filename that a page gets output to via the `output` parameter set inside of a page's frontmatter.
 
 ### Page Formatting
 
-You can use the `pretty` and `minify` configuration values to determine if the output of a page's HTML will be minified or indented to look "pretty". 
+You can use the `pretty` and `minify` configuration values to determine if the output of a page's HTML will be minified or indented to look "pretty".
 
 ## Data Overview
 
@@ -113,47 +119,47 @@ Storing data inside Proton is very flexible to work with Manu different workflow
 
 ### Default data.yml/json
 
-Data stored in the in the `data.yml` or `data.json` files are special in that they are stored at the top level of that global data structure. For example, let's look at this YAML data. 
+Data stored in the in the `data.yml` or `data.json` files are special in that they are stored at the top level of that global data structure. For example, let's look at this YAML data.
 
 ```yaml
 project: Proton - CLI Tool for compiling web pages
-version: 1.0.0 
+version: 1.0.0
 ```
 
 You will be able to insert this data into your page content via standard mustache syntax: `{{ project }}` and `{{ version }}`
 
-### Data Hierarchy 
+### Data Hierarchy
 
-There are many ways to create hierarchy within your data. 
+There are many ways to create hierarchy within your data.
 
-Inside of your default data file (see above), you can add your own hierarchy inside of the yaml/json. 
+Inside of your default data file (see above), you can add your own hierarchy inside of the yaml/json.
 
 ```yaml
 level1:
 	level2A:
 		propA: lorem ipsum
-		propB: lorem ipsum 
+		propB: lorem ipsum
 	level2B:
 		propA: lorem ipsum
-		propB: lorem ipsum 
+		propB: lorem ipsum
 ```
 
-The above data would be the same as if you were to create a file named `level1.yml` with the following content. 
+The above data would be the same as if you were to create a file named `level1.yml` with the following content.
 
 ```yaml
 level2A:
 	propA: lorem ipsum
-	propB: lorem ipsum 
+	propB: lorem ipsum
 level2B:
 	propA: lorem ipsum
-	propB: lorem ipsum 
+	propB: lorem ipsum
 ```
 
-The last way would be to add a folder structure into the mix. If you create a folder inside your data folder named `level1`, then crate yaml files for each level2 object: `level1/level2A.yml` and `level1/level2B.yml`. Each of these files would contain their data. 
+The last way would be to add a folder structure into the mix. If you create a folder inside your data folder named `level1`, then crate yaml files for each level2 object: `level1/level2A.yml` and `level1/level2B.yml`. Each of these files would contain their data.
 
 ```yaml
 propA: lorem ipsum
-propB: lorem ipsum 
+propB: lorem ipsum
 ```
 
 For all of the example above you can access the data just like you would traditionally with mustache templates: `{{ level1.level2A.propB }}`
@@ -162,9 +168,9 @@ Twig provides many logic based functions like `for` loops that allow you iterate
 
 ### Front Matter Data
 
-You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored. 
+You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored.
 
-There are a few special variables that can be defined inside of your frontmatter. 
+There are a few special variables that can be defined inside of your frontmatter.
 
 * `layout`: defines the layout to use for the page. If no layout is defined the default layout defined in the configuration will be used. You can set this to `none` in order to have no default layout set.
 * `output`: This sets the destination name of the page when it gets compiled into the configured `dist` folder.
@@ -181,9 +187,18 @@ title: My awesome webpage
 My Page Content...
 ```
 
+### Debugging Data
+
+You can use the `data` command with proton to analyze the data that proton will use to build your pages. This can help you visualize how proton builds the data strucute. You can also pass an optional `--page` parameter in order to take into account a page's front matter so you can see the exact data strcutre used to build a single page.
+
+```sh
+$ proton data
+$ proton data --page=subfolder/index.html
+```
+
 ## Configuration
 
-At the root of your project you can create a config file called either `proton.yml` or `.proton.yml`. 
+At the root of your project you can create a config file called either `proton.yml` or `.proton.yml`.
 
 ```yaml
 autoindex: true
@@ -205,13 +220,3 @@ layouts:
     subfolder: subfolder.html
     blog: blog.html
 ```
-
-
-## Todo / Ideas
-
-* Refactor all code into classes
-* Better output logging with debug flag for more output
-* init option to create folders and config file
-* Inky + Inky Extra Twig extensions
-* Check that all config paths exist on load (maybe a verify cli option)
-* data cli option to output global data or data for a specific page
