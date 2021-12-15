@@ -43,7 +43,7 @@ class Config
         $this->settings = self::getSettings();
     }
 
-    public function dump()
+    public function dump(): void
     {
         print_r($this->settings);
     }
