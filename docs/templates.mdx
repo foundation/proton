@@ -1,0 +1,44 @@
+# Template Overview
+
+Layouts are the highest level of template. These traditionally contain the base HTML for your webpage. This could include the page `<head>` and the basic layouts for your webpages. You can have multiple layouts that can be used across your pages. A page can only have one layout.
+
+Layouts may also contain content blocks. These blocks of content can be overwritten in pages. For example, a layout may have a content block for the header, main content, sidebar and footer. These are on top of the data variables that you can also inject into your templates for further customization.
+
+Partials allow you to create reusable pieces of content that can be used across multiple pages or possible multiple times on that same page. Partials are great for navigation, CTAs, subscription forms and more.
+
+Lastly, macros are basically functions that allow you to pass parameters in order to generate content in your pages. You can use these macros as many times as you want.
+
+**Make sure that you thoroughly review the [Twig for Template Designers](https://twig.symfony.com/doc/3.x/templates.html) documentation.**
+
+### Default Content Block
+
+If no content blocks are defined in your page template, a default `content` block will be added so that you can leverage the content inside of your layouts.
+
+### Markdown
+
+In order to process content as markdown inside of a template, you simple need to make sure that the file extension of the template is `md`. Example: `template.md`
+
+You can also use markdown in parts of your template with a markdown filter.
+
+```
+{% markdown %}
+### Header
+
+This is my content
+{% endmarkdown %}
+```
+
+### Pug
+
+You can process a template using Pug simply by giving the file that `pug` extension. Example: `template.pug`
+
+### Page Destinations
+
+All templates will be named the exact same name in the exact same folder structure inside of the configured `dist` folder. There are the following exceptions:
+
+* All templates with `pug`, `twig` and `md` extensions will become `html` files by default. You can change this with the `defaultExt` configuration value.
+* You can customize the path and filename that a page gets output to via the `output` parameter set inside of a page's frontmatter.
+
+### Page Formatting
+
+You can use the `pretty` and `minify` configuration values to determine if the output of a page's HTML will be minified or indented to look "pretty".

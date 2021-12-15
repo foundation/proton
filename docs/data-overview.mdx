@@ -1,0 +1,82 @@
+# Data Overview
+
+Storing data inside Proton is very flexible to work with Manu different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. However, this folder is configurable.
+
+### Default data.yml/json
+
+Data stored in the in the `data.yml` or `data.json` files are special in that they are stored at the top level of that global data structure. For example, let's look at this YAML data.
+
+```yaml
+project: Proton - CLI Tool for compiling web pages
+version: 1.0.0
+```
+
+You will be able to insert this data into your page content via standard mustache syntax: `{{ project }}` and `{{ version }}`
+
+### Data Hierarchy
+
+There are many ways to create hierarchy within your data.
+
+Inside of your default data file (see above), you can add your own hierarchy inside of the yaml/json.
+
+```yaml
+level1:
+	level2A:
+		propA: lorem ipsum
+		propB: lorem ipsum
+	level2B:
+		propA: lorem ipsum
+		propB: lorem ipsum
+```
+
+The above data would be the same as if you were to create a file named `level1.yml` with the following content.
+
+```yaml
+level2A:
+	propA: lorem ipsum
+	propB: lorem ipsum
+level2B:
+	propA: lorem ipsum
+	propB: lorem ipsum
+```
+
+The last way would be to add a folder structure into the mix. If you create a folder inside your data folder named `level1`, then crate yaml files for each level2 object: `level1/level2A.yml` and `level1/level2B.yml`. Each of these files would contain their data.
+
+```yaml
+propA: lorem ipsum
+propB: lorem ipsum
+```
+
+For all of the example above you can access the data just like you would traditionally with mustache templates: `{{ level1.level2A.propB }}`
+
+Twig provides many logic based functions like `for` loops that allow you iterate through data to create content dynamically.
+
+### Front Matter Data
+
+You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored.
+
+There are a few special variables that can be defined inside of your frontmatter.
+
+* `layout`: defines the layout to use for the page. If no layout is defined the default layout defined in the configuration will be used. You can set this to `none` in order to have no default layout set.
+* `output`: This sets the destination name of the page when it gets compiled into the configured `dist` folder.
+* `batch`: Batch create pages based on an array of items in your data. This could allow you to create multiple items (such as products) based on the same page but with different data defined within your data.
+
+Example:
+
+```
+---
+layout: default.html
+title: My awesome webpage
+---
+
+My Page Content...
+```
+
+### Debugging Data
+
+You can use the `data` command with proton to analyze the data that proton will use to build your pages. This can help you visualize how proton builds the data strucute. You can also pass an optional `--page` parameter in order to take into account a page's front matter so you can see the exact data strcutre used to build a single page.
+
+```sh
+$ proton data
+$ proton data --page=subfolder/index.html
+```
