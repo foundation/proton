@@ -220,8 +220,3 @@ layouts:
     subfolder: subfolder.html
     blog: blog.html
 ```
-
-## Todo / Ideas
-
-* Better output logging with debug flag for more output
-* Inky + Inky Extra Twig extensions
