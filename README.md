@@ -220,3 +220,11 @@ layouts:
     subfolder: subfolder.html
     blog: blog.html
 ```
+
+## Updating Proton
+
+Updating proton could not be easier. You simply need to run the `self-update` command to update to the most recent version.
+
+```sh
+$ proton self-update
+```
