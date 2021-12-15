@@ -35,10 +35,23 @@ class Config
         ],
     ];
 
+    /** @var mixed $settings */
+    public $settings;
+
+    public function __construct()
+    {
+        $this->settings = self::getSettings();
+    }
+
+    public function dump()
+    {
+        print_r($this->settings);
+    }
+
     /**
      * @return mixed
      */
-    public static function getConfig()
+    public static function getSettings()
     {
         // Set default data
         $config = self::DEFAULTS;

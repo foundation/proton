@@ -14,10 +14,15 @@ class Data
     public array  $data = [];
     public string $dir;
 
-    public function __construct(string $dataDir = "src/data")
+    public function __construct(Config $config)
     {
-        $this->dir = $dataDir;
+        $this->dir = $config->settings->paths->data;
         $this->initDataFiles();
+    }
+
+    public function dump(): void
+    {
+        print_r($this->data);
     }
 
     private function initDataFiles(): void
