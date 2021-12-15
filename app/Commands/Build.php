@@ -4,12 +4,10 @@ namespace App\Commands;
 
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Yaml\Yaml;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Aptoma\Twig\Extension\MarkdownEngine\MichelfMarkdownEngine;
+use Symfony\Component\Yaml\Yaml;
 
-const CONFIGFILES = [".proton", "proton.yml"];
-const DEFAULTDATA = "data";
 const OUTPUTKEY   = "output";
 const LAYOUTKEY   = "layout";
 const BATCHKEY    = "batch";
@@ -17,18 +15,10 @@ const ENDBLOCK    = "endblock";
 
 class Build extends Command
 {
-    /**
-     * The signature of the command.
-     *
-     * @var string
-     */
+    // The signature of the command.
     protected $signature = 'build';
 
-    /**
-     * The description of the command.
-     *
-     * @var string
-     */
+    // The description of the command.
     protected $description = 'Build your site';
 
     /**
@@ -38,79 +28,20 @@ class Build extends Command
      */
     public function handle()
     {
+
         //----------------------------------
         // Config Load
         //----------------------------------
-        $config = [
-            "defaultExt" => "html",
-            "autoindex"  => true,
-            "debug"      => false,
-            "pretty"     => true,
-            "minify"     => false,
-            "layouts"    => [
-                "default" => "default.html",
-                "rules" => [
-                    // "blog" => "blog.html",
-                ]
-            ],
-            "paths" => [
-                "dist"     => "dist",
-                "data"     => "src/data",
-                "layouts"  => "src/layouts",
-                "macros"   => "src/macros",
-                "pages"    => "src/pages",
-                "partials" => "src/partials",
-            ],
-        ];
-        // Config file override
-        foreach (CONFIGFILES as $configFile) {
-            if (file_exists($configFile)) {
-                $config = array_merge($config, Yaml::parseFile($configFile));
-            }
-        }
-        // Make it an object
-        $config = json_decode((string) json_encode($config));
+        $config = \App\Proton\Config::getConfig();
 
         //----------------------------------
         // Load in Data
         //----------------------------------
-        $data = [];
-        $directory = new \RecursiveDirectoryIterator($config->paths->data);
-        $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        // The length of the data folder name + /
-        $dirLength = strlen($config->paths->data)+1;
-        foreach ($iterator as $info) {
-            $newData = Yaml::parseFile($info->getPathname());
-
-            // Remove the data folder name from the path
-            $dataPath = substr_replace((string) $info->getPathname(), '', 0, $dirLength);
-
-            // Remove the extension
-            $extLength = strlen($info->getExtension())+1;
-            $dataPath = substr_replace($dataPath, '', $extLength*-1, $extLength);
-
-            // If default data file, add it to root of data
-            if (DEFAULTDATA === $dataPath) {
-                $data = array_merge($data, $newData);
-                continue;
-            }
-
-            // Get hierarchy of the data path
-            $parts = explode(DIRECTORY_SEPARATOR, $dataPath);
-
-            // Dynamically setup the same heirarchy in the data
-            $temp = &$data;
-            foreach ($parts as $key) {
-                $temp = &$temp[$key];
-            }
-            $temp = $newData;
-            unset($temp);
-        }
+        $data = new \App\Proton\Data($config->paths->data);
 
         if ($config->debug) {
-            echo "Proton Collected Data:".PHP_EOL;
-            print_r($data);
+            $this->info('Proton Collected Data');
+            print_r($data->data);
         }
 
         //----------------------------------
@@ -164,7 +95,7 @@ class Build extends Command
             $pageExt = pathinfo($pagePath, PATHINFO_EXTENSION);
 
             // Merge page data with global data
-            $pageData = array_merge($data, $pageData);
+            $pageData = $data->generatePageData($pageData);
 
             // Default Layout
             $layout = $config->layouts->default;
