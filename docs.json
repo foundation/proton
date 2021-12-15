@@ -9,9 +9,7 @@
       ["Configuration", "/configuration"],
       ["Templates Overview", "/templates"],
       ["Data Overview", "/data"],
-      ["Updating Proton", "/update"]
-    ],
-    "navigation": [
-        ["Foundation Framework", "https://get.foundation/"]
+      ["Updating Proton", "/update"],
+      ["About Foundation", "https://get.foundation/"]
     ]
 }
