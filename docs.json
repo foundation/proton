@@ -7,8 +7,9 @@
       ["Installation", "/install"],
       ["Getting Started", "/getting-started"],
       ["Configuration", "/configuration"],
-      ["Templates Overview", "/templates"],
-      ["Data Overview", "/data"],
+      ["Page & Templates", "/templates"],
+      ["Site Assets", "/assets"],
+      ["Adding Data", "/data"],
       ["Updating Proton", "/update"],
       ["About Foundation", "https://get.foundation/"]
     ]
