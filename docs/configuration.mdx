@@ -6,16 +6,18 @@ At the root of your project you can create a config file called either `proton.y
 autoindex: true
 debug: false
 defaultExt: html
+domain: https://www.example.com
 minify: false
 pretty: true
+sitemap: true
 paths:
-  batch: sample/batch
-  data: sample/data
-  dist: sample/dist
-  layouts: sample/layouts
-  macros: sample/macros
-  pages: sample/pages
-  partials: sample/partials
+  dist: dist
+  assets: src/assets
+  data: src/data
+  layouts: src/layouts
+  macros: src/macros
+  pages: src/pages
+  partials: src/partials
 layouts:
   default: default.html
   rules:

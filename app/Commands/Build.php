@@ -36,13 +36,13 @@ class Build extends Command
             $this->error('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
             return;
         }
-        $this->info('Cleaning previous builds.');
+        $this->info('Cleaning previous builds');
         $fsManager->cleanupDist();
 
         //----------------------------------
         // Load in Data
         //----------------------------------
-        $this->info('Loading data.');
+        $this->info('Loading data');
         $data = new \App\Proton\Data($config);
 
         if ($config->settings->debug) {
@@ -53,11 +53,26 @@ class Build extends Command
         //----------------------------------
         // Process all pages
         //----------------------------------
-        $this->info('Compiling Pages.');
+        $this->info('Compiling Pages');
         $pageManger = new \App\Proton\PageManager($config, $data);
         $pageManger->compilePages();
 
+        //----------------------------------
+        // Create Sitemap
+        //----------------------------------
+        if ($config->settings->sitemap) {
+            $this->info('Building Sitemap');
+            $sitemap = new \App\Proton\Sitemap($config);
+            $sitemap->write();
+        }
 
-        $this->info('Build Complete.');
+        //----------------------------------
+        // Copy Assets
+        //----------------------------------
+        $this->info('Copying Assets');
+        $assetManger = new \App\Proton\AssetManager($config);
+        $assetManger->copyAssets();
+
+        $this->info('Build Complete');
     }
 }

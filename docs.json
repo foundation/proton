@@ -1,0 +1,17 @@
+{
+    "name": "Proton",
+    "theme": "#36B9B9",
+    "twitter": "foundationcss",
+    "sidebar": [
+      ["Overview", "/"],
+      ["Installation", "/install"],
+      ["Getting Started", "/getting-started"],
+      ["Configuration", "/configuration"],
+      ["Page & Templates", "/templates"],
+      ["Site Assets", "/assets"],
+      ["Adding Data", "/data"],
+      ["Generate Sitemap", "/sitemap"],
+      ["Updating Proton", "/update"],
+      ["About Foundation", "https://get.foundation/"]
+    ]
+}

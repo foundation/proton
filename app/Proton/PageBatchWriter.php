@@ -20,7 +20,11 @@ class PageBatchWriter extends PageWriter
     {
         $batchkey = $this->page->data[Page::BATCHKEY];
         $batchData = $this->page->data[$batchkey];
-        foreach ($batchData as $key => $data) {
+        foreach ($batchData as $key => $props) {
+            // merge batch data into the global data batch key
+            $data = $this->page->data;
+            $data['batch'] = $props;
+
             $this->output = $this->render($data);
             $this->formatOutput();
 

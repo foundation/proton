@@ -23,6 +23,21 @@ class FilesystemManager
         }
     }
 
+    public function getAllFiles(string $path): array
+    {
+        $directory = new \RecursiveDirectoryIterator($path);
+        $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        $files = [];
+        // The length of the pages folder name + /
+        $dirLength = strlen($path)+1;
+        foreach ($iterator as $info) {
+            // Remove the pages fodler name from the file name
+            $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
+        }
+        return $files;
+    }
+
     public function pathsExist(): bool
     {
         // Check if all paths exist

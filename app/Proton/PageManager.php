@@ -30,7 +30,9 @@ class PageManager
 
     public function compilePages(): void
     {
-        foreach ($this->getAllPages() as $pageName) {
+        $fsManager = new FilesystemManager($this->config);
+        $pages = $fsManager->getAllFiles($this->paths->pages);
+        foreach ($pages as $pageName) {
             $page = new Page($pageName, $this->config, $this->data);
             $loader = $this->createPageLoader($pageName, $page->content);
             if ($page->isBatch()) {
@@ -66,20 +68,5 @@ class PageManager
         $loader->addPath($this->paths->pages, "pages");
         $loader->addPath($this->paths->layouts, "layouts");
         return $loader;
-    }
-
-    private function getAllPages(): array
-    {
-        $directory = new \RecursiveDirectoryIterator($this->paths->pages);
-        $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        $pages = [];
-        // The length of the pages folder name + /
-        $dirLength = strlen($this->paths->pages)+1;
-        foreach ($iterator as $info) {
-            // Remove the pages fodler name from the file name
-            $pages[] = substr_replace($info->getPathname(), '', 0, $dirLength);
-        }
-        return $pages;
     }
 }
