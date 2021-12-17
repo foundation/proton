@@ -15,10 +15,12 @@ class Config
     ];
     const DEFAULTS = [
         "defaultExt" => "html",
+        "domain"     => "https://www.example.com",
         "autoindex"  => true,
         "debug"      => false,
         "pretty"     => true,
         "minify"     => false,
+        "sitemap"    => true,
         "layouts"    => [
             "default" => "default.html",
             "rules" => [

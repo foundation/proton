@@ -10,6 +10,7 @@
       ["Page & Templates", "/templates"],
       ["Site Assets", "/assets"],
       ["Adding Data", "/data"],
+      ["Generate Sitemap", "/sitemap"],
       ["Updating Proton", "/update"],
       ["About Foundation", "https://get.foundation/"]
     ]
