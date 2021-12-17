@@ -57,6 +57,12 @@ class Build extends Command
         $pageManger = new \App\Proton\PageManager($config, $data);
         $pageManger->compilePages();
 
+        //----------------------------------
+        // Copy Assets
+        //----------------------------------
+        $this->info('Copying Assets.');
+        $assetManger = new \App\Proton\AssetManager($config);
+        $assetManger->copyAssets();
 
         $this->info('Build Complete.');
     }

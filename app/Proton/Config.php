@@ -27,6 +27,7 @@ class Config
         ],
         "paths" => [
             "dist"     => "dist",
+            "assets"   => "src/assets",
             "data"     => "src/data",
             "layouts"  => "src/layouts",
             "macros"   => "src/macros",
