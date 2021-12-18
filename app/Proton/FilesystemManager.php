@@ -68,6 +68,11 @@ class FilesystemManager
         self::rm_rf($this->paths->dist);
     }
 
+    public function clearCache(): void
+    {
+        self::rm_rf(PageManager::CACHEDIR);
+    }
+
     public static function rm_rf(string $dir): void
     {
         if (file_exists($dir)) {

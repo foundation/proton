@@ -7,7 +7,9 @@ use LaravelZero\Framework\Commands\Command;
 class Build extends Command
 {
     // The signature of the command.
-    protected $signature = 'build';
+    protected $signature = 'build
+
+                            {--clear-cache|cc : Clear template cache (optional)}';
 
     // The description of the command.
     protected $description = 'Build all pages';
@@ -38,6 +40,10 @@ class Build extends Command
         }
         $this->info('Cleaning previous builds');
         $fsManager->cleanupDist();
+
+        if ($this->option('no-cache')) {
+            $fsManager->clearCache();
+        }
 
         //----------------------------------
         // Load in Data
