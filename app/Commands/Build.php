@@ -41,7 +41,7 @@ class Build extends Command
         $this->info('Cleaning previous builds');
         $fsManager->cleanupDist();
 
-        if ($this->option('no-cache')) {
+        if ($this->option('clear-cache')) {
             $fsManager->clearCache();
         }
 
