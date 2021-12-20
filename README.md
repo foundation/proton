@@ -6,8 +6,6 @@ This project is meant to replace the popular [panini](https://github.com/foundat
 
 ```
 This project is in beta. Any feedback would be appreciated.
-
-PLEASE DO NOT USE THIS FOR PRODUCTION PROJECTS.
 ```
 
 ## Documentation
