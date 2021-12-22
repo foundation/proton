@@ -8,6 +8,7 @@ namespace App\Proton;
 class Sitemap
 {
     const SITEMAP = 'sitemap.xml';
+    const EXTS = ["html", "php"];
 
     protected Config $config;
 
@@ -20,7 +21,12 @@ class Sitemap
     {
         $dir = $this->config->settings->paths->dist;
         $fsManager = new FilesystemManager($this->config);
-        $assets = $fsManager->getAllFiles($dir);
+
+        $assets = array_filter($fsManager->getAllFiles($dir), function ($file) {
+            $ext = pathinfo($file, PATHINFO_EXTENSION);
+            return in_array($ext, self::EXTS);
+        });
+
         $domain = $this->config->settings->domain;
         $sitemap = new \samdark\sitemap\Sitemap($dir .DIRECTORY_SEPARATOR. self::SITEMAP);
         foreach ($assets as $asset) {
