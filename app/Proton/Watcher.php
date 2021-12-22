@@ -2,47 +2,38 @@
 
 namespace App\Proton;
 
+use LaravelZero\Framework\Commands\Command;
+
 //---------------------------------------------------------------------------------
 // Proton Watcher
 //---------------------------------------------------------------------------------
 class Watcher
 {
     protected Config $config;
-    protected Data $data;
-    protected AssetManager $assetManager;
+    protected Builder $builder;
     protected FilesystemManager $fsManager;
-    protected PageManager $pageManager;
     // protected \Spatie\Watcher\Watch $watcher;
     protected Watch $watcher;
-    protected \App\Commands\Watch $cmd;
+    protected Command $cmd;
     protected ProcessInterface $server;
 
-    public function __construct(\App\Commands\Watch $cmd)
+    public function __construct(Command $cmd)
     {
         $this->cmd = $cmd;
         $this->config = new Config();
-
+        $this->builder = new Builder($cmd);
+        $this->server = $this->initServer();
         $this->fsManager = new FilesystemManager($this->config);
-        $this->fsManager->pathChecker();
-
-        $data = new Data($this->config);
-        $this->pageManager = new PageManager($this->config, $data);
-        $this->assetManager = new AssetManager($this->config);
 
         // $this->watcher = \Spatie\Watcher\Watch::path($this->config->settings->paths->watch);
         $this->watcher = Watch::path($this->config->settings->paths->watch);
-
-        $this->server = $this->initServer();
     }
 
     public function watch(): void
     {
         // Init Build
-        $this->cmd->info("Compiling Initital Build");
-        $this->fsManager->clearCache();
-        $this->fsManager->cleanupDist();
-        $this->pageManager->compilePages();
-        $this->assetManager->copyAssets();
+        $this->builder->clean(true);
+        $this->builder->build();
 
         // Srtart the server
         $this->cmd->info("Starting Server...");
@@ -55,14 +46,20 @@ class Watcher
 
             if ($this->isDataPath($path)) {
                 // Data changed, Need to recompile all pages
-                $this->refreshData();
+                $this->builder->refreshData();
             } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_DELETED) {
                 // File Deleted
                 $this->fileDeleteAction($path);
-            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_CREATED ||
-                      $type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_UPDATED) {
+            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_UPDATED) {
                 // File Updated
                 $this->fileUpdateAction($path);
+            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_CREATED) {
+                // File Created
+                $this->fileUpdateAction($path);
+                if ($this->isPagesPath($path)) {
+                    // Update sitemap for new pages
+                    $this->builder->buildSitemap();
+                }
             }
         })->start();
     }
@@ -75,28 +72,18 @@ class Watcher
         return new PHPServer($this->config->settings->paths->dist);
     }
 
-    protected function runNPMBuild(): void
-    {
-        $command = $this->config->settings->npmBuild;
-        if ($command) {
-            $this->cmd->info("Running NPM Build: $command");
-            $process = new TerminalCommand($command);
-            $process->start();
-        }
-    }
-
     protected function fileUpdateAction(string $path): void
     {
         if ($this->isAssetsPath($path)) {
             $this->cmd->info("Asset Updated: $path");
-            $this->assetManager->copyAssets();
+            $this->builder->copyAssets();
         } elseif ($this->isTemplatesPath($path)) {
             // Recompile Pages
             $this->cmd->info("Template Updated: $path");
-            $this->pageManager->compilePages();
+            $this->builder->compilePages();
         } else {
             // Dirs outside of the proton files
-            $this->runNPMBuild();
+            $this->builder->runNPMBuild();
         }
     }
 
@@ -106,6 +93,7 @@ class Watcher
             // Delete Page
             $this->cmd->info("Page Deleted: $path");
             $this->deletePage($path);
+            $this->builder->buildSitemap();
         } elseif ($this->isAssetsPath($path)) {
             // Delete Asset
             $this->cmd->info("Asset Deleted: $path");
@@ -113,10 +101,10 @@ class Watcher
         } elseif ($this->isTemplatesPath($path)) {
             // Recompile Pages
             $this->cmd->info("Template Deleted: $path");
-            $this->pageManager->compilePages();
+            $this->builder->compilePages();
         } else {
             // Dirs outside of the proton files
-            $this->runNPMBuild();
+            $this->builder->runNPMBuild();
         }
     }
 
@@ -137,14 +125,6 @@ class Watcher
         array_shift($parts);
         $deleteFile = implode(DIRECTORY_SEPARATOR, $parts);
         $this->fsManager->deleteFromDist($deleteFile);
-    }
-
-    protected function refreshData(): void
-    {
-        $this->cmd->info("Refreshing Data");
-        $this->pageManager->refreshData();
-        $this->cmd->info("Recompiling All Pages");
-        $this->pageManager->compilePages();
     }
 
     protected function isInPath(string $path, string $pathKey): bool
