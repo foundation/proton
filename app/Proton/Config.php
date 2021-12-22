@@ -21,6 +21,9 @@ class Config
         "pretty"     => true,
         "minify"     => false,
         "sitemap"    => true,
+        "watch"      => [
+            "npmCommand" => "yarn build",
+        ],
         "layouts"    => [
             "default" => "default.html",
             "rules" => [

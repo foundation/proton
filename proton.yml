@@ -11,6 +11,8 @@ debug: false
 minify: false
 pretty: true
 autoindex: true
+watch:
+  npmCommand: yarn
 layouts:
   default: default.html
   rules:

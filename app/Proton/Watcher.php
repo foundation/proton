@@ -35,10 +35,13 @@ class Watcher
     public function watch(): void
     {
         // Init Build
+        $this->cmd->info("Compiling Initital Build");
         $this->fsManager->clearCache();
         $this->fsManager->cleanupDist();
         $this->pageManager->compilePages();
         $this->assetManager->copyAssets();
+
+        $this->cmd->info("Watching...");
 
         $this->watcher->onAnyChange(function (string $type, string $path) {
             // $this->cmd->info("$type: $path");
@@ -57,33 +60,47 @@ class Watcher
         })->start();
     }
 
+    protected function runNPMBuild(): void
+    {
+        $command = $this->config->settings->watch->npmCommand;
+        if ($command) {
+            $this->cmd->info("Running NPM: $command");
+            echo shell_exec($command);
+        }
+    }
+
     protected function fileUpdateAction(string $path): void
     {
-        $this->cmd->info("File Updated: $path");
         if ($this->isAssetsPath($path)) {
+            $this->cmd->info("Asset Updated: $path");
             $this->assetManager->copyAssets();
         } elseif ($this->isTemplatesPath($path)) {
             // Recompile Pages
+            $this->cmd->info("Template Updated: $path");
             $this->pageManager->compilePages();
         } else {
             // Dirs outside of the proton files
+            $this->runNPMBuild();
         }
     }
 
     protected function fileDeleteAction(string $path): void
     {
-        $this->cmd->info("File Deleted: $path");
         if ($this->isPagesPath($path)) {
             // Delete Page
+            $this->cmd->info("Page Deleted: $path");
             $this->deletePage($path);
         } elseif ($this->isAssetsPath($path)) {
             // Delete Asset
+            $this->cmd->info("Asset Deleted: $path");
             $this->deleteAsset($path);
         } elseif ($this->isTemplatesPath($path)) {
             // Recompile Pages
+            $this->cmd->info("Template Deleted: $path");
             $this->pageManager->compilePages();
         } else {
             // Dirs outside of the proton files
+            $this->runNPMBuild();
         }
     }
 
@@ -108,7 +125,9 @@ class Watcher
 
     protected function refreshData(): void
     {
+        $this->cmd->info("Refreshing Data");
         $this->pageManager->refreshData();
+        $this->cmd->info("Recompiling All Pages");
         $this->pageManager->compilePages();
     }
 
