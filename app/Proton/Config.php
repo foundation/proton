@@ -9,6 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 //---------------------------------------------------------------------------------
 class Config
 {
+    const SITES_TEMPLATE = "https://github.com/foundation/proton-sites-template.git";
     const CONFIGFILES = [
         "proton.yml",
         ".proton.yml",
