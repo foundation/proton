@@ -95,11 +95,16 @@ class FilesystemManager
         if (file_exists($dir)) {
             $directory = new \RecursiveDirectoryIterator($dir);
             $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
-            $iterator = new \RecursiveIteratorIterator($directory);
+            $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::CHILD_FIRST);
+
             foreach ($iterator as $info) {
-                unlink($info->getPathname());
-                // This leaves empty dirs... should fix eventually
+                if ($info->isDir()) {
+                    rmdir($info->getPathname());
+                } else {
+                    unlink($info->getPathname());
+                }
             }
+            rmdir($dir);
         }
     }
 }
