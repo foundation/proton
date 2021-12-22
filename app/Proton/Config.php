@@ -23,6 +23,7 @@ class Config
         "sitemap"    => true,
         "watch"      => [
             "npmCommand" => "yarn build",
+            "server"     => "browsersync"
         ],
         "layouts"    => [
             "default" => "default.html",

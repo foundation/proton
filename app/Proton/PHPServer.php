@@ -8,7 +8,7 @@ use Symfony\Component\Process\Process;
 //---------------------------------------------------------------------------------
 // Proton BrowserSyncServer
 //---------------------------------------------------------------------------------
-class BrowserSyncServer implements ServerInterface
+class PHPServer implements ServerInterface
 {
     public string $path;
     public Process $process;
@@ -26,8 +26,8 @@ class BrowserSyncServer implements ServerInterface
     public function start(): Process
     {
         $command = [
-            (new ExecutableFinder)->find('node'),
-            realpath(__DIR__ . '/../bin/browser-sync.js'),
+            (new ExecutableFinder)->find('php'),
+            "-S", "localhost:8000", "-t",
             $this->path,
         ];
 
@@ -39,12 +39,8 @@ class BrowserSyncServer implements ServerInterface
         $this->process->start();
 
         $this->process->waitUntil(function ($type, $buffer) {
-            if (Process::ERR === $type) {
-                echo 'ERR:'.$buffer;
-            } else {
-                echo $buffer;
-            }
-            return false !== strpos($buffer, 'Watching files');
+            echo $buffer;
+            return false !== strpos($buffer, 'started');
         });
 
         return $this->process;

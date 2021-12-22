@@ -15,7 +15,7 @@ class Watcher
     // protected \Spatie\Watcher\Watch $watcher;
     protected Watch $watcher;
     protected \App\Commands\Watch $cmd;
-    protected BrowserSyncServer $server;
+    protected ServerInterface $server;
 
     public function __construct(\App\Commands\Watch $cmd)
     {
@@ -31,7 +31,8 @@ class Watcher
 
         // $this->watcher = \Spatie\Watcher\Watch::path($this->config->settings->paths->watch);
         $this->watcher = Watch::path($this->config->settings->paths->watch);
-        $this->server = new BrowserSyncServer($this->config->settings->paths->dist);
+
+        $this->server = $this->initServer();
     }
 
     public function watch(): void
@@ -44,7 +45,7 @@ class Watcher
         $this->assetManager->copyAssets();
 
         // Srtart the server
-        $this->cmd->info("Starting Server at http://localhost:3000");
+        $this->cmd->info("Starting Server...");
         $this->server->start();
 
         $this->cmd->info("Watching...");
@@ -64,6 +65,14 @@ class Watcher
                 $this->fileUpdateAction($path);
             }
         })->start();
+    }
+
+    protected function initServer(): ServerInterface
+    {
+        if ("browsersync" === $this->config->settings->watch->server) {
+            return new BrowserSyncServer($this->config->settings->paths->dist);
+        }
+        return new PHPServer($this->config->settings->paths->dist);
     }
 
     protected function runNPMBuild(): void

@@ -13,6 +13,7 @@ pretty: true
 autoindex: true
 watch:
   npmCommand: yarn
+  server: browsersync
 layouts:
   default: default.html
   rules:
