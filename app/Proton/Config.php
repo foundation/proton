@@ -35,6 +35,7 @@ class Config
             "macros"   => "src/macros",
             "pages"    => "src/pages",
             "partials" => "src/partials",
+            "watch"    => "src",
         ],
     ];
 

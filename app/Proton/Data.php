@@ -25,6 +25,12 @@ class Data
         print_r($this->data);
     }
 
+    public function refresh(): void
+    {
+        $this->data = [];
+        $this->initDataFiles();
+    }
+
     private function initDataFiles(): void
     {
         $directory = new \RecursiveDirectoryIterator($this->dir);

@@ -53,6 +53,23 @@ class FilesystemManager
         return true;
     }
 
+    public function deleteFromDist(string $path): bool
+    {
+        $filepath = $this->paths->dist .DIRECTORY_SEPARATOR. $path;
+        if (file_exists($filepath)) {
+            return unlink($filepath);
+        }
+        return true;
+    }
+
+    public function pathChecker(): bool
+    {
+        if ($this->pathsExist()) {
+            return true;
+        }
+        throw new \Exception('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
+    }
+
     public function initPaths(): void
     {
         // Create all folders from paths config

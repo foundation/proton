@@ -9,7 +9,7 @@ class Build extends Command
     // The signature of the command.
     protected $signature = 'build
 
-                            {--clear-cache|cc : Clear template cache (optional)}';
+                            {--clean : Clean previous build (optional)}';
 
     // The description of the command.
     protected $description = 'Build all pages';
@@ -34,21 +34,17 @@ class Build extends Command
         // Clear out dist files
         //----------------------------------
         $fsManager = new \App\Proton\FilesystemManager($config);
-        if (!$fsManager->pathsExist()) {
-            $this->error('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
-            return;
-        }
-        $this->info('Cleaning previous builds');
-        $fsManager->cleanupDist();
-
-        if ($this->option('clear-cache')) {
-            $fsManager->clearCache();
+        $fsManager->pathChecker();
+        $fsManager->clearCache();
+        if ($this->option('clean')) {
+            $this->info('Cleaning previous builds');
+            $fsManager->cleanupDist();
         }
 
         //----------------------------------
         // Load in Data
         //----------------------------------
-        $this->info('Loading data');
+        $this->info('Loading Data');
         $data = new \App\Proton\Data($config);
 
         if ($config->settings->debug) {
@@ -60,8 +56,8 @@ class Build extends Command
         // Process all pages
         //----------------------------------
         $this->info('Compiling Pages');
-        $pageManger = new \App\Proton\PageManager($config, $data);
-        $pageManger->compilePages();
+        $pageManager = new \App\Proton\PageManager($config, $data);
+        $pageManager->compilePages();
 
         //----------------------------------
         // Create Sitemap
@@ -76,8 +72,8 @@ class Build extends Command
         // Copy Assets
         //----------------------------------
         $this->info('Copying Assets');
-        $assetManger = new \App\Proton\AssetManager($config);
-        $assetManger->copyAssets();
+        $assetManager = new \App\Proton\AssetManager($config);
+        $assetManager->copyAssets();
 
         $this->info('Build Complete');
     }

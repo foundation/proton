@@ -1,11 +1,12 @@
 paths:
-  dist: sample/dist
+  dist: sample-dist
   assets: sample/assets
   data: sample/data
   layouts: sample/layouts
   macros: sample/macros
   pages: sample/pages
   partials: sample/partials
+  watch: sample
 debug: false
 minify: false
 pretty: true
