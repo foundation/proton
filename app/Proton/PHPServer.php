@@ -16,6 +16,16 @@ class PHPServer implements ProcessInterface
     public function __construct(string $path)
     {
         $this->path = $path;
+
+        $command = [
+            (new ExecutableFinder)->find('php'),
+            "-S", "localhost:8000", "-t",
+            $this->path,
+        ];
+        $this->process = new Process(
+            command: $command,
+            timeout: null,
+        );
     }
 
     public function stop(): void
@@ -23,26 +33,17 @@ class PHPServer implements ProcessInterface
         $this->process->stop();
     }
 
-    public function start(): Process
+    public function start(): void
     {
-        $command = [
-            (new ExecutableFinder)->find('php'),
-            "-S", "localhost:8000", "-t",
-            $this->path,
-        ];
-
-        $this->process = new Process(
-            command: $command,
-            timeout: null,
-        );
-
         $this->process->start();
+
+        if (! $this->process->isRunning()) {
+            throw new \Exception("Could not start PHP server. Error output: " . $this->process->getErrorOutput());
+        }
 
         $this->process->waitUntil(function ($type, $buffer) {
             echo $buffer;
             return false !== strpos($buffer, 'started');
         });
-
-        return $this->process;
     }
 }

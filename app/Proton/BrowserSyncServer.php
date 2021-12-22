@@ -16,6 +16,16 @@ class BrowserSyncServer implements ProcessInterface
     public function __construct(string $path)
     {
         $this->path = $path;
+
+        $command = [
+            (new ExecutableFinder)->find('node'),
+            realpath(__DIR__ . '/../bin/browser-sync.js'),
+            $this->path,
+        ];
+        $this->process = new Process(
+            command: $command,
+            timeout: null,
+        );
     }
 
     public function stop(): void
@@ -23,20 +33,13 @@ class BrowserSyncServer implements ProcessInterface
         $this->process->stop();
     }
 
-    public function start(): Process
+    public function start(): void
     {
-        $command = [
-            (new ExecutableFinder)->find('node'),
-            realpath(__DIR__ . '/../bin/browser-sync.js'),
-            $this->path,
-        ];
-
-        $this->process = new Process(
-            command: $command,
-            timeout: null,
-        );
-
         $this->process->start();
+
+        if (! $this->process->isRunning()) {
+            throw new \Exception("Could not start server. Make sure you have required browser-sync. Error output: " . $this->process->getErrorOutput());
+        }
 
         $this->process->waitUntil(function ($type, $buffer) {
             if (Process::ERR === $type) {
@@ -46,7 +49,5 @@ class BrowserSyncServer implements ProcessInterface
             }
             return false !== strpos($buffer, 'Watching files');
         });
-
-        return $this->process;
     }
 }
