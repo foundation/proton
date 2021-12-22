@@ -7,6 +7,9 @@ use Spatie\Watcher\Exceptions\CouldNotStartWatcher;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
+// This is only temporary until this PR is merged
+// https://github.com/spatie/file-system-watcher/pull/2
+// Delete this and bin/file-watcher.js when merged
 class Watch
 {
     const EVENT_TYPE_FILE_CREATED = 'fileCreated';
