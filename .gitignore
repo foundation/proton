@@ -1,8 +1,9 @@
+/node_modules
 /vendor
 /.idea
 /.vscode
 /.vagrant
 .phpunit.result.cache
 
-/sample/dist
+/sample-dist
 /.proton-cache

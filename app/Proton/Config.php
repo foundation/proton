@@ -9,6 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 //---------------------------------------------------------------------------------
 class Config
 {
+    const SITES_TEMPLATE = "https://github.com/foundation/proton-sites-template.git";
     const CONFIGFILES = [
         "proton.yml",
         ".proton.yml",
@@ -21,6 +22,8 @@ class Config
         "pretty"     => true,
         "minify"     => false,
         "sitemap"    => true,
+        "npmBuild"   => "yarn build",
+        "devserver"  => "browsersync",
         "layouts"    => [
             "default" => "default.html",
             "rules" => [
@@ -35,6 +38,7 @@ class Config
             "macros"   => "src/macros",
             "pages"    => "src/pages",
             "partials" => "src/partials",
+            "watch"    => "src",
         ],
     ];
 

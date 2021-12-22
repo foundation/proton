@@ -80,3 +80,7 @@ You can use the `data` command with proton to analyze the data that proton will 
 $ proton data
 $ proton data --page=subfolder/index.html
 ```
+
+### Tips
+
+* You cannot use a data variable on a page that has a page content block that uses the same name. For example, if you had a variable `{{ title }}` on a page, you cannot also use the content block `{% block title %}{% endblock %}` since both use the ID of `title`.

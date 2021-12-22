@@ -69,4 +69,9 @@ class PageManager
         $loader->addPath($this->paths->layouts, "layouts");
         return $loader;
     }
+
+    public function refreshData(): void
+    {
+        $this->data->refresh();
+    }
 }
