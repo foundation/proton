@@ -15,6 +15,7 @@ class Watcher
     // protected \Spatie\Watcher\Watch $watcher;
     protected Watch $watcher;
     protected \App\Commands\Watch $cmd;
+    protected BrowserSyncServer $server;
 
     public function __construct(\App\Commands\Watch $cmd)
     {
@@ -30,6 +31,7 @@ class Watcher
 
         // $this->watcher = \Spatie\Watcher\Watch::path($this->config->settings->paths->watch);
         $this->watcher = Watch::path($this->config->settings->paths->watch);
+        $this->server = new BrowserSyncServer($this->config->settings->paths->dist);
     }
 
     public function watch(): void
@@ -40,6 +42,10 @@ class Watcher
         $this->fsManager->cleanupDist();
         $this->pageManager->compilePages();
         $this->assetManager->copyAssets();
+
+        // Srtart the server
+        $this->cmd->info("Starting Server at http://localhost:3000");
+        $this->server->start();
 
         $this->cmd->info("Watching...");
 
