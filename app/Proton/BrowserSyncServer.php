@@ -8,7 +8,7 @@ use Symfony\Component\Process\Process;
 //---------------------------------------------------------------------------------
 // Proton BrowserSyncServer
 //---------------------------------------------------------------------------------
-class BrowserSyncServer implements ServerInterface
+class BrowserSyncServer implements ProcessInterface
 {
     public string $path;
     public Process $process;

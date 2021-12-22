@@ -8,7 +8,7 @@ use Symfony\Component\Process\Process;
 //---------------------------------------------------------------------------------
 // Proton ServerInterface
 //---------------------------------------------------------------------------------
-interface ServerInterface
+interface ProcessInterface
 {
     public function start();
     public function stop();

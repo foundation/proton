@@ -21,10 +21,8 @@ class Config
         "pretty"     => true,
         "minify"     => false,
         "sitemap"    => true,
-        "watch"      => [
-            "npmCommand" => "yarn build",
-            "server"     => "browsersync"
-        ],
+        "npmBuild"   => "yarn build",
+        "devserver"  => "browsersync",
         "layouts"    => [
             "default" => "default.html",
             "rules" => [

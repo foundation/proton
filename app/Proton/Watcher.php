@@ -15,7 +15,7 @@ class Watcher
     // protected \Spatie\Watcher\Watch $watcher;
     protected Watch $watcher;
     protected \App\Commands\Watch $cmd;
-    protected ServerInterface $server;
+    protected ProcessInterface $server;
 
     public function __construct(\App\Commands\Watch $cmd)
     {
@@ -67,9 +67,9 @@ class Watcher
         })->start();
     }
 
-    protected function initServer(): ServerInterface
+    protected function initServer(): ProcessInterface
     {
-        if ("browsersync" === $this->config->settings->watch->server) {
+        if ("browsersync" === $this->config->settings->devserver) {
             return new BrowserSyncServer($this->config->settings->paths->dist);
         }
         return new PHPServer($this->config->settings->paths->dist);
@@ -77,10 +77,11 @@ class Watcher
 
     protected function runNPMBuild(): void
     {
-        $command = $this->config->settings->watch->npmCommand;
+        $command = $this->config->settings->npmBuild;
         if ($command) {
-            $this->cmd->info("Running NPM: $command");
-            echo shell_exec($command);
+            $this->cmd->info("Running NPM Build: $command");
+            $process = new TerminalCommand($command);
+            $process->start();
         }
     }
 

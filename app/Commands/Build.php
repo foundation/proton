@@ -75,6 +75,16 @@ class Build extends Command
         $assetManager = new \App\Proton\AssetManager($config);
         $assetManager->copyAssets();
 
+        //----------------------------------
+        // NPM Build
+        //----------------------------------
+        $command = $config->settings->npmBuild;
+        if ($command) {
+            $this->info("Running NPM Build: $command");
+            $process = new \App\Proton\TerminalCommand($command);
+            $process->start();
+        }
+
         $this->info('Build Complete');
     }
 }

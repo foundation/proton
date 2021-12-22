@@ -11,9 +11,8 @@ debug: false
 minify: false
 pretty: true
 autoindex: true
-watch:
-  npmCommand: yarn
-  server: browsersync
+npmBuild: yarn
+devserver: browsersync
 layouts:
   default: default.html
   rules:
