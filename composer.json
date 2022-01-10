@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.3|<8.2",
         "aptoma/twig-markdown": "^3.4",
         "gajus/dindent": "^2.0",
         "laravel-zero/phar-updater": "^1.0.6",
