@@ -4,6 +4,6 @@
 /.vscode
 /.vagrant
 .phpunit.result.cache
-
+composer.lock
 /sample-dist
 /.proton-cache
