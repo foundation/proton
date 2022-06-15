@@ -3,7 +3,7 @@
     <head>
         {% block head %}
         <link rel="stylesheet" href="style.css"/>
-        <title>THIS IS MY 2ND LAYOUT {% block title %}{% endblock %} - {{ project }}</title>
+        <title>THIS IS MY 2ND LAYOUT {% block title %}{% endblock %} - {{ page.project|default(data.project) }}</title>
         {% endblock %}
     </head>
     <body>
