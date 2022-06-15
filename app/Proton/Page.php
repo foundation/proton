@@ -11,6 +11,7 @@ class Page
     const ENDBLOCK  = "endblock";
     const LAYOUTKEY = "layout";
     const BATCHKEY  = "batch";
+    const OUTPUTKEY = "output";
 
     protected Config $config;
 
@@ -41,7 +42,31 @@ class Page
 
     public function isBatch(): bool
     {
-        return array_key_exists(self::BATCHKEY, $this->data);
+        return array_key_exists(self::BATCHKEY, $this->data["page"]);
+    }
+
+    public function getPageData($key)
+    {
+        if (array_key_exists($key, $this->data["page"])) {
+            return $this->data["page"][$key];
+        }
+        return null;
+    }
+
+    public function getProtonData($key)
+    {
+        if (array_key_exists($key, $this->data["proton"])) {
+            return $this->data["proton"][$key];
+        }
+        return null;
+    }
+
+    public function getData($key)
+    {
+        if (array_key_exists($key, $this->data["data"])) {
+            return $this->data["data"][$key];
+        }
+        return null;
     }
 
     public function dumpData(): void
@@ -69,7 +94,7 @@ class Page
     private function applyLayout(): void
     {
         // Local page Data vs Layout Rules vs Default
-        $layout = $this->data[self::LAYOUTKEY] ??
+        $layout = $this->getPageData(self::LAYOUTKEY) ??
                   $this->findLayoutRule() ??
                   $this->config->settings->layouts->default;
 

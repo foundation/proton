@@ -7,8 +7,6 @@ namespace App\Proton;
 //---------------------------------------------------------------------------------
 class PageWriter
 {
-    const OUTPUTKEY = "output";
-
     protected \Twig\Environment $twig;
     protected Config $config;
     protected Page $page;
@@ -57,8 +55,9 @@ class PageWriter
     protected function buildPagePath(): string
     {
         // If output name defined in page data, return that
-        if (array_key_exists(self::OUTPUTKEY, $this->page->data)) {
-            return $this->page->data[self::OUTPUTKEY];
+        $name = $this->page->getPageData(Page::OUTPUTKEY);
+        if ($name) {
+            return $name;
         }
 
         $filePath = [];

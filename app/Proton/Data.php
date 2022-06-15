@@ -12,12 +12,13 @@ class Data
     const DEFAULTDATA = "data";
 
     public array  $data = [];
+    public array  $env = [];
     public string $dir;
 
     public function __construct(Config $config)
     {
         $this->dir = $config->settings->paths->data;
-        $this->initDataFiles();
+        $this->initData();
     }
 
     public function dump(): void
@@ -28,7 +29,21 @@ class Data
     public function refresh(): void
     {
         $this->data = [];
+        $this->env  = [];
+        $this->initData();
+    }
+
+    private function initData(): void
+    {
         $this->initDataFiles();
+        $this->initEnvData();
+    }
+
+    private function initEnvData(): void
+    {
+        $this->env = [
+            'environment' => getenv('PROTON_ENV')??"development",
+        ];
     }
 
     private function initDataFiles(): void
@@ -81,6 +96,10 @@ class Data
 
     public function generatePageData(array $pageData): array
     {
-        return array_merge($this->data, $pageData);
+        return [
+            "data"   => $this->data,
+            "proton" => $this->env,
+            "page"   => $pageData,
+        ];
     }
 }
