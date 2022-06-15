@@ -32,8 +32,11 @@ class FilesystemManager
         // The length of the pages folder name + /
         $dirLength = strlen($path)+1;
         foreach ($iterator as $info) {
-            // Remove the pages fodler name from the file name
-            $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
+            // Skip dot files
+            if (strpos($info->getFilename(), '.') !== 0) {
+                // Remove the pages fodler name from the file name
+                $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
+            }
         }
         return $files;
     }
