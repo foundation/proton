@@ -42,6 +42,11 @@ class PageWriter
             $this->output = $parser->compress($this->output);
         } elseif ($this->config->settings->pretty) {
             $indenter = new \Gajus\Dindent\Indenter();
+            // Set headers to inline style for nicer pretty output
+            $inline = ["h1", "h2", "h3", "h4", "h5", "h6"];
+            foreach ($inline as $tag) {
+                $indenter->setElementType($tag, \Gajus\Dindent\Indenter::ELEMENT_TYPE_INLINE);
+            }
             $this->output = $indenter->indent($this->output);
         }
     }
