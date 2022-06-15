@@ -1,0 +1,7 @@
+{% from "nav.twig" import is_active %}
+
+<ul class="menu">
+    <li class="{{ is_active('one.html', output) }}"><a href="one.html">One</a></li>
+    <li class="{{ is_active('two.html', output) }}"><a href="two.html">Two</a></li>
+    <li class="{{ is_active('three.html', output) }}"><a href="three.html">Three</a></li>
+</ul>
