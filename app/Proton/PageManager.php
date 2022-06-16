@@ -31,6 +31,7 @@ class PageManager
     public function compilePages(): void
     {
         $fsManager = new FilesystemManager($this->config);
+        // $fsManager->clearCache();
         $pages = $fsManager->getAllFiles($this->paths->pages);
         foreach ($pages as $pageName) {
             $page = new Page($pageName, $this->config, $this->data);
@@ -45,17 +46,18 @@ class PageManager
         }
     }
 
-    public function ksort($array)
-    {
-        ksort($array);
-        return $array;
-    }
+    // public function ksort($array)
+    // {
+    //     ksort($array);
+    //     return $array;
+    // }
 
     private function createPageLoader(string $pageName, string $content): \Twig\Environment
     {
         // Create the Twig Chain Loader
         $loader = new \Twig\Loader\ArrayLoader(["@pages/$pageName" => $content]);
         $loader = new \Twig\Loader\ChainLoader([$loader, $this->templateLoader]);
+        // $cache  = new \Twig\Cache\FilesystemCache(self::CACHEDIR, \Twig\Cache\FilesystemCache::FORCE_BYTECODE_INVALIDATION);
         $twig = new \Twig\Environment($loader, [
             'cache' => self::CACHEDIR,
             'debug' => $this->config->settings->debug

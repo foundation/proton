@@ -42,7 +42,7 @@ class Data
     private function initEnvData(): void
     {
         $this->env = [
-            'environment' => getenv('PROTON_ENV')??"development",
+            'environment' => getenv('PROTON_ENV') ?: 'development',
         ];
     }
 
