@@ -68,12 +68,27 @@ class PageManager
         }
         // Markdown Support
         $twig->addExtension(new MarkdownExtension(new MichelfMarkdownEngine()));
+
         // ksort the twig variables
         $filter = new \Twig\TwigFilter('ksort', function ($array) {
             ksort($array);
             return $array;
         });
         $twig->addFilter($filter);
+
+        // krsort the twig variables
+        $filter = new \Twig\TwigFilter('krsort', function ($array) {
+            krsort($array);
+            return $array;
+        });
+        $twig->addFilter($filter);
+
+        // count the twig variables
+        $filter = new \Twig\TwigFilter('count', function ($array) {
+            return count($array);
+        });
+        $twig->addFilter($filter);
+
         return $twig;
     }
 
