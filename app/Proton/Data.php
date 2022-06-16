@@ -53,7 +53,10 @@ class Data
         $iterator = new \RecursiveIteratorIterator($directory);
 
         foreach ($iterator as $file) {
-            $this->mergeDataFile($file);
+            // Skip dot files
+            if (strpos($file->getFilename(), '.') !== 0) {
+                $this->mergeDataFile($file);
+            }
         }
     }
 
