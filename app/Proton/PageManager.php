@@ -58,10 +58,14 @@ class PageManager
         $loader = new \Twig\Loader\ArrayLoader(["@pages/$pageName" => $content]);
         $loader = new \Twig\Loader\ChainLoader([$loader, $this->templateLoader]);
         // $cache  = new \Twig\Cache\FilesystemCache(self::CACHEDIR, \Twig\Cache\FilesystemCache::FORCE_BYTECODE_INVALIDATION);
+        $debug = $this->config->settings->debug;
         $twig = new \Twig\Environment($loader, [
             'cache' => self::CACHEDIR,
-            'debug' => $this->config->settings->debug
+            'debug' => $debug
         ]);
+        if ($debug) {
+            $twig->addExtension(new \Twig\Extension\DebugExtension());
+        }
         // Markdown Support
         $twig->addExtension(new MarkdownExtension(new MichelfMarkdownEngine()));
         // ksort the twig variables

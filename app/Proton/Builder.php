@@ -24,8 +24,8 @@ class Builder
         $this->fsManager = new FilesystemManager($this->config);
         $this->fsManager->pathChecker();
 
-        $data = new Data($this->config);
-        $this->pageManager = new PageManager($this->config, $data);
+        $this->data = new Data($this->config);
+        $this->pageManager = new PageManager($this->config, $this->data);
         $this->assetManager = new AssetManager($this->config);
     }
 
