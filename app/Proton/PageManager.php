@@ -45,6 +45,12 @@ class PageManager
         }
     }
 
+    public function ksort($array)
+    {
+        ksort($array);
+        return $array;
+    }
+
     private function createPageLoader(string $pageName, string $content): \Twig\Environment
     {
         // Create the Twig Chain Loader
@@ -56,6 +62,12 @@ class PageManager
         ]);
         // Markdown Support
         $twig->addExtension(new MarkdownExtension(new MichelfMarkdownEngine()));
+        // ksort the twig variables
+        $filter = new \Twig\TwigFilter('ksort', function ($array) {
+            ksort($array);
+            return $array;
+        });
+        $twig->addFilter($filter);
         return $twig;
     }
 
