@@ -3,6 +3,7 @@
 /.idea
 /.vscode
 /.vagrant
+/ray.php
 .phpunit.result.cache
 
 /sample-dist

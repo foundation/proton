@@ -18,8 +18,8 @@ class PageBatchWriter extends PageWriter
 
     public function processBatch(): void
     {
-        $batchkey = $this->page->data[Page::BATCHKEY];
-        $batchData = $this->page->data[$batchkey];
+        $batchkey = $this->page->getPageData(Page::BATCHKEY);
+        $batchData = $this->page->getData($batchkey);
         foreach ($batchData as $key => $props) {
             // merge batch data into the global data batch key
             $data = $this->page->data;
