@@ -5,6 +5,6 @@
 /.vagrant
 /ray.php
 .phpunit.result.cache
-
+composer.lock
 /sample-dist
 /.proton-cache
