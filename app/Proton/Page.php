@@ -77,18 +77,24 @@ class Page
     private function processPage(Data $data): void
     {
         $path = $this->config->settings->paths->pages. DIRECTORY_SEPARATOR .$this->name;
-        $document = file_get_contents($path);
-        if (!$document) {
+        $raw = file_get_contents($path);
+        if (!$raw) {
             throw new \Exception("Error reading in page: $path");
         }
-        $frontMatter = new \Webuni\FrontMatter\FrontMatter();
-        $document = $frontMatter->parse($document);
 
-        // Merge page data with global data
-        $pageData = $document->getData();
+        // Parse YAML front matter (--- delimited)
+        $pageData = [];
+        $content = $raw;
+        if (preg_match('/\A---\s*\n(.*?)\n---\s*\n(.*)\z/s', $raw, $matches)) {
+            $yaml = \Symfony\Component\Yaml\Yaml::parse($matches[1]);
+            if (is_array($yaml)) {
+                $pageData = $yaml;
+            }
+            $content = $matches[2];
+        }
+
         $this->data = $data->generatePageData($pageData);
-
-        $this->content = $document->getContent()??"No Content Found";
+        $this->content = $content ?: "No Content Found";
     }
 
     private function applyLayout(): void
@@ -133,17 +139,15 @@ class Page
     private function formatMarkdown(): void
     {
         if ("md" === $this->ext) {
-            // Start markdown tag after all start blocks
-            $this->content = preg_replace('/\{\%\s+block\s+(\S+)\s+\%\}/', '{% block ${1} %}{% markdown %}', $this->content)??$this->content;
-            // end markdown tags before all endblocks
-            $this->content = preg_replace('/\{\%\s+endblock\s+\%\}/', '{% endmarkdown %}{% endblock %}', $this->content)??$this->content;
+            // Start markdown filter after all start blocks
+            $this->content = preg_replace('/\{\%\s+block\s+(\S+)\s+\%\}/', '{% block ${1} %}{% apply markdown_to_html %}', $this->content)??$this->content;
+            // end markdown filter before all endblocks
+            $this->content = preg_replace('/\{\%\s+endblock\s+\%\}/', '{% endapply %}{% endblock %}', $this->content)??$this->content;
         }
     }
 
     private function formatPug(): void
     {
-        if ("pug" === $this->ext) {
-            $this->content = \Phug\PugToTwig::convert($this->content);
-        }
+        // Pug support removed — pug/twig package is not PHP 8.4 compatible
     }
 }

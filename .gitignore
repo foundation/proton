@@ -8,3 +8,5 @@
 composer.lock
 /sample-dist
 /.proton-cache
+/.claude
+/.phpunit.cache
