@@ -23,7 +23,7 @@ class Config
         "minify"     => false,
         "sitemap"    => true,
         "npmBuild"   => "yarn build",
-        "devserver"  => "browsersync",
+        "devserver"  => "php",
         "layouts"    => [
             "default" => "default.html",
             "rules" => [

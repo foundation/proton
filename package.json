@@ -1,6 +1,0 @@
-{
-  "devDependencies": {
-    "browser-sync": "^2.27.7",
-    "chokidar": "^3.5.2"
-  }
-}
