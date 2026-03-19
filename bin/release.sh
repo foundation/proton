@@ -38,28 +38,12 @@ echo "==> Releasing Proton $TAG"
 echo "==> Creating release branch: release/$TAG"
 git checkout -b "release/$TAG"
 
-# Set the version in config/app.php for the phar build
-echo "==> Setting version to $TAG..."
-sed -i '' "s/'version' => app('git.version')/'version' => '${TAG}'/" config/app.php
-
 # Build the phar
-echo "==> Installing production dependencies..."
-composer install --no-dev --quiet
-
-echo "==> Building phar..."
-box compile
-
-# Restore dev dependencies for the repo
-echo "==> Restoring dev dependencies..."
-composer install --quiet
-
-# Restore dynamic version in config/app.php
-echo "==> Restoring dynamic version in config..."
-git checkout config/app.php
+./bin/build.sh "$TAG"
 
 # Commit the built phar
 echo "==> Committing built phar..."
-git add builds/proton.phar
+git add builds/proton
 git commit -m "$TAG build"
 
 # Merge into master
