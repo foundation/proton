@@ -12,99 +12,216 @@ class Watcher
     protected Config $config;
     protected Builder $builder;
     protected FilesystemManager $fsManager;
-    // protected \Spatie\Watcher\Watch $watcher;
-    protected Watch $watcher;
+    protected FileScanner $scanner;
     protected Command $cmd;
-    protected ProcessInterface $server;
+    protected DevServer $server;
+    protected bool $running = true;
+
+    /** Debounce wait in microseconds (200ms) */
+    protected int $debounceInterval = 200_000;
+
+    /** Poll interval in microseconds (500ms) */
+    protected int $pollInterval = 500_000;
 
     public function __construct(Command $cmd)
     {
         $this->cmd = $cmd;
         $this->config = new Config();
         $this->builder = new Builder($cmd);
-        $this->server = $this->initServer();
+        $this->server = new DevServer($this->config->settings->paths->dist);
         $this->fsManager = new FilesystemManager($this->config);
+        $this->scanner = new FileScanner([$this->config->settings->paths->watch]);
 
-        // $this->watcher = \Spatie\Watcher\Watch::path($this->config->settings->paths->watch);
-        $this->watcher = Watch::path($this->config->settings->paths->watch);
+        $this->installSignalHandlers();
     }
 
     public function watch(): void
     {
-        // Init Build
+        // Initial build
         $this->builder->clean(true);
         $this->builder->build();
 
-        // Srtart the server
+        // Start the dev server
         $this->cmd->info("Starting Server...");
         $this->server->start();
 
+        // Take initial snapshot after build
+        $this->scanner->snapshot();
+
         $this->cmd->info("Watching...");
 
-        $this->watcher->onAnyChange(function (string $type, string $path) {
-            // $this->cmd->info("$type: $path");
+        while ($this->running) {
+            $this->dispatchSignals();
 
-            if ($this->isDataPath($path)) {
-                // Data changed, Need to recompile all pages
-                $this->builder->refreshData();
-            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_DELETED) {
-                // File Deleted
-                $this->fileDeleteAction($path);
-            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_UPDATED) {
-                // File Updated
-                $this->fileUpdateAction($path);
-            } elseif ($type === \Spatie\Watcher\Watch::EVENT_TYPE_FILE_CREATED) {
-                // File Created
-                $this->fileUpdateAction($path);
-                if ($this->isPagesPath($path)) {
-                    // Update sitemap for new pages
-                    $this->builder->buildSitemap();
+            $changes = $this->scanner->scan();
+
+            if (!empty($changes)) {
+                // Debounce: wait and re-scan until stable
+                $changes = $this->debounce($changes);
+                $this->processBatch($changes);
+                $this->server->notifyRebuild();
+            }
+
+            usleep($this->pollInterval);
+        }
+
+        $this->cmd->info("Stopping server...");
+        $this->server->stop();
+    }
+
+    /**
+     * Debounce: after detecting changes, wait and re-scan until no new changes appear.
+     *
+     * @param array<int, array{type: string, path: string}> $initial
+     * @return array<int, array{type: string, path: string}>
+     */
+    protected function debounce(array $initial): array
+    {
+        $all = [];
+        $seen = [];
+
+        // Collect initial changes
+        foreach ($initial as $change) {
+            $key = $change['type'] . ':' . $change['path'];
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $all[] = $change;
+            }
+        }
+
+        // Keep re-scanning until stable
+        while (true) {
+            usleep($this->debounceInterval);
+            $more = $this->scanner->scan();
+
+            if (empty($more)) {
+                break;
+            }
+
+            foreach ($more as $change) {
+                $key = $change['type'] . ':' . $change['path'];
+                if (!isset($seen[$key])) {
+                    $seen[$key] = true;
+                    $all[] = $change;
                 }
             }
-        })->start();
-    }
-
-    protected function initServer(): ProcessInterface
-    {
-        if ("browsersync" === $this->config->settings->devserver) {
-            return new BrowserSyncServer($this->config->settings->paths->dist);
         }
-        return new PHPServer($this->config->settings->paths->dist);
+
+        return $all;
     }
 
-    protected function fileUpdateAction(string $path): void
+    /**
+     * Process a batch of changes, executing each rebuild action at most once.
+     *
+     * @param array<int, array{type: string, path: string}> $changes
+     */
+    protected function processBatch(array $changes): void
     {
-        if ($this->isAssetsPath($path)) {
-            $this->cmd->info("Asset Updated: $path");
-            $this->builder->copyAssets();
-        } elseif ($this->isTemplatesPath($path)) {
-            // Recompile Pages
-            $this->cmd->info("Template Updated: $path");
-            $this->builder->compilePages();
-        } else {
-            // Dirs outside of the proton files
-            $this->builder->runNPMBuild();
+        $needsDataRefresh = false;
+        $needsPageCompile = false;
+        $needsAssetCopy = false;
+        $needsSitemap = false;
+        $needsNpmBuild = false;
+        $deletedPages = [];
+        $deletedAssets = [];
+
+        foreach ($changes as $change) {
+            $type = $change['type'];
+            $path = $change['path'];
+
+            if ($this->isDataPath($path)) {
+                $needsDataRefresh = true;
+                continue;
+            }
+
+            if ($type === FileScanner::EVENT_FILE_DELETED) {
+                if ($this->isPagesPath($path)) {
+                    $deletedPages[] = $path;
+                    $needsSitemap = true;
+                } elseif ($this->isAssetsPath($path)) {
+                    $deletedAssets[] = $path;
+                } elseif ($this->isTemplatesPath($path)) {
+                    $needsPageCompile = true;
+                } else {
+                    $needsNpmBuild = true;
+                }
+            } elseif ($type === FileScanner::EVENT_FILE_UPDATED) {
+                if ($this->isAssetsPath($path)) {
+                    $this->cmd->info("Asset Updated: $path");
+                    $needsAssetCopy = true;
+                } elseif ($this->isTemplatesPath($path)) {
+                    $this->cmd->info("Template Updated: $path");
+                    $needsPageCompile = true;
+                } else {
+                    $needsNpmBuild = true;
+                }
+            } elseif ($type === FileScanner::EVENT_FILE_CREATED) {
+                if ($this->isAssetsPath($path)) {
+                    $this->cmd->info("Asset Created: $path");
+                    $needsAssetCopy = true;
+                } elseif ($this->isTemplatesPath($path)) {
+                    $this->cmd->info("Template Created: $path");
+                    $needsPageCompile = true;
+                    if ($this->isPagesPath($path)) {
+                        $needsSitemap = true;
+                    }
+                } else {
+                    $needsNpmBuild = true;
+                }
+            }
         }
-    }
 
-    protected function fileDeleteAction(string $path): void
-    {
-        if ($this->isPagesPath($path)) {
-            // Delete Page
+        // Execute each action at most once
+        if ($needsDataRefresh) {
+            $this->cmd->info("Data changed, refreshing...");
+            $this->builder->refreshData();
+        }
+
+        foreach ($deletedPages as $path) {
             $this->cmd->info("Page Deleted: $path");
             $this->deletePage($path);
-            $this->builder->buildSitemap();
-        } elseif ($this->isAssetsPath($path)) {
-            // Delete Asset
+        }
+
+        foreach ($deletedAssets as $path) {
             $this->cmd->info("Asset Deleted: $path");
             $this->deleteAsset($path);
-        } elseif ($this->isTemplatesPath($path)) {
-            // Recompile Pages
-            $this->cmd->info("Template Deleted: $path");
+        }
+
+        if ($needsAssetCopy) {
+            $this->builder->copyAssets();
+        }
+
+        if ($needsPageCompile) {
             $this->builder->compilePages();
-        } else {
-            // Dirs outside of the proton files
+        }
+
+        if ($needsSitemap) {
+            $this->builder->buildSitemap();
+        }
+
+        if ($needsNpmBuild) {
             $this->builder->runNPMBuild();
+        }
+    }
+
+    protected function installSignalHandlers(): void
+    {
+        if (!function_exists('pcntl_signal')) {
+            return;
+        }
+
+        pcntl_signal(SIGINT, function () {
+            $this->running = false;
+        });
+        pcntl_signal(SIGTERM, function () {
+            $this->running = false;
+        });
+    }
+
+    protected function dispatchSignals(): void
+    {
+        if (function_exists('pcntl_signal_dispatch')) {
+            pcntl_signal_dispatch();
         }
     }
 

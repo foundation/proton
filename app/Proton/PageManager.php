@@ -3,8 +3,10 @@
 namespace App\Proton;
 
 use \Twig\Loader\FilesystemLoader;
-use Aptoma\Twig\Extension\MarkdownExtension;
-use Aptoma\Twig\Extension\MarkdownEngine\MichelfMarkdownEngine;
+use Twig\Extra\Markdown\MarkdownExtension;
+use Twig\Extra\Markdown\MarkdownRuntime;
+use Twig\Extra\Markdown\MichelfMarkdown;
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
 //---------------------------------------------------------------------------------
 // Proton PageManager
@@ -67,7 +69,15 @@ class PageManager
             $twig->addExtension(new \Twig\Extension\DebugExtension());
         }
         // Markdown Support
-        $twig->addExtension(new MarkdownExtension(new MichelfMarkdownEngine()));
+        $twig->addExtension(new MarkdownExtension());
+        $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
+            public function load(string $class): ?object {
+                if ($class === MarkdownRuntime::class) {
+                    return new MarkdownRuntime(new MichelfMarkdown());
+                }
+                return null;
+            }
+        });
 
         // ksort the twig variables
         $filter = new \Twig\TwigFilter('ksort', function ($array) {
