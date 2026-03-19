@@ -1,6 +1,7 @@
 {
     "chmod": "0755",
-    "output": "builds/proton",
+    "main": "proton",
+    "output": "builds/proton.phar",
     "directories": [
         "app",
         "bootstrap",

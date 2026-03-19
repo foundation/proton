@@ -28,6 +28,7 @@ composer install --no-dev --quiet
 # Build the phar
 echo "==> Compiling phar..."
 box compile
+mv builds/proton.phar builds/proton
 
 # Restore dev dependencies
 echo "==> Restoring dev dependencies..."
