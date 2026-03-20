@@ -35,7 +35,7 @@ class Watch extends Command
      */
     public function handle(): void
     {
-        $output       = new ConsoleOutput($this);
+        $output       = new ConsoleOutput($this, $this->getOutput()->isVerbose(), $this->getOutput()->isQuiet());
         $config       = app(Config::class);
         $data         = app(Data::class);
         $fsManager    = app(FilesystemManager::class);

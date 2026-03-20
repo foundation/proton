@@ -19,6 +19,8 @@ class Builder
 
     public function build(): void
     {
+        $start = microtime(true);
+
         if ($this->config->settings->debug) {
             $this->output->info('Configuration:');
             $this->config->dump();
@@ -29,6 +31,9 @@ class Builder
         $this->buildSitemap();
         $this->copyAssets();
         $this->runNPMBuild();
+
+        $elapsed = round((microtime(true) - $start) * 1000);
+        $this->output->detail("Built in {$elapsed}ms");
     }
 
     public function runNPMBuild(): void
@@ -68,7 +73,8 @@ class Builder
     public function compilePages(): void
     {
         $this->output->info('Compiling Pages');
-        $this->pageManager->compilePages();
+        $count = $this->pageManager->compilePages();
+        $this->output->detail("Compiled $count page(s)");
     }
 
     public function refreshData(): void

@@ -21,7 +21,7 @@ class PageManager
         $this->templateLoader = $this->initTemplateLoader();
     }
 
-    public function compilePages(): void
+    public function compilePages(): int
     {
         $pages = $this->fsManager->getAllFiles($this->paths->pages);
         foreach ($pages as $pageName) {
@@ -35,6 +35,8 @@ class PageManager
                 $pageWriter->savePage();
             }
         }
+
+        return count($pages);
     }
 
     // public function ksort($array)

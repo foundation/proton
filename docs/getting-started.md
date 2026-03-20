@@ -18,3 +18,10 @@ Then you can run the following command to build your site.
 ```sh
 $ proton build
 ```
+
+Use `-v` for verbose output (page counts and build timing) or `-q` for silent builds:
+
+```sh
+$ proton build -v
+$ proton build -q
+```

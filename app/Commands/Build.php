@@ -26,7 +26,7 @@ class Build extends Command
      */
     public function handle(): void
     {
-        $output       = new ConsoleOutput($this);
+        $output       = new ConsoleOutput($this, $this->getOutput()->isVerbose(), $this->getOutput()->isQuiet());
         $config       = app(Config::class);
         $data         = app(Data::class);
         $fsManager    = app(FilesystemManager::class);
@@ -37,6 +37,6 @@ class Build extends Command
         $builder->clean(boolval($this->option('clean')));
         $builder->build();
 
-        $this->info('Build Complete');
+        $output->info('Build Complete');
     }
 }
