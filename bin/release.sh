@@ -72,4 +72,24 @@ git push origin master develop --tags
 echo "==> Creating GitHub Release..."
 gh release create "$TAG" --generate-notes --title "$TAG" builds/proton
 
+# Update Homebrew tap
+TAP_DIR="$(cd "$(dirname "$0")"/../../homebrew-proton && pwd)"
+if [ -d "$TAP_DIR" ]; then
+    echo "==> Updating Homebrew formula..."
+    DOWNLOAD_URL="https://github.com/foundation/proton/releases/download/${TAG}/proton"
+    SHA=$(shasum -a 256 builds/proton | awk '{print $1}')
+
+    sed -i '' "s|url \".*\"|url \"${DOWNLOAD_URL}\"|" "$TAP_DIR/Formula/proton.rb"
+    sed -i '' "s|sha256 \".*\"|sha256 \"${SHA}\"|" "$TAP_DIR/Formula/proton.rb"
+    sed -i '' "s|version \".*\"|version \"${TAG}\"|" "$TAP_DIR/Formula/proton.rb"
+
+    cd "$TAP_DIR"
+    git add Formula/proton.rb
+    git commit -m "Update proton to ${TAG}"
+    git push origin master
+    cd - > /dev/null
+else
+    echo "Warning: Homebrew tap not found at $TAP_DIR — skipping formula update."
+fi
+
 echo "==> Done! Proton $TAG has been released."
