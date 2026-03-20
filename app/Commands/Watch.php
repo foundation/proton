@@ -2,6 +2,16 @@
 
 namespace App\Commands;
 
+use App\Proton\AssetManager;
+use App\Proton\Builder;
+use App\Proton\Config;
+use App\Proton\ConsoleOutput;
+use App\Proton\Data;
+use App\Proton\DevServer;
+use App\Proton\FileScanner;
+use App\Proton\FilesystemManager;
+use App\Proton\PageManager;
+use App\Proton\Watcher;
 use LaravelZero\Framework\Commands\Command;
 
 class Watch extends Command
@@ -22,15 +32,21 @@ class Watch extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        //----------------------------------
-        // Watch
-        //----------------------------------
-        $watcher = new \App\Proton\Watcher($this);
+        $output       = new ConsoleOutput($this, $this->getOutput()->isVerbose(), $this->getOutput()->isQuiet());
+        $config       = app(Config::class);
+        $data         = app(Data::class);
+        $fsManager    = app(FilesystemManager::class);
+        $pageManager  = app(PageManager::class);
+        $assetManager = app(AssetManager::class);
+
+        $builder = new Builder($output, $config, $data, $fsManager, $pageManager, $assetManager);
+        $scanner = new FileScanner([$config->settings->paths->watch]);
+        $server  = new DevServer($config->settings->paths->dist, $config->settings->port);
+
+        $watcher = new Watcher($output, $config, $builder, $fsManager, $scanner, $server);
         $watcher->watch();
     }
 }

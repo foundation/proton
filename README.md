@@ -10,7 +10,8 @@ This project is in beta. Any feedback would be appreciated.
 
 ## Documentation
 
-Check out the docs at <https://docs.page/foundation/proton>
+Check out the docs at <https://foundationcss.com/proton/>
 
-* [Installation](https://docs.page/foundation/proton/install)
-* [Getting Started](https://docs.page/foundation/proton/getting-started)
+* [Installation](https://foundationcss.com/proton/install/)
+* [Getting Started](https://foundationcss.com/proton/getting-started/)
+* [Configuration](https://foundationcss.com/proton/configuration/)

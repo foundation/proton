@@ -55,10 +55,10 @@ git merge --no-ff "release/$TAG" -m "Merge branch 'release/$TAG'"
 echo "==> Tagging $TAG..."
 git tag -a "$TAG" -m "$TAG"
 
-# Merge back into develop
+# Merge master (which carries the tag) back into develop
 echo "==> Merging back into develop..."
 git checkout develop
-git merge --no-ff "release/$TAG" -m "Merge branch 'release/$TAG' into develop"
+git merge --no-ff master -m "Merge tag '$TAG' into develop"
 
 # Delete the release branch
 echo "==> Cleaning up release branch..."
@@ -67,5 +67,9 @@ git branch -d "release/$TAG"
 # Push everything
 echo "==> Pushing to remote..."
 git push origin master develop --tags
+
+# Create GitHub Release with auto-generated notes
+echo "==> Creating GitHub Release..."
+gh release create "$TAG" --generate-notes --title "$TAG" builds/proton
 
 echo "==> Done! Proton $TAG has been released."

@@ -2,9 +2,10 @@
 
 namespace App\Commands;
 
-use LaravelZero\Framework\Commands\Command;
+use App\Proton\Config;
 use App\Proton\FilesystemManager;
 use App\Proton\TerminalCommand;
+use LaravelZero\Framework\Commands\Command;
 
 class Init extends Command
 {
@@ -27,24 +28,24 @@ class Init extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        $config = new \App\Proton\Config();
+        $config    = app(Config::class);
+        $fsManager = app(FilesystemManager::class);
 
-        if ($this->option('template')) {
-            $clone = \App\Proton\Config::SITES_TEMPLATE;
-            if ($this->option('template') !== "sites") {
-                $clone = strval($this->option('template'));
+        $templateOption = $this->option('template');
+        if (is_string($templateOption)) {
+            $clone = Config::SITES_TEMPLATE;
+            if ($templateOption !== 'sites') {
+                $clone = $templateOption;
             }
             if (preg_match("/^http\S+git$/", $clone)) {
                 $this->info("Cloning $clone");
                 $command = "git clone $clone .";
                 $process = new TerminalCommand($command);
                 $process->start();
-                FilesystemManager::rm_rf(".git");
+                FilesystemManager::removeDirectory('.git');
             }
         }
 
@@ -59,7 +60,6 @@ class Init extends Command
         }
 
         // Setup Folders
-        $fsManager = new FilesystemManager($config);
         $this->info('Initiating Proton Folders');
         $fsManager->initPaths();
         $this->info('Folders Created:');

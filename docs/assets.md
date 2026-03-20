@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Assets Overview"
+---
+
 # Assets Overview
 
 Any file placed into the configured `assets` folder will be directly copied into the `dist` folder. The files at the top level will be copied into the top level of the dist folder.

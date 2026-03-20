@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Generating a Sitemap"
+---
+
 # Generating a Sitemap
 
 By default, Proton will generate a `sitemap.xml` file for SEO. You can turn off this feature by setting the `sitemap` option in the config file to `false`.

@@ -1,6 +1,11 @@
+---
+raw: true
+title: "Data Overview"
+---
+
 # Data Overview
 
-Storing data inside Proton is very flexible to work with Manu different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. However, this folder is configurable.
+Storing data inside Proton is very flexible to work with many different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. Proton supports `.yml`, `.yaml`, and `.json` extensions — any other file types in the data directory are ignored. The data folder is configurable via `paths.data` in your config.
 
 ### Default data.yml/json
 

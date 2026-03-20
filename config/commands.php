@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Command
@@ -76,5 +75,4 @@ return [
     'remove' => [
         Symfony\Component\Console\Command\HelpCommand::class,
     ],
-
 ];

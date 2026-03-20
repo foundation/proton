@@ -12,7 +12,7 @@ trait TestFixtures
     protected function setUpTempProject(array $configOverrides = []): void
     {
         $this->originalDir = getcwd();
-        $this->tempDir = sys_get_temp_dir() . '/proton_test_' . uniqid();
+        $this->tempDir     = sys_get_temp_dir() . '/proton_test_' . uniqid();
         mkdir($this->tempDir, 0777, true);
 
         // Create default Proton directory structure
@@ -25,7 +25,7 @@ trait TestFixtures
         $this->createLayout('default.html', '<html><body>{% block content %}{% endblock %}</body></html>');
 
         // Write config if overrides given
-        if (!empty($configOverrides)) {
+        if ($configOverrides !== []) {
             $this->createConfigFile($configOverrides);
         }
 
@@ -43,68 +43,86 @@ trait TestFixtures
         $yaml = Yaml::dump($overrides, 4, 4, Yaml::DUMP_OBJECT_AS_MAP);
         $path = $this->tempDir . '/proton.yml';
         file_put_contents($path, $yaml);
+
         return $path;
     }
 
     protected function createPage(string $name, string $content, array $frontMatter = []): string
     {
         $path = $this->tempDir . '/src/pages/' . $name;
-        $dir = dirname($path);
+        $dir  = dirname($path);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
 
         $fileContent = '';
-        if (!empty($frontMatter)) {
+        if ($frontMatter !== []) {
             $fileContent .= "---\n" . Yaml::dump($frontMatter) . "---\n";
         }
         $fileContent .= $content;
 
         file_put_contents($path, $fileContent);
+
         return $path;
     }
 
     protected function createLayout(string $name, string $content): string
     {
         $path = $this->tempDir . '/src/layouts/' . $name;
-        $dir = dirname($path);
+        $dir  = dirname($path);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
         file_put_contents($path, $content);
+
         return $path;
     }
 
     protected function createPartial(string $name, string $content): string
     {
         $path = $this->tempDir . '/src/partials/' . $name;
-        $dir = dirname($path);
+        $dir  = dirname($path);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
         file_put_contents($path, $content);
+
         return $path;
     }
 
     protected function createDataFile(string $name, array $data): string
     {
         $path = $this->tempDir . '/src/data/' . $name;
-        $dir = dirname($path);
+        $dir  = dirname($path);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
         file_put_contents($path, Yaml::dump($data));
+
+        return $path;
+    }
+
+    protected function createJsonDataFile(string $name, array $data): string
+    {
+        $path = $this->tempDir . '/src/data/' . $name;
+        $dir  = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
+
         return $path;
     }
 
     protected function createAsset(string $name, string $content = ''): string
     {
         $path = $this->tempDir . '/src/assets/' . $name;
-        $dir = dirname($path);
+        $dir  = dirname($path);
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
         file_put_contents($path, $content);
+
         return $path;
     }
 

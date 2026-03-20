@@ -2,41 +2,30 @@
 
 namespace App\Proton;
 
-use \Twig\Loader\FilesystemLoader;
+use App\Proton\Settings\Paths;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\Extra\Markdown\MichelfMarkdown;
+use Twig\Loader\FilesystemLoader;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
-//---------------------------------------------------------------------------------
-// Proton PageManager
-//---------------------------------------------------------------------------------
 class PageManager
 {
-    const CACHEDIR = ".proton-cache";
-
-    protected Config $config;
-    protected Data $data;
+    public const CACHEDIR = '.proton-cache';
     protected FilesystemLoader $templateLoader;
+    protected Paths $paths;
 
-    /** @var mixed $paths */
-    protected $paths;
-
-    public function __construct(Config $config, Data $data)
+    public function __construct(protected Config $config, protected Data $data, protected FilesystemManager $fsManager)
     {
-        $this->config         = $config;
-        $this->paths          = $config->settings->paths;
-        $this->data           = $data;
+        $this->paths          = $this->config->settings->paths;
         $this->templateLoader = $this->initTemplateLoader();
     }
 
-    public function compilePages(): void
+    public function compilePages(): int
     {
-        $fsManager = new FilesystemManager($this->config);
-        // $fsManager->clearCache();
-        $pages = $fsManager->getAllFiles($this->paths->pages);
+        $pages = $this->fsManager->getAllFiles($this->paths->pages);
         foreach ($pages as $pageName) {
-            $page = new Page($pageName, $this->config, $this->data);
+            $page   = new Page($pageName, $this->config, $this->data);
             $loader = $this->createPageLoader($pageName, $page->content);
             if ($page->isBatch()) {
                 $bathWriter = new PageBatchWriter($page, $loader, $this->config);
@@ -46,24 +35,19 @@ class PageManager
                 $pageWriter->savePage();
             }
         }
-    }
 
-    // public function ksort($array)
-    // {
-    //     ksort($array);
-    //     return $array;
-    // }
+        return count($pages);
+    }
 
     private function createPageLoader(string $pageName, string $content): \Twig\Environment
     {
         // Create the Twig Chain Loader
         $loader = new \Twig\Loader\ArrayLoader(["@pages/$pageName" => $content]);
         $loader = new \Twig\Loader\ChainLoader([$loader, $this->templateLoader]);
-        // $cache  = new \Twig\Cache\FilesystemCache(self::CACHEDIR, \Twig\Cache\FilesystemCache::FORCE_BYTECODE_INVALIDATION);
-        $debug = $this->config->settings->debug;
-        $twig = new \Twig\Environment($loader, [
+        $debug  = $this->config->settings->debug;
+        $twig   = new \Twig\Environment($loader, [
             'cache' => self::CACHEDIR,
-            'debug' => $debug
+            'debug' => $debug,
         ]);
         if ($debug) {
             $twig->addExtension(new \Twig\Extension\DebugExtension());
@@ -71,32 +55,34 @@ class PageManager
         // Markdown Support
         $twig->addExtension(new MarkdownExtension());
         $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
-            public function load(string $class): ?object {
+            public function load(string $class): ?object
+            {
                 if ($class === MarkdownRuntime::class) {
                     return new MarkdownRuntime(new MichelfMarkdown());
                 }
+
                 return null;
             }
         });
 
         // ksort the twig variables
-        $filter = new \Twig\TwigFilter('ksort', function ($array) {
+        $filter = new \Twig\TwigFilter('ksort', function ($array): array {
             ksort($array);
+
             return $array;
         });
         $twig->addFilter($filter);
 
         // krsort the twig variables
-        $filter = new \Twig\TwigFilter('krsort', function ($array) {
+        $filter = new \Twig\TwigFilter('krsort', function ($array): array {
             krsort($array);
+
             return $array;
         });
         $twig->addFilter($filter);
 
         // count the twig variables
-        $filter = new \Twig\TwigFilter('count', function ($array) {
-            return count($array);
-        });
+        $filter = new \Twig\TwigFilter('count', fn ($array): int => count($array));
         $twig->addFilter($filter);
 
         return $twig;
@@ -106,10 +92,11 @@ class PageManager
     {
         $loader = new FilesystemLoader([
             $this->paths->partials,
-            $this->paths->macros
+            $this->paths->macros,
         ]);
-        $loader->addPath($this->paths->pages, "pages");
-        $loader->addPath($this->paths->layouts, "layouts");
+        $loader->addPath($this->paths->pages, 'pages');
+        $loader->addPath($this->paths->layouts, 'layouts');
+
         return $loader;
     }
 

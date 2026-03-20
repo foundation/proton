@@ -5,15 +5,15 @@ use Tests\Helpers\TestFixtures;
 
 uses(TestFixtures::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->setUpTempProject();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     $this->tearDownTempProject();
 });
 
-test('defaults are set when no config file exists', function () {
+test('defaults are set when no config file exists', function (): void {
     $config = new Config();
 
     expect($config->settings->defaultExt)->toBe('html');
@@ -25,10 +25,10 @@ test('defaults are set when no config file exists', function () {
     expect($config->settings->sitemap)->toBeTrue();
 });
 
-test('config file values override defaults', function () {
+test('config file values override defaults', function (): void {
     $this->createConfigFile([
-        'domain' => 'https://mysite.com',
-        'autoindex' => false,
+        'domain'     => 'https://mysite.com',
+        'autoindex'  => false,
         'defaultExt' => 'php',
     ]);
 
@@ -41,7 +41,7 @@ test('config file values override defaults', function () {
     expect($config->settings->pretty)->toBeTrue();
 });
 
-test('dot proton yml is supported', function () {
+test('dot proton yml is supported', function (): void {
     file_put_contents($this->tempDir . '/.proton.yml', "domain: https://hidden.com\n");
 
     $config = new Config();
@@ -49,7 +49,7 @@ test('dot proton yml is supported', function () {
     expect($config->settings->domain)->toBe('https://hidden.com');
 });
 
-test('proton yml takes precedence over dot proton yml', function () {
+test('proton yml takes precedence over dot proton yml', function (): void {
     $this->createConfigFile(['domain' => 'https://primary.com']);
     file_put_contents($this->tempDir . '/.proton.yml', "domain: https://secondary.com\n");
 
@@ -58,7 +58,7 @@ test('proton yml takes precedence over dot proton yml', function () {
     expect($config->settings->domain)->toBe('https://primary.com');
 });
 
-test('configFileExists returns true when file exists', function () {
+test('configFileExists returns true when file exists', function (): void {
     $this->createConfigFile(['domain' => 'https://test.com']);
 
     $config = new Config();
@@ -66,13 +66,13 @@ test('configFileExists returns true when file exists', function () {
     expect($config->configFileExists())->toBeTrue();
 });
 
-test('configFileExists returns false when no file exists', function () {
+test('configFileExists returns false when no file exists', function (): void {
     $config = new Config();
 
     expect($config->configFileExists())->toBeFalse();
 });
 
-test('initConfigFile creates proton yml', function () {
+test('initConfigFile creates proton yml', function (): void {
     $config = new Config();
     $result = $config->initConfigFile();
 
@@ -80,7 +80,7 @@ test('initConfigFile creates proton yml', function () {
     expect(file_exists($this->tempDir . '/proton.yml'))->toBeTrue();
 });
 
-test('initConfigFile returns false when config already exists', function () {
+test('initConfigFile returns false when config already exists', function (): void {
     $this->createConfigFile(['domain' => 'https://existing.com']);
 
     $config = new Config();
@@ -89,7 +89,7 @@ test('initConfigFile returns false when config already exists', function () {
     expect($result)->toBeFalse();
 });
 
-test('default paths are configured', function () {
+test('default paths are configured', function (): void {
     $config = new Config();
 
     expect($config->settings->paths->dist)->toBe('dist');
@@ -101,8 +101,22 @@ test('default paths are configured', function () {
     expect($config->settings->paths->macros)->toBe('src/macros');
 });
 
-test('default layouts are configured', function () {
+test('default layouts are configured', function (): void {
     $config = new Config();
 
     expect($config->settings->layouts->default)->toBe('default.html');
+});
+
+test('default port is 8000', function (): void {
+    $config = new Config();
+
+    expect($config->settings->port)->toBe(8000);
+});
+
+test('port can be configured', function (): void {
+    $this->createConfigFile(['port' => 3000]);
+
+    $config = new Config();
+
+    expect($config->settings->port)->toBe(3000);
 });

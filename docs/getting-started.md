@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Getting Started"
+---
+
 # Getting Started
 
 You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file.
@@ -12,4 +17,11 @@ Then you can run the following command to build your site.
 
 ```sh
 $ proton build
+```
+
+Use `-v` for verbose output (page counts and build timing) or `-q` for silent builds:
+
+```sh
+$ proton build -v
+$ proton build -q
 ```

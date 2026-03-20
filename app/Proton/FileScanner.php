@@ -2,24 +2,22 @@
 
 namespace App\Proton;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton FileScanner — Pure PHP file watcher using mtime polling
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class FileScanner
 {
-    const EVENT_FILE_CREATED = 'fileCreated';
-    const EVENT_FILE_UPDATED = 'fileUpdated';
-    const EVENT_FILE_DELETED = 'fileDeleted';
+    public const EVENT_FILE_CREATED = 'fileCreated';
+    public const EVENT_FILE_UPDATED = 'fileUpdated';
+    public const EVENT_FILE_DELETED = 'fileDeleted';
 
     /** @var array<string, int> path => mtime */
     protected array $mtimes = [];
 
-    /** @var string[] */
-    protected array $paths;
-
-    public function __construct(array $paths)
-    {
-        $this->paths = $paths;
+    public function __construct(
+        /** @var string[] */
+        protected array $paths,
+    ) {
     }
 
     /**
@@ -50,7 +48,7 @@ class FileScanner
         }
 
         // Check for deleted files
-        foreach ($this->mtimes as $path => $mtime) {
+        foreach (array_keys($this->mtimes) as $path) {
             if (!isset($current[$path])) {
                 $changes[] = ['type' => self::EVENT_FILE_DELETED, 'path' => $path];
             }
@@ -81,7 +79,7 @@ class FileScanner
 
             foreach ($iterator as $info) {
                 // Skip dot files (matching existing convention)
-                if (str_starts_with($info->getFilename(), '.')) {
+                if (str_starts_with((string)$info->getFilename(), '.')) {
                     continue;
                 }
 
