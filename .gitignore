@@ -10,3 +10,5 @@ composer.lock
 /.proton-cache
 /.claude
 /.phpunit.cache
+
+.DS_Store
