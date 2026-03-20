@@ -2,9 +2,9 @@
 
 namespace App\Proton;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton Distributor
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class PageBatchWriter extends PageWriter
 {
     protected string $batchkey;
@@ -18,42 +18,43 @@ class PageBatchWriter extends PageWriter
 
     public function processBatch(): void
     {
-        $batchkey = $this->page->getPageData(Page::BATCHKEY);
+        $batchkey  = $this->page->getPageData(Page::BATCHKEY);
         $batchData = $this->page->getData($batchkey);
         foreach ($batchData as $key => $props) {
             // merge batch data into the global data batch key
-            $data = $this->page->data;
+            $data          = $this->page->data;
             $data['batch'] = $props;
 
             $this->output = $this->render($data);
             $this->formatOutput();
 
             $this->batchkey = $key;
-            $this->path = $this->buildPagePath();
+            $this->path     = $this->buildPagePath();
             $this->savePage();
         }
     }
 
+    #[\Override]
     protected function buildPagePath(): string
     {
         $filePath = [];
 
         // Directory
         if ($this->page->dirname) {
-            array_push($filePath, $this->page->dirname);
+            $filePath[] = $this->page->dirname;
         }
 
         // Filename
-        array_push($filePath, $this->batchkey);
+        $filePath[] = $this->batchkey;
 
         // Auto Index
         if ($this->config->settings->autoindex) {
-            array_push($filePath, "index");
+            $filePath[] = 'index';
         }
 
         // Extension
         $ext = $this->findExtension();
 
-        return implode(DIRECTORY_SEPARATOR, $filePath).".$ext";
+        return implode(DIRECTORY_SEPARATOR, $filePath) . ".$ext";
     }
 }

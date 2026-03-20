@@ -2,23 +2,16 @@
 
 namespace App\Proton;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton Distributor
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class PageWriter
 {
-    protected \Twig\Environment $twig;
-    protected Config $config;
-    protected Page $page;
     protected string $output;
     protected string $path;
 
-    public function __construct(Page $page, \Twig\Environment $twig, Config $config)
+    public function __construct(protected Page $page, protected \Twig\Environment $twig, protected Config $config)
     {
-        $this->config = $config;
-        $this->page   = $page;
-        $this->twig   = $twig;
-
         $this->output = $this->render($this->page->data);
         $this->formatOutput();
 
@@ -27,7 +20,7 @@ class PageWriter
 
     public function savePage(): void
     {
-        $dest = $this->config->settings->paths->dist .DIRECTORY_SEPARATOR. $this->path;
+        $dest    = $this->config->settings->paths->dist . DIRECTORY_SEPARATOR . $this->path;
         $destDir = dirname($dest);
         if (!file_exists($destDir)) {
             mkdir($destDir, 0777, true);
@@ -38,12 +31,12 @@ class PageWriter
     protected function formatOutput(): void
     {
         if ($this->config->settings->minify) {
-            $parser = \WyriHaximus\HtmlCompress\Factory::constructSmallest();
+            $parser       = \WyriHaximus\HtmlCompress\Factory::constructSmallest();
             $this->output = $parser->compress($this->output);
         } elseif ($this->config->settings->pretty) {
             $indenter = new \Gajus\Dindent\Indenter();
             // Set headers to inline style for nicer pretty output
-            $inline = ["h1", "h2", "h3", "h4", "h5", "h6"];
+            $inline = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
             foreach ($inline as $tag) {
                 $indenter->setElementType($tag, \Gajus\Dindent\Indenter::ELEMENT_TYPE_INLINE);
             }
@@ -54,7 +47,7 @@ class PageWriter
     protected function render(array $data): string
     {
         // Render the page template
-        return $this->twig->render("@pages/".$this->page->name, $data);
+        return $this->twig->render('@pages/' . $this->page->name, $data);
     }
 
     protected function buildPagePath(): string
@@ -69,35 +62,36 @@ class PageWriter
 
         // Directory
         if ($this->page->dirname) {
-            array_push($filePath, $this->page->dirname);
+            $filePath[] = $this->page->dirname;
         }
 
         // Filename
-        array_push($filePath, $this->page->filename);
+        $filePath[] = $this->page->filename;
 
         // Auto Index
         if ($this->config->settings->autoindex && !$this->pageIsIndex()) {
-            array_push($filePath, "index");
+            $filePath[] = 'index';
         }
 
         // Extension
         $ext = $this->findExtension();
 
-        return implode(DIRECTORY_SEPARATOR, $filePath).".$ext";
+        return implode(DIRECTORY_SEPARATOR, $filePath) . ".$ext";
     }
 
     protected function pageIsIndex(): bool
     {
-        return strstr($this->page->name, "index") ? true : false;
+        return (bool)strstr($this->page->name, 'index');
     }
 
     protected function findExtension(): string
     {
-        $ext = $this->page->ext;
-        $revertToDefaultExt = ["md", "pug", "twig", null];
+        $ext                = $this->page->ext;
+        $revertToDefaultExt = ['md', 'pug', 'twig', null];
         if (in_array($ext, $revertToDefaultExt)) {
             $ext = $this->config->settings->defaultExt;
         }
+
         return $ext;
     }
 }

@@ -22,14 +22,12 @@ class Watch extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        //----------------------------------
+        // ----------------------------------
         // Watch
-        //----------------------------------
+        // ----------------------------------
         $watcher = new \App\Proton\Watcher($this);
         $watcher->watch();
     }

@@ -6,21 +6,21 @@ use Tests\Helpers\TestFixtures;
 
 uses(TestFixtures::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->setUpTempProject();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     $this->tearDownTempProject();
 });
 
-test('generates sitemap xml', function () {
+test('generates sitemap xml', function (): void {
     // Create some files in dist
     file_put_contents($this->tempDir . '/dist/index.html', '<html></html>');
     mkdir($this->tempDir . '/dist/about', 0777, true);
     file_put_contents($this->tempDir . '/dist/about/index.html', '<html></html>');
 
-    $config = new Config();
+    $config  = new Config();
     $sitemap = new Sitemap($config);
     $sitemap->write();
 
@@ -29,13 +29,13 @@ test('generates sitemap xml', function () {
     expect($content)->toContain('index.html');
 });
 
-test('sitemap only includes html and php files', function () {
+test('sitemap only includes html and php files', function (): void {
     file_put_contents($this->tempDir . '/dist/index.html', '<html></html>');
     file_put_contents($this->tempDir . '/dist/style.css', 'body{}');
     file_put_contents($this->tempDir . '/dist/app.js', 'var x;');
     file_put_contents($this->tempDir . '/dist/page.php', '<?php');
 
-    $config = new Config();
+    $config  = new Config();
     $sitemap = new Sitemap($config);
     $sitemap->write();
 
@@ -46,11 +46,11 @@ test('sitemap only includes html and php files', function () {
     expect($content)->not->toContain('app.js');
 });
 
-test('sitemap uses configured domain', function () {
+test('sitemap uses configured domain', function (): void {
     $this->createConfigFile(['domain' => 'https://mysite.com']);
     file_put_contents($this->tempDir . '/dist/index.html', '<html></html>');
 
-    $config = new Config();
+    $config  = new Config();
     $sitemap = new Sitemap($config);
     $sitemap->write();
 

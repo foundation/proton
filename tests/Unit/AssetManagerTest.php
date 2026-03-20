@@ -1,24 +1,24 @@
 <?php
 
-use App\Proton\Config;
 use App\Proton\AssetManager;
+use App\Proton\Config;
 use Tests\Helpers\TestFixtures;
 
 uses(TestFixtures::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->setUpTempProject();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     $this->tearDownTempProject();
 });
 
-test('copies assets to dist', function () {
+test('copies assets to dist', function (): void {
     $this->createAsset('style.css', 'body { color: red; }');
     $this->createAsset('script.js', 'console.log("hi")');
 
-    $config = new Config();
+    $config       = new Config();
     $assetManager = new AssetManager($config);
     $assetManager->copyAssets();
 
@@ -27,11 +27,11 @@ test('copies assets to dist', function () {
     expect(file_get_contents($this->tempDir . '/dist/style.css'))->toBe('body { color: red; }');
 });
 
-test('preserves directory structure in dist', function () {
+test('preserves directory structure in dist', function (): void {
     $this->createAsset('css/main.css', 'body {}');
     $this->createAsset('js/app.js', 'var x = 1;');
 
-    $config = new Config();
+    $config       = new Config();
     $assetManager = new AssetManager($config);
     $assetManager->copyAssets();
 
@@ -39,10 +39,10 @@ test('preserves directory structure in dist', function () {
     expect(file_exists($this->tempDir . '/dist/js/app.js'))->toBeTrue();
 });
 
-test('creates dist subdirectories as needed', function () {
+test('creates dist subdirectories as needed', function (): void {
     $this->createAsset('images/photos/hero.jpg', 'fake-image-data');
 
-    $config = new Config();
+    $config       = new Config();
     $assetManager = new AssetManager($config);
     $assetManager->copyAssets();
 

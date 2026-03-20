@@ -16,14 +16,12 @@ class Build extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
-        //----------------------------------
+        // ----------------------------------
         // Build
-        //----------------------------------
+        // ----------------------------------
         $builder = new \App\Proton\Builder($this);
         $builder->clean(boolval($this->option('clean')));
         $builder->build();

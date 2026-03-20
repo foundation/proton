@@ -8,38 +8,40 @@ use Tests\Helpers\TestFixtures;
 
 uses(TestFixtures::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->setUpTempProject();
     $this->createDataFile('data.yml', ['title' => 'Test Site']);
 });
 
-afterEach(function () {
+afterEach(function (): void {
     $this->tearDownTempProject();
 });
 
-function createTwig(Config $config, Page $page): \Twig\Environment
+function createTwig(Config $config, Page $page): Twig\Environment
 {
     $paths = $config->settings->paths;
 
-    $templateLoader = new \Twig\Loader\FilesystemLoader([
+    $templateLoader = new Twig\Loader\FilesystemLoader([
         $paths->partials,
         $paths->macros,
     ]);
     $templateLoader->addPath($paths->pages, 'pages');
     $templateLoader->addPath($paths->layouts, 'layouts');
 
-    $pageLoader = new \Twig\Loader\ArrayLoader(["@pages/{$page->name}" => $page->content]);
-    $chainLoader = new \Twig\Loader\ChainLoader([$pageLoader, $templateLoader]);
+    $pageLoader  = new Twig\Loader\ArrayLoader(["@pages/{$page->name}" => $page->content]);
+    $chainLoader = new Twig\Loader\ChainLoader([$pageLoader, $templateLoader]);
 
-    $twig = new \Twig\Environment($chainLoader, ['cache' => false]);
-    $twig->addExtension(new \Twig\Extra\Markdown\MarkdownExtension());
-    $twig->addRuntimeLoader(new class implements \Twig\RuntimeLoader\RuntimeLoaderInterface {
-        public function load(string $class): ?object {
-            if ($class === \Twig\Extra\Markdown\MarkdownRuntime::class) {
-                return new \Twig\Extra\Markdown\MarkdownRuntime(
-                    new \Twig\Extra\Markdown\MichelfMarkdown()
+    $twig = new Twig\Environment($chainLoader, ['cache' => false]);
+    $twig->addExtension(new Twig\Extra\Markdown\MarkdownExtension());
+    $twig->addRuntimeLoader(new class implements Twig\RuntimeLoader\RuntimeLoaderInterface {
+        public function load(string $class): ?object
+        {
+            if ($class === Twig\Extra\Markdown\MarkdownRuntime::class) {
+                return new Twig\Extra\Markdown\MarkdownRuntime(
+                    new Twig\Extra\Markdown\MichelfMarkdown()
                 );
             }
+
             return null;
         }
     });
@@ -47,13 +49,13 @@ function createTwig(Config $config, Page $page): \Twig\Environment
     return $twig;
 }
 
-test('savePage creates output file', function () {
+test('savePage creates output file', function (): void {
     $this->createPage('index.html', '<h1>Hello</h1>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('index.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -62,13 +64,13 @@ test('savePage creates output file', function () {
     expect(file_exists($this->tempDir . '/dist/index.html'))->toBeTrue();
 });
 
-test('autoindex creates subdirectory for non-index pages', function () {
+test('autoindex creates subdirectory for non-index pages', function (): void {
     $this->createPage('about.html', '<h1>About</h1>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('about.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -76,14 +78,14 @@ test('autoindex creates subdirectory for non-index pages', function () {
     expect(file_exists($this->tempDir . '/dist/about/index.html'))->toBeTrue();
 });
 
-test('autoindex disabled writes flat files', function () {
+test('autoindex disabled writes flat files', function (): void {
     $this->createConfigFile(['autoindex' => false]);
     $this->createPage('about.html', '<h1>About</h1>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('about.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -91,13 +93,13 @@ test('autoindex disabled writes flat files', function () {
     expect(file_exists($this->tempDir . '/dist/about.html'))->toBeTrue();
 });
 
-test('markdown extension maps to default ext', function () {
+test('markdown extension maps to default ext', function (): void {
     $this->createPage('post.md', '# Hello', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('post.md', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('post.md', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -106,13 +108,13 @@ test('markdown extension maps to default ext', function () {
     expect(file_exists($this->tempDir . '/dist/post/index.html'))->toBeTrue();
 });
 
-test('twig extension maps to default ext', function () {
+test('twig extension maps to default ext', function (): void {
     $this->createPage('page.twig', '<p>Twig page</p>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('page.twig', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('page.twig', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -120,13 +122,13 @@ test('twig extension maps to default ext', function () {
     expect(file_exists($this->tempDir . '/dist/page/index.html'))->toBeTrue();
 });
 
-test('custom output name from page data', function () {
+test('custom output name from page data', function (): void {
     $this->createPage('feed.html', '<rss></rss>', ['layout' => 'none', 'output' => 'feed.xml']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('feed.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('feed.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -134,13 +136,13 @@ test('custom output name from page data', function () {
     expect(file_exists($this->tempDir . '/dist/feed.xml'))->toBeTrue();
 });
 
-test('nested page preserves directory', function () {
+test('nested page preserves directory', function (): void {
     $this->createPage('blog/post.html', '<p>Post</p>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('blog/post.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('blog/post.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();
@@ -148,13 +150,13 @@ test('nested page preserves directory', function () {
     expect(file_exists($this->tempDir . '/dist/blog/post/index.html'))->toBeTrue();
 });
 
-test('pretty output indents html', function () {
+test('pretty output indents html', function (): void {
     $this->createPage('index.html', '<html><body><div><p>Hello</p></div></body></html>', ['layout' => 'none']);
 
     $config = new Config();
-    $data = new Data($config);
-    $page = new Page('index.html', $config, $data);
-    $twig = createTwig($config, $page);
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+    $twig   = createTwig($config, $page);
 
     $writer = new PageWriter($page, $twig, $config);
     $writer->savePage();

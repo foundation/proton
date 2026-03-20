@@ -2,12 +2,12 @@
 
 namespace App\Proton;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton FilesystemManager
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class FilesystemManager
 {
-    /** @var mixed $paths */
+    /** @var mixed */
     public $paths;
 
     public function __construct(Config $config)
@@ -19,7 +19,7 @@ class FilesystemManager
     {
         // Create all folders from paths config
         foreach ($this->paths as $name => $path) {
-            echo "\t[$name] => $path".PHP_EOL;
+            echo "\t[$name] => $path" . PHP_EOL;
         }
     }
 
@@ -28,16 +28,17 @@ class FilesystemManager
         $directory = new \RecursiveDirectoryIterator($path);
         $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
         $iterator = new \RecursiveIteratorIterator($directory);
-        $files = [];
+        $files    = [];
         // The length of the pages folder name + /
-        $dirLength = strlen($path)+1;
+        $dirLength = strlen($path) + 1;
         foreach ($iterator as $info) {
             // Skip dot files
-            if (strpos($info->getFilename(), '.') !== 0) {
+            if (!str_starts_with((string)$info->getFilename(), '.')) {
                 // Remove the pages fodler name from the file name
                 $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
             }
         }
+
         return $files;
     }
 
@@ -45,7 +46,7 @@ class FilesystemManager
     {
         // Check if all paths exist
         foreach ($this->paths as $name => $path) {
-            if ("dist" === $name) {
+            if ('dist' === $name) {
                 // Dist does not need to exist for proton to function
                 continue;
             }
@@ -53,15 +54,17 @@ class FilesystemManager
                 return false;
             }
         }
+
         return true;
     }
 
     public function deleteFromDist(string $path): bool
     {
-        $filepath = $this->paths->dist .DIRECTORY_SEPARATOR. $path;
+        $filepath = $this->paths->dist . DIRECTORY_SEPARATOR . $path;
         if (file_exists($filepath)) {
             return unlink($filepath);
         }
+
         return true;
     }
 
@@ -76,7 +79,7 @@ class FilesystemManager
     public function initPaths(): void
     {
         // Create all folders from paths config
-        foreach ($this->paths as $name => $path) {
+        foreach ($this->paths as $path) {
             if (!file_exists($path)) {
                 mkdir($path, 0777, true);
             }

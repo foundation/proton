@@ -24,13 +24,11 @@ class Data extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $config = new \App\Proton\Config();
-        $data = new \App\Proton\Data($config);
+        $data   = new \App\Proton\Data($config);
 
         // Create config file
         if ($this->option('page')) {

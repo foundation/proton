@@ -2,9 +2,9 @@
 
 namespace App\Commands;
 
-use LaravelZero\Framework\Commands\Command;
 use App\Proton\FilesystemManager;
 use App\Proton\TerminalCommand;
+use LaravelZero\Framework\Commands\Command;
 
 class Init extends Command
 {
@@ -27,16 +27,14 @@ class Init extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $config = new \App\Proton\Config();
 
         if ($this->option('template')) {
             $clone = \App\Proton\Config::SITES_TEMPLATE;
-            if ($this->option('template') !== "sites") {
+            if ($this->option('template') !== 'sites') {
                 $clone = strval($this->option('template'));
             }
             if (preg_match("/^http\S+git$/", $clone)) {
@@ -44,7 +42,7 @@ class Init extends Command
                 $command = "git clone $clone .";
                 $process = new TerminalCommand($command);
                 $process->start();
-                FilesystemManager::rm_rf(".git");
+                FilesystemManager::rm_rf('.git');
             }
         }
 

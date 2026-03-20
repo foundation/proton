@@ -5,22 +5,20 @@ namespace App\Proton;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton DevServer — PHP built-in server with live reload
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class DevServer implements ProcessInterface
 {
-    public string $path;
     public Process $process;
     protected string $reloadFile;
 
-    public function __construct(string $path)
+    public function __construct(public string $path)
     {
-        $this->path = $path;
         $this->reloadFile = sys_get_temp_dir() . '/proton_reload_' . getmypid();
 
         $command = [
-            (new ExecutableFinder)->find('php'),
+            (new ExecutableFinder())->find('php'),
             '-S', 'localhost:8000',
             '-t', $this->path,
             realpath(__DIR__ . '/../bin/router.php'),
@@ -28,25 +26,26 @@ class DevServer implements ProcessInterface
 
         $this->process = new Process(
             command: $command,
-            timeout: null,
             env: ['PROTON_RELOAD_FILE' => $this->reloadFile],
+            timeout: null,
         );
     }
 
     public function start(): void
     {
         // Write initial timestamp so the reload file exists
-        file_put_contents($this->reloadFile, (string) time());
+        file_put_contents($this->reloadFile, (string)time());
 
         $this->process->start();
 
-        if (! $this->process->isRunning()) {
-            throw new \Exception("Could not start PHP dev server. Error output: " . $this->process->getErrorOutput());
+        if (!$this->process->isRunning()) {
+            throw new \Exception('Could not start PHP dev server. Error output: ' . $this->process->getErrorOutput());
         }
 
-        $this->process->waitUntil(function ($type, $buffer) {
+        $this->process->waitUntil(function ($type, $buffer): bool {
             echo $buffer;
-            return false !== strpos($buffer, 'started');
+
+            return str_contains($buffer, 'started');
         });
     }
 
@@ -65,6 +64,6 @@ class DevServer implements ProcessInterface
      */
     public function notifyRebuild(): void
     {
-        file_put_contents($this->reloadFile, (string) time());
+        file_put_contents($this->reloadFile, (string)time());
     }
 }

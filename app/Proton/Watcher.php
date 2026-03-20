@@ -4,16 +4,15 @@ namespace App\Proton;
 
 use LaravelZero\Framework\Commands\Command;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton Watcher
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class Watcher
 {
     protected Config $config;
     protected Builder $builder;
     protected FilesystemManager $fsManager;
     protected FileScanner $scanner;
-    protected Command $cmd;
     protected DevServer $server;
     protected bool $running = true;
 
@@ -23,14 +22,13 @@ class Watcher
     /** Poll interval in microseconds (500ms) */
     protected int $pollInterval = 500_000;
 
-    public function __construct(Command $cmd)
+    public function __construct(protected Command $cmd)
     {
-        $this->cmd = $cmd;
-        $this->config = new Config();
-        $this->builder = new Builder($cmd);
-        $this->server = new DevServer($this->config->settings->paths->dist);
+        $this->config    = new Config();
+        $this->builder   = new Builder($this->cmd);
+        $this->server    = new DevServer($this->config->settings->paths->dist);
         $this->fsManager = new FilesystemManager($this->config);
-        $this->scanner = new FileScanner([$this->config->settings->paths->watch]);
+        $this->scanner   = new FileScanner([$this->config->settings->paths->watch]);
 
         $this->installSignalHandlers();
     }
@@ -42,20 +40,20 @@ class Watcher
         $this->builder->build();
 
         // Start the dev server
-        $this->cmd->info("Starting Server...");
+        $this->cmd->info('Starting Server...');
         $this->server->start();
 
         // Take initial snapshot after build
         $this->scanner->snapshot();
 
-        $this->cmd->info("Watching...");
+        $this->cmd->info('Watching...');
 
         while ($this->running) {
             $this->dispatchSignals();
 
             $changes = $this->scanner->scan();
 
-            if (!empty($changes)) {
+            if ($changes !== []) {
                 // Debounce: wait and re-scan until stable
                 $changes = $this->debounce($changes);
                 $this->processBatch($changes);
@@ -65,7 +63,7 @@ class Watcher
             usleep($this->pollInterval);
         }
 
-        $this->cmd->info("Stopping server...");
+        $this->cmd->info('Stopping server...');
         $this->server->stop();
     }
 
@@ -73,11 +71,12 @@ class Watcher
      * Debounce: after detecting changes, wait and re-scan until no new changes appear.
      *
      * @param array<int, array{type: string, path: string}> $initial
+     *
      * @return array<int, array{type: string, path: string}>
      */
     protected function debounce(array $initial): array
     {
-        $all = [];
+        $all  = [];
         $seen = [];
 
         // Collect initial changes
@@ -85,7 +84,7 @@ class Watcher
             $key = $change['type'] . ':' . $change['path'];
             if (!isset($seen[$key])) {
                 $seen[$key] = true;
-                $all[] = $change;
+                $all[]      = $change;
             }
         }
 
@@ -94,7 +93,7 @@ class Watcher
             usleep($this->debounceInterval);
             $more = $this->scanner->scan();
 
-            if (empty($more)) {
+            if ($more === []) {
                 break;
             }
 
@@ -102,7 +101,7 @@ class Watcher
                 $key = $change['type'] . ':' . $change['path'];
                 if (!isset($seen[$key])) {
                     $seen[$key] = true;
-                    $all[] = $change;
+                    $all[]      = $change;
                 }
             }
         }
@@ -119,11 +118,11 @@ class Watcher
     {
         $needsDataRefresh = false;
         $needsPageCompile = false;
-        $needsAssetCopy = false;
-        $needsSitemap = false;
-        $needsNpmBuild = false;
-        $deletedPages = [];
-        $deletedAssets = [];
+        $needsAssetCopy   = false;
+        $needsSitemap     = false;
+        $needsNpmBuild    = false;
+        $deletedPages     = [];
+        $deletedAssets    = [];
 
         foreach ($changes as $change) {
             $type = $change['type'];
@@ -137,7 +136,7 @@ class Watcher
             if ($type === FileScanner::EVENT_FILE_DELETED) {
                 if ($this->isPagesPath($path)) {
                     $deletedPages[] = $path;
-                    $needsSitemap = true;
+                    $needsSitemap   = true;
                 } elseif ($this->isAssetsPath($path)) {
                     $deletedAssets[] = $path;
                 } elseif ($this->isTemplatesPath($path)) {
@@ -173,7 +172,7 @@ class Watcher
 
         // Execute each action at most once
         if ($needsDataRefresh) {
-            $this->cmd->info("Data changed, refreshing...");
+            $this->cmd->info('Data changed, refreshing...');
             $this->builder->refreshData();
         }
 
@@ -210,10 +209,10 @@ class Watcher
             return;
         }
 
-        pcntl_signal(SIGINT, function () {
+        pcntl_signal(SIGINT, function (): void {
             $this->running = false;
         });
-        pcntl_signal(SIGTERM, function () {
+        pcntl_signal(SIGTERM, function (): void {
             $this->running = false;
         });
     }
@@ -246,7 +245,7 @@ class Watcher
 
     protected function isInPath(string $path, string $pathKey): bool
     {
-        return false !== strpos($path, $pathKey);
+        return str_contains($path, $pathKey);
     }
 
     public function isDataPath(string $path): bool
@@ -282,10 +281,10 @@ class Watcher
     public function isTemplatesPath(string $path): bool
     {
         return
-            $this->isDataPath($path)     ||
-            $this->isLayoutsPath($path)  ||
-            $this->isPagesPath($path)    ||
-            $this->isMacrosPath($path)   ||
-            $this->isPartialsPath($path);
+            $this->isDataPath($path)
+            || $this->isLayoutsPath($path)
+            || $this->isPagesPath($path)
+            || $this->isMacrosPath($path)
+            || $this->isPartialsPath($path);
     }
 }

@@ -4,15 +4,15 @@ namespace App\Proton;
 
 use Symfony\Component\Yaml\Yaml;
 
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // Proton Configuration
-//---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 class Data
 {
-    const DEFAULTDATA = "data";
+    public const DEFAULTDATA = 'data';
 
-    public array  $data = [];
-    public array  $env = [];
+    public array $data = [];
+    public array $env  = [];
     public string $dir;
 
     public function __construct(Config $config)
@@ -55,7 +55,7 @@ class Data
 
         foreach ($iterator as $file) {
             // Skip dot files
-            if (strpos($file->getFilename(), '.') !== 0) {
+            if (!str_starts_with((string)$file->getFilename(), '.')) {
                 $this->mergeDataFile($file);
             }
         }
@@ -69,6 +69,7 @@ class Data
         // If default data file, add it to root of data
         if (self::DEFAULTDATA === $dataPath) {
             $this->data = array_merge($this->data, $fileData);
+
             return;
         }
 
@@ -88,22 +89,21 @@ class Data
     public function getDataPath(\SplFileInfo $file): string
     {
         // Remove the data folder name from the path
-        $dirLength = strlen($this->dir)+1; // The length of the data folder name + 1
-        $dataPath  = substr_replace((string) $file->getPathname(), '', 0, $dirLength);
+        $dirLength = strlen($this->dir) + 1; // The length of the data folder name + 1
+        $dataPath  = substr_replace($file->getPathname(), '', 0, $dirLength);
 
         // Remove the extension
-        $extLength = strlen($file->getExtension())+1;
-        $dataPath = substr_replace($dataPath, '', $extLength*-1, $extLength);
+        $extLength = strlen($file->getExtension()) + 1;
 
-        return $dataPath;
+        return substr_replace($dataPath, '', $extLength * -1, $extLength);
     }
 
     public function generatePageData(array $pageData): array
     {
         return [
-            "data"   => $this->data,
-            "proton" => $this->env,
-            "page"   => $pageData,
+            'data'   => $this->data,
+            'proton' => $this->env,
+            'page'   => $pageData,
         ];
     }
 }

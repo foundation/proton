@@ -9,10 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class HelpCommand extends Command
 {
-    protected $name = 'help';
+    protected $name        = 'help';
     protected $description = 'Display help for a command';
 
-    private const PROTON_COMMANDS = [
+    private const array PROTON_COMMANDS = [
         'build' => 'Build all pages',
         'data'  => 'Dump the data structure used during build',
         'init'  => 'Create the folders needed to build with proton',
@@ -24,6 +24,7 @@ class HelpCommand extends Command
         $this->addArgument('command_name', InputArgument::OPTIONAL, 'The command name', 'help');
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $commandName = $input->getArgument('command_name');
@@ -31,8 +32,9 @@ class HelpCommand extends Command
         // If asking for help on a specific command, delegate to Symfony's helper
         if ($commandName !== 'help') {
             $command = $this->getApplication()->find($commandName);
-            $helper = new \Symfony\Component\Console\Helper\DescriptorHelper();
+            $helper  = new \Symfony\Component\Console\Helper\DescriptorHelper();
             $helper->describe($output, $command);
+
             return 0;
         }
 
