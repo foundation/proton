@@ -179,3 +179,79 @@ test('dirname is parsed for nested pages', function () {
     expect($page->filename)->toBe('post');
     expect($page->dirname)->toBe('blog');
 });
+
+// --- raw: true tests ---
+
+test('raw markdown wraps content in verbatim and markdown filter', function () {
+    $this->createPage('doc.md', '# Hello {{ name }}', ['raw' => true]);
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('doc.md', $config, $data);
+
+    expect($page->content)->toContain('{% verbatim %}');
+    expect($page->content)->toContain('{% endverbatim %}');
+    expect($page->content)->toContain('{% apply markdown_to_html %}');
+    expect($page->content)->toContain('{% endapply %}');
+    expect($page->content)->toContain('{{ name }}');
+});
+
+test('raw markdown strips user-defined block tags from content', function () {
+    $content = "{% block title %}My Title{% endblock %}\n\n{% block content %}\n# Hello {{ var }}\n{% endblock %}";
+    $this->createPage('doc.md', $content, ['raw' => true]);
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('doc.md', $config, $data);
+
+    // Should only have one block content wrapper (the auto-generated one)
+    expect(substr_count($page->content, '{% block content %}'))->toBe(1);
+    // The literal {{ var }} should be preserved
+    expect($page->content)->toContain('{{ var }}');
+});
+
+test('raw markdown preserves twig-like syntax in code examples', function () {
+    $content = "Here is an example:\n\n```\n{% block title %}{% endblock %}\n```\n";
+    $this->createPage('doc.md', $content, ['raw' => true]);
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('doc.md', $config, $data);
+
+    // The verbatim wrapper should prevent Twig from processing these
+    expect($page->content)->toContain('{% verbatim %}');
+});
+
+test('non-raw markdown does not use verbatim', function () {
+    $this->createPage('post.md', '# Hello World');
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('post.md', $config, $data);
+
+    expect($page->content)->not->toContain('{% verbatim %}');
+    expect($page->content)->toContain('{% apply markdown_to_html %}');
+});
+
+test('raw html wraps blocks in verbatim', function () {
+    $content = "{% block content %}\n<p>Hello {{ name }}</p>\n{% endblock %}";
+    $this->createPage('doc.html', $content, ['raw' => true]);
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('doc.html', $config, $data);
+
+    expect($page->content)->toContain('{% verbatim %}');
+    expect($page->content)->toContain('{% endverbatim %}');
+    expect($page->content)->toContain('{{ name }}');
+});
+
+test('non-raw html does not use verbatim', function () {
+    $this->createPage('index.html', '<h1>{{ title }}</h1>');
+
+    $config = new Config();
+    $data = new Data($config);
+    $page = new Page('index.html', $config, $data);
+
+    expect($page->content)->not->toContain('{% verbatim %}');
+});

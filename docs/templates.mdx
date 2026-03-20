@@ -28,6 +28,32 @@ This is my content
 {% endmarkdown %}
 ```
 
+### Raw Mode
+
+When your markdown content contains template syntax like `{{ variable }}` or `{% tag %}` (for example, documentation about Twig or other template engines), Proton's Twig processor will try to evaluate those expressions and fail.
+
+Add `raw: true` to the front matter to prevent this. The content will still be processed as markdown, but all `{{ }}` and `{% %}` syntax will be treated as literal text.
+
+```markdown
+---
+raw: true
+title: "My Documentation"
+---
+
+# Template Variables
+
+Use `{{ variable }}` to output a value.
+
+Use `{% if condition %}` for conditionals.
+```
+
+Raw mode works with both `.md` and `.html` pages:
+
+- **Markdown pages** (`.md`): Content is converted from markdown to HTML, but Twig expressions are preserved as literal text.
+- **HTML pages** (`.html`): Block content is wrapped in `{% verbatim %}` so Twig syntax passes through unchanged.
+
+Note: When using `raw: true`, you cannot use Twig variables or includes within the page content. Use front matter for page metadata (like `title`) and access it in your layout with `{{ page.title }}`.
+
 ### Pug
 
 You can process a template using Pug simply by giving the file that `pug` extension. Example: `template.pug`
