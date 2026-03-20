@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Installation"
+---
+
 # Installation
 
 Proton requires that you have [Composer](https://getcomposer.org) installed. It may be easiest to then install proton globally on your computer. You can do this with the following command.

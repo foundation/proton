@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Data Overview"
+---
+
 # Data Overview
 
 Storing data inside Proton is very flexible to work with Manu different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. However, this folder is configurable.

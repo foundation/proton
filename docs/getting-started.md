@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Getting Started"
+---
+
 # Getting Started
 
 You can see an example of how to setup proton in the [sample folder](https://github.com/foundation/proton/tree/master/sample). You can also create a [proton.yml](https://github.com/foundation/proton/blob/master/proton.yml) configuration file.

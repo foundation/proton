@@ -1,3 +1,8 @@
+---
+raw: true
+title: "Configuration"
+---
+
 # Configuration
 
 At the root of your project you can create a config file called either `proton.yml` or `.proton.yml`. If both exist, `proton.yml` takes precedence.

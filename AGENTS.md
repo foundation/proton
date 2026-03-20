@@ -4,7 +4,7 @@ A PHP CLI static site builder that compiles Twig templates, Markdown, and YAML d
 
 ## Documentation
 
-User-facing docs live in `docs/` (hosted via docs.page). Check there for configuration reference, getting started guides, and feature docs.
+User-facing docs live in `docs/` and are hosted at https://foundationcss.com/proton/.
 
 ## Project structure
 
