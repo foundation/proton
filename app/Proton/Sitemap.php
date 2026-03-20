@@ -19,7 +19,7 @@ class Sitemap
         $dir       = $this->config->settings->paths->dist;
         $fsManager = new FilesystemManager($this->config);
 
-        $assets = array_filter($fsManager->getAllFiles($dir), function ($file): bool {
+        $assets = array_filter($fsManager->getAllFiles($dir), function (string $file): bool {
             $ext = pathinfo($file, PATHINFO_EXTENSION);
 
             return in_array($ext, self::EXTS);

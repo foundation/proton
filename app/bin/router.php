@@ -12,7 +12,8 @@ if ($uri === '/__reload') {
     header('Cache-Control: no-cache');
     $timestamp = '0';
     if ($reloadFile && file_exists($reloadFile)) {
-        $timestamp = trim(file_get_contents($reloadFile));
+        $contents  = file_get_contents($reloadFile);
+        $timestamp = $contents !== false ? trim($contents) : '0';
     }
     echo json_encode(['ts' => $timestamp]);
 
@@ -29,7 +30,10 @@ if (is_file($file)) {
     $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
     if ($ext === 'html' || $ext === 'htm') {
         // Inject live reload script into HTML
-        $html   = file_get_contents($file);
+        $html = file_get_contents($file);
+        if ($html === false) {
+            return false;
+        }
         $script = <<<'SCRIPT'
 <script>
 (function(){
@@ -58,7 +62,10 @@ SCRIPT;
 if (is_dir($file)) {
     $index = rtrim($file, '/') . '/index.html';
     if (is_file($index)) {
-        $html   = file_get_contents($index);
+        $html = file_get_contents($index);
+        if ($html === false) {
+            return false;
+        }
         $script = <<<'SCRIPT'
 <script>
 (function(){

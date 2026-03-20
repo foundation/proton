@@ -30,8 +30,9 @@ class HelpCommand extends Command
         $commandName = $input->getArgument('command_name');
 
         // If asking for help on a specific command, delegate to Symfony's helper
-        if ($commandName !== 'help') {
-            $command = $this->getApplication()->find($commandName);
+        $app = $this->getApplication();
+        if ($commandName !== 'help' && $app instanceof \Symfony\Component\Console\Application) {
+            $command = $app->find($commandName);
             $helper  = new \Symfony\Component\Console\Helper\DescriptorHelper();
             $helper->describe($output, $command);
 

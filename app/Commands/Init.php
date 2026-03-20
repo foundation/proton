@@ -32,10 +32,11 @@ class Init extends Command
     {
         $config = new \App\Proton\Config();
 
-        if ($this->option('template')) {
+        $templateOption = $this->option('template');
+        if (is_string($templateOption)) {
             $clone = \App\Proton\Config::SITES_TEMPLATE;
-            if ($this->option('template') !== 'sites') {
-                $clone = strval($this->option('template'));
+            if ($templateOption !== 'sites') {
+                $clone = $templateOption;
             }
             if (preg_match("/^http\S+git$/", $clone)) {
                 $this->info("Cloning $clone");

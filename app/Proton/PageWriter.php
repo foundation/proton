@@ -38,12 +38,15 @@ class PageWriter
             // Set headers to inline style for nicer pretty output
             $inline = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
             foreach ($inline as $tag) {
-                $indenter->setElementType($tag, \Gajus\Dindent\Indenter::ELEMENT_TYPE_INLINE);
+                $indenter->setElementType($tag, \Gajus\Dindent\Indenter::ELEMENT_TYPE_INLINE); // @phpstan-ignore argument.type (library PHPDoc incorrectly types the constant)
             }
             $this->output = $indenter->indent($this->output);
         }
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     protected function render(array $data): string
     {
         // Render the page template

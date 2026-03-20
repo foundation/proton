@@ -93,7 +93,7 @@ class PageManager
         $twig->addFilter($filter);
 
         // count the twig variables
-        $filter = new \Twig\TwigFilter('count', fn ($array) => count($array));
+        $filter = new \Twig\TwigFilter('count', fn ($array): int => count($array));
         $twig->addFilter($filter);
 
         return $twig;

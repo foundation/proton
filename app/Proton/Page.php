@@ -13,6 +13,7 @@ class Page
     public const BATCHKEY  = 'batch';
     public const OUTPUTKEY = 'output';
 
+    /** @var array<string, mixed> */
     public array $data;
     public string $content;
     public string $filename;
@@ -24,7 +25,7 @@ class Page
         $info           = pathinfo($this->name);
         $this->filename = $info['filename'];
         $this->ext      = $info['extension'] ?? null;
-        $this->dirname  = '.' === $info['dirname'] ? null : $info['dirname'];
+        $this->dirname  = !isset($info['dirname']) || '.' === $info['dirname'] ? null : $info['dirname'];
 
         // Setup $data + $content
         $this->processPage($data);
@@ -40,7 +41,7 @@ class Page
         return array_key_exists(self::BATCHKEY, $this->data['page']);
     }
 
-    public function getPageData($key)
+    public function getPageData(string $key): mixed
     {
         if (array_key_exists($key, $this->data['page'])) {
             return $this->data['page'][$key];
@@ -49,7 +50,7 @@ class Page
         return null;
     }
 
-    public function getProtonData($key)
+    public function getProtonData(string $key): mixed
     {
         if (array_key_exists($key, $this->data['proton'])) {
             return $this->data['proton'][$key];
@@ -58,7 +59,7 @@ class Page
         return null;
     }
 
-    public function getData($key)
+    public function getData(string $key): mixed
     {
         if (array_key_exists($key, $this->data['data'])) {
             return $this->data['data'][$key];

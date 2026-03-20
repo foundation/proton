@@ -31,8 +31,9 @@ class Data extends Command
         $data   = new \App\Proton\Data($config);
 
         // Create config file
-        if ($this->option('page')) {
-            $pageName = strval($this->option('page'));
+        $pageOption = $this->option('page');
+        if (is_string($pageOption)) {
+            $pageName = $pageOption;
             $this->info("Loading data for $pageName");
             $page = new \App\Proton\Page($pageName, $config, $data);
             $page->dumpData();

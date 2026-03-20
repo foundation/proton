@@ -18,7 +18,7 @@ class DevServer implements ProcessInterface
         $this->reloadFile = sys_get_temp_dir() . '/proton_reload_' . getmypid();
 
         $command = [
-            (new ExecutableFinder())->find('php'),
+            new ExecutableFinder()->find('php'),
             '-S', 'localhost:8000',
             '-t', $this->path,
             realpath(__DIR__ . '/../bin/router.php'),

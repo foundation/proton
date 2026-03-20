@@ -11,7 +11,9 @@ class Data
 {
     public const DEFAULTDATA = 'data';
 
+    /** @var array<string, mixed> */
     public array $data = [];
+    /** @var array<string, mixed> */
     public array $env  = [];
     public string $dir;
 
@@ -98,6 +100,11 @@ class Data
         return substr_replace($dataPath, '', $extLength * -1, $extLength);
     }
 
+    /**
+     * @param array<string, mixed> $pageData
+     *
+     * @return array<string, mixed>
+     */
     public function generatePageData(array $pageData): array
     {
         return [

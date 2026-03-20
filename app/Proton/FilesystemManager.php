@@ -23,6 +23,9 @@ class FilesystemManager
         }
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getAllFiles(string $path): array
     {
         $directory = new \RecursiveDirectoryIterator($path);
