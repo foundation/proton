@@ -2,7 +2,7 @@
 
 namespace App\Proton\Settings;
 
-class Layouts
+final class Layouts
 {
     /**
      * @param array<string, string> $rules

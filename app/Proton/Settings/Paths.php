@@ -2,7 +2,7 @@
 
 namespace App\Proton\Settings;
 
-class Paths
+final class Paths
 {
     public function __construct(
         public string $dist = 'dist',

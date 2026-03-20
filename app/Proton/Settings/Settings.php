@@ -2,7 +2,7 @@
 
 namespace App\Proton\Settings;
 
-class Settings
+final class Settings
 {
     public function __construct(
         public string $defaultExt = 'html',
