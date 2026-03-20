@@ -43,6 +43,7 @@ class Data
     {
         $this->env = [
             'environment' => getenv('PROTON_ENV') ?: 'development',
+            'build_time'  => time(),
         ];
     }
 
