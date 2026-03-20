@@ -2,11 +2,9 @@
 
 namespace App\Proton;
 
+use App\Proton\Settings\Settings;
 use Symfony\Component\Yaml\Yaml;
 
-// ---------------------------------------------------------------------------------
-// Proton Configuration
-// ---------------------------------------------------------------------------------
 class Config
 {
     public const SITES_TEMPLATE = 'https://github.com/foundation/proton-sites-template.git';
@@ -14,36 +12,8 @@ class Config
         'proton.yml',
         '.proton.yml',
     ];
-    public const DEFAULTS = [
-        'defaultExt' => 'html',
-        'domain'     => 'https://www.example.com',
-        'autoindex'  => true,
-        'debug'      => false,
-        'pretty'     => true,
-        'minify'     => false,
-        'sitemap'    => true,
-        'npmBuild'   => 'yarn build',
-        'devserver'  => 'php',
-        'layouts'    => [
-            'default' => 'default.html',
-            'rules'   => [
-                // "blog" => "blog.html",
-            ],
-        ],
-        'paths' => [
-            'dist'     => 'dist',
-            'assets'   => 'src/assets',
-            'data'     => 'src/data',
-            'layouts'  => 'src/layouts',
-            'macros'   => 'src/macros',
-            'pages'    => 'src/pages',
-            'partials' => 'src/partials',
-            'watch'    => 'src',
-        ],
-    ];
 
-    /** @var mixed */
-    public $settings;
+    public Settings $settings;
 
     public function __construct()
     {
@@ -53,7 +23,7 @@ class Config
     public function initConfigFile(): bool
     {
         if (!$this->configFileExists()) {
-            $yaml = Yaml::dump($this->settings, 2, 4, Yaml::DUMP_OBJECT_AS_MAP);
+            $yaml = Yaml::dump($this->toArray($this->settings), 2, 4, Yaml::DUMP_OBJECT_AS_MAP);
             file_put_contents(self::CONFIGFILES[0], $yaml);
 
             return true;
@@ -72,19 +42,52 @@ class Config
         print_r($this->settings);
     }
 
-    public static function getSettings(): mixed
+    public static function getSettings(): Settings
     {
-        // Set default data
-        $config = self::DEFAULTS;
-        // Config file override
+        $config = [];
+
         foreach (self::CONFIGFILES as $configFile) {
             if (file_exists($configFile)) {
-                $config = array_merge($config, Yaml::parseFile($configFile));
+                $parsed = Yaml::parseFile($configFile);
+                if (is_array($parsed)) {
+                    $config = $parsed;
+                }
                 break;
             }
         }
 
-        // Make it an object
-        return json_decode((string)json_encode($config));
+        return Settings::fromArray($config);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function toArray(Settings $settings): array
+    {
+        return [
+            'defaultExt' => $settings->defaultExt,
+            'domain'     => $settings->domain,
+            'autoindex'  => $settings->autoindex,
+            'debug'      => $settings->debug,
+            'pretty'     => $settings->pretty,
+            'minify'     => $settings->minify,
+            'sitemap'    => $settings->sitemap,
+            'npmBuild'   => $settings->npmBuild,
+            'devserver'  => $settings->devserver,
+            'layouts'    => [
+                'default' => $settings->layouts->default,
+                'rules'   => $settings->layouts->rules,
+            ],
+            'paths' => [
+                'dist'     => $settings->paths->dist,
+                'assets'   => $settings->paths->assets,
+                'data'     => $settings->paths->data,
+                'layouts'  => $settings->paths->layouts,
+                'macros'   => $settings->paths->macros,
+                'pages'    => $settings->paths->pages,
+                'partials' => $settings->paths->partials,
+                'watch'    => $settings->paths->watch,
+            ],
+        ];
     }
 }

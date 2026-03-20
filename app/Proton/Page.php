@@ -126,9 +126,8 @@ class Page
 
     private function findLayoutRule(): ?string
     {
-        $rules = $this->config->settings->layouts->rules;
-        foreach ($rules as $ruleMatch => $ruleLayout) {
-            if (str_starts_with($this->name, (string)$ruleMatch)) {
+        foreach ($this->config->settings->layouts->rules as $ruleMatch => $ruleLayout) {
+            if (str_starts_with($this->name, $ruleMatch)) {
                 return $ruleLayout;
             }
         }

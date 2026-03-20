@@ -2,17 +2,15 @@
 
 namespace App\Proton;
 
-// ---------------------------------------------------------------------------------
-// Proton PageManager
-// ---------------------------------------------------------------------------------
+use App\Proton\Settings\Paths;
+
 class AssetManager
 {
-    /** @var mixed */
-    protected $paths;
+    protected Paths $paths;
 
     public function __construct(protected Config $config)
     {
-        $this->paths  = $this->config->settings->paths;
+        $this->paths = $this->config->settings->paths;
     }
 
     public function copyAssets(): void

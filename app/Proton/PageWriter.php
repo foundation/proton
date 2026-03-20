@@ -91,10 +91,10 @@ class PageWriter
     {
         $ext                = $this->page->ext;
         $revertToDefaultExt = ['md', 'pug', 'twig', null];
-        if (in_array($ext, $revertToDefaultExt)) {
-            $ext = $this->config->settings->defaultExt;
+        if (in_array($ext, $revertToDefaultExt, true)) {
+            return $this->config->settings->defaultExt;
         }
 
-        return $ext;
+        return $ext ?? $this->config->settings->defaultExt;
     }
 }

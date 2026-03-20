@@ -2,13 +2,11 @@
 
 namespace App\Proton;
 
-// ---------------------------------------------------------------------------------
-// Proton FilesystemManager
-// ---------------------------------------------------------------------------------
+use App\Proton\Settings\Paths;
+
 class FilesystemManager
 {
-    /** @var mixed */
-    public $paths;
+    public Paths $paths;
 
     public function __construct(Config $config)
     {
@@ -17,8 +15,7 @@ class FilesystemManager
 
     public function printPaths(): void
     {
-        // Create all folders from paths config
-        foreach ($this->paths as $name => $path) {
+        foreach ($this->getPathMap() as $name => $path) {
             echo "\t[$name] => $path" . PHP_EOL;
         }
     }
@@ -37,7 +34,7 @@ class FilesystemManager
         foreach ($iterator as $info) {
             // Skip dot files
             if (!str_starts_with((string)$info->getFilename(), '.')) {
-                // Remove the pages fodler name from the file name
+                // Remove the pages folder name from the file name
                 $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
             }
         }
@@ -47,10 +44,8 @@ class FilesystemManager
 
     public function pathsExist(): bool
     {
-        // Check if all paths exist
-        foreach ($this->paths as $name => $path) {
+        foreach ($this->getPathMap() as $name => $path) {
             if ('dist' === $name) {
-                // Dist does not need to exist for proton to function
                 continue;
             }
             if (!file_exists($path)) {
@@ -81,8 +76,7 @@ class FilesystemManager
 
     public function initPaths(): void
     {
-        // Create all folders from paths config
-        foreach ($this->paths as $path) {
+        foreach ($this->getPathMap() as $path) {
             if (!file_exists($path)) {
                 mkdir($path, 0777, true);
             }
@@ -115,5 +109,22 @@ class FilesystemManager
             }
             rmdir($dir);
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getPathMap(): array
+    {
+        return [
+            'dist'     => $this->paths->dist,
+            'assets'   => $this->paths->assets,
+            'data'     => $this->paths->data,
+            'layouts'  => $this->paths->layouts,
+            'macros'   => $this->paths->macros,
+            'pages'    => $this->paths->pages,
+            'partials' => $this->paths->partials,
+            'watch'    => $this->paths->watch,
+        ];
     }
 }

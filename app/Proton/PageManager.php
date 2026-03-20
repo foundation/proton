@@ -2,22 +2,18 @@
 
 namespace App\Proton;
 
+use App\Proton\Settings\Paths;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\Extra\Markdown\MichelfMarkdown;
 use Twig\Loader\FilesystemLoader;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
-// ---------------------------------------------------------------------------------
-// Proton PageManager
-// ---------------------------------------------------------------------------------
 class PageManager
 {
     public const CACHEDIR = '.proton-cache';
     protected FilesystemLoader $templateLoader;
-
-    /** @var mixed */
-    protected $paths;
+    protected Paths $paths;
 
     public function __construct(protected Config $config, protected Data $data)
     {
