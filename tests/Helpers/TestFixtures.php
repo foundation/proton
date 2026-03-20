@@ -102,6 +102,18 @@ trait TestFixtures
         return $path;
     }
 
+    protected function createJsonDataFile(string $name, array $data): string
+    {
+        $path = $this->tempDir . '/src/data/' . $name;
+        $dir  = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
+
+        return $path;
+    }
+
     protected function createAsset(string $name, string $content = ''): string
     {
         $path = $this->tempDir . '/src/assets/' . $name;

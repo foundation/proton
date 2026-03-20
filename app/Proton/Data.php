@@ -5,6 +5,8 @@ namespace App\Proton;
 use App\Proton\Exceptions\ConfigException;
 use Symfony\Component\Yaml\Yaml;
 
+/** @phpstan-type DataArray array<string, mixed> */
+
 // ---------------------------------------------------------------------------------
 // Proton Configuration
 // ---------------------------------------------------------------------------------
@@ -57,20 +59,51 @@ class Data
         $iterator = new \RecursiveIteratorIterator($directory);
 
         foreach ($iterator as $file) {
-            // Skip dot files
-            if (!str_starts_with((string)$file->getFilename(), '.')) {
+            // Skip dot files and unsupported extensions
+            if (!str_starts_with((string)$file->getFilename(), '.') && $this->isSupportedDataFile($file)) {
                 $this->mergeDataFile($file);
             }
         }
     }
 
+    private function isSupportedDataFile(\SplFileInfo $file): bool
+    {
+        return in_array(strtolower($file->getExtension()), ['yml', 'yaml', 'json'], true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function parseDataFile(\SplFileInfo $file): array
+    {
+        $path = $file->getPathname();
+        $ext  = strtolower($file->getExtension());
+
+        if ($ext === 'json') {
+            $contents = file_get_contents($path);
+            if ($contents === false) {
+                throw new ConfigException("Failed to read data file '$path'");
+            }
+            $data = json_decode($contents, true);
+            if (!is_array($data)) {
+                throw new ConfigException("Failed to parse JSON data file '$path': " . json_last_error_msg());
+            }
+
+            return $data;
+        }
+
+        try {
+            $data = Yaml::parseFile($path);
+        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+            throw new ConfigException("Failed to parse data file '$path': " . $e->getMessage(), 0, $e);
+        }
+
+        return is_array($data) ? $data : [];
+    }
+
     private function mergeDataFile(\SplFileInfo $file): void
     {
-        try {
-            $fileData = Yaml::parseFile($file->getPathname());
-        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
-            throw new ConfigException("Failed to parse data file '{$file->getPathname()}': " . $e->getMessage(), 0, $e);
-        }
+        $fileData = $this->parseDataFile($file);
         $dataPath = $this->getDataPath($file);
 
         // If default data file, add it to root of data

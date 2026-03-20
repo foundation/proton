@@ -72,7 +72,7 @@ Configure where Proton looks for source files and where it writes output.
 |---|---|---|---|
 | `paths.dist` | string | `dist` | The build output directory. |
 | `paths.assets` | string | `src/assets` | Static assets (images, fonts, etc.) that are copied directly to the dist directory. |
-| `paths.data` | string | `src/data` | YAML data files. These are loaded and made available to all templates via the `data` variable. |
+| `paths.data` | string | `src/data` | YAML and JSON data files (`.yml`, `.yaml`, `.json`). These are loaded and made available to all templates via the `data` variable. |
 | `paths.layouts` | string | `src/layouts` | Twig layout templates that wrap page content. |
 | `paths.macros` | string | `src/macros` | Reusable Twig macro files. |
 | `paths.pages` | string | `src/pages` | Page templates. Each file here is compiled into an output file. |

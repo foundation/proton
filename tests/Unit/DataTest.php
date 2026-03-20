@@ -157,3 +157,62 @@ test('generatePageData with empty page data', function (): void {
     expect($result['page'])->toBe([]);
     expect($result['data']['title'])->toBe('Site');
 });
+
+// --- JSON data file tests ---
+
+test('loads data from json files', function (): void {
+    $this->createJsonDataFile('info.json', ['version' => '2.0', 'author' => 'Joe']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['info'])->toBe(['version' => '2.0', 'author' => 'Joe']);
+});
+
+test('json data file named data creates root data', function (): void {
+    $this->createJsonDataFile('data.json', ['title' => 'JSON Site']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['title'])->toBe('JSON Site');
+});
+
+test('nested json data file creates hierarchy', function (): void {
+    $this->createJsonDataFile('api/endpoints.json', ['users' => '/api/users']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['api']['endpoints'])->toBe(['users' => '/api/users']);
+});
+
+test('json and yaml data files coexist', function (): void {
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+    $this->createJsonDataFile('config.json', ['theme' => 'dark']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['title'])->toBe('Site');
+    expect($data->data['config'])->toBe(['theme' => 'dark']);
+});
+
+test('invalid json data file throws ConfigException', function (): void {
+    file_put_contents($this->tempDir . '/src/data/bad.json', '{invalid json}');
+
+    $config = new Config();
+
+    expect(fn (): Data => new Data($config))->toThrow(App\Proton\Exceptions\ConfigException::class);
+});
+
+test('unsupported data file extensions are ignored', function (): void {
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+    file_put_contents($this->tempDir . '/src/data/readme.txt', 'ignore me');
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data)->not->toHaveKey('readme');
+    expect($data->data['title'])->toBe('Site');
+});
