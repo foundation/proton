@@ -144,11 +144,17 @@ class Page
 
             if ($raw) {
                 // In raw mode, the entire content is treated as literal markdown.
-                // We strip any user-defined {% block %} tags (they'd conflict with verbatim)
-                // and wrap the whole content block in verbatim + markdown.
+                // Extract the {% extends %} tag (added by applyLayout) before wrapping,
+                // then strip block tags and wrap content in verbatim + markdown.
+                $extends = '';
+                if (preg_match('/^(\{\%\s+extends\s+[^%]+\%\})/', $this->content, $m)) {
+                    $extends = $m[1];
+                    $this->content = substr($this->content, strlen($m[0]));
+                }
                 $this->content = preg_replace('/\{\%\s+block\s+\S+\s+\%\}/', '', $this->content)??$this->content;
                 $this->content = preg_replace('/\{\%\s+endblock\s+\%\}/', '', $this->content)??$this->content;
-                $this->content = "{% block content %}{% apply markdown_to_html %}{% verbatim %}"
+                $this->content = $extends
+                    . "{% block content %}{% apply markdown_to_html %}{% verbatim %}"
                     . $this->content
                     . "{% endverbatim %}{% endapply %}{% endblock %}";
             } else {
