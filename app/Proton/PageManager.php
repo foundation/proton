@@ -39,20 +39,13 @@ class PageManager
         return count($pages);
     }
 
-    // public function ksort($array)
-    // {
-    //     ksort($array);
-    //     return $array;
-    // }
-
     private function createPageLoader(string $pageName, string $content): \Twig\Environment
     {
         // Create the Twig Chain Loader
         $loader = new \Twig\Loader\ArrayLoader(["@pages/$pageName" => $content]);
         $loader = new \Twig\Loader\ChainLoader([$loader, $this->templateLoader]);
-        // $cache  = new \Twig\Cache\FilesystemCache(self::CACHEDIR, \Twig\Cache\FilesystemCache::FORCE_BYTECODE_INVALIDATION);
-        $debug = $this->config->settings->debug;
-        $twig  = new \Twig\Environment($loader, [
+        $debug  = $this->config->settings->debug;
+        $twig   = new \Twig\Environment($loader, [
             'cache' => self::CACHEDIR,
             'debug' => $debug,
         ]);

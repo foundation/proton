@@ -106,18 +106,18 @@ test('cleanupDist removes dist directory', function (): void {
     expect(is_dir($this->tempDir . '/dist'))->toBeFalse();
 });
 
-test('rm_rf removes directory recursively', function (): void {
+test('removeDirectory removes directory recursively', function (): void {
     $dir = $this->tempDir . '/test_rm';
     mkdir($dir . '/sub', 0777, true);
     file_put_contents($dir . '/sub/file.txt', 'test');
 
-    FilesystemManager::rm_rf($dir);
+    FilesystemManager::removeDirectory($dir);
 
     expect(is_dir($dir))->toBeFalse();
 });
 
-test('rm_rf handles non-existent directory', function (): void {
-    FilesystemManager::rm_rf($this->tempDir . '/nonexistent');
+test('removeDirectory handles non-existent directory', function (): void {
+    FilesystemManager::removeDirectory($this->tempDir . '/nonexistent');
 
     // Should not throw
     expect(true)->toBeTrue();

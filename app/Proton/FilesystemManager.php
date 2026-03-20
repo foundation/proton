@@ -86,15 +86,15 @@ class FilesystemManager
 
     public function cleanupDist(): void
     {
-        self::rm_rf($this->paths->dist);
+        self::removeDirectory($this->paths->dist);
     }
 
     public function clearCache(): void
     {
-        self::rm_rf(PageManager::CACHEDIR);
+        self::removeDirectory(PageManager::CACHEDIR);
     }
 
-    public static function rm_rf(string $dir): void
+    public static function removeDirectory(string $dir): void
     {
         if (file_exists($dir)) {
             $directory = new \RecursiveDirectoryIterator($dir);

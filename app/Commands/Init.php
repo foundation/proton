@@ -45,7 +45,7 @@ class Init extends Command
                 $command = "git clone $clone .";
                 $process = new TerminalCommand($command);
                 $process->start();
-                FilesystemManager::rm_rf('.git');
+                FilesystemManager::removeDirectory('.git');
             }
         }
 

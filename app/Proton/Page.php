@@ -33,7 +33,6 @@ class Page
         $this->applyLayout();
         $this->formatMarkdown();
         $this->formatRaw();
-        $this->formatPug();
     }
 
     public function isBatch(): bool
@@ -174,10 +173,5 @@ class Page
             $this->content = preg_replace('/\{\%\s+block\s+(\S+)\s+\%\}/', '{% block ${1} %}{% verbatim %}', $this->content) ?? $this->content;
             $this->content = preg_replace('/\{\%\s+endblock\s+\%\}/', '{% endverbatim %}{% endblock %}', $this->content) ?? $this->content;
         }
-    }
-
-    private function formatPug(): void
-    {
-        // Pug support removed — pug/twig package is not PHP 8.4 compatible
     }
 }
