@@ -68,4 +68,8 @@ git branch -d "release/$TAG"
 echo "==> Pushing to remote..."
 git push origin master develop --tags
 
+# Create GitHub Release with auto-generated notes
+echo "==> Creating GitHub Release..."
+gh release create "$TAG" --generate-notes --title "$TAG" builds/proton
+
 echo "==> Done! Proton $TAG has been released."
