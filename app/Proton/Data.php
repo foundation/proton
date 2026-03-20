@@ -2,6 +2,7 @@
 
 namespace App\Proton;
 
+use App\Proton\Exceptions\ConfigException;
 use Symfony\Component\Yaml\Yaml;
 
 // ---------------------------------------------------------------------------------
@@ -65,7 +66,11 @@ class Data
 
     private function mergeDataFile(\SplFileInfo $file): void
     {
-        $fileData = Yaml::parseFile($file->getPathname());
+        try {
+            $fileData = Yaml::parseFile($file->getPathname());
+        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+            throw new ConfigException("Failed to parse data file '{$file->getPathname()}': " . $e->getMessage(), 0, $e);
+        }
         $dataPath = $this->getDataPath($file);
 
         // If default data file, add it to root of data

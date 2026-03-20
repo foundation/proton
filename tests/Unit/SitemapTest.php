@@ -1,6 +1,7 @@
 <?php
 
 use App\Proton\Config;
+use App\Proton\FilesystemManager;
 use App\Proton\Sitemap;
 use Tests\Helpers\TestFixtures;
 
@@ -21,7 +22,7 @@ test('generates sitemap xml', function (): void {
     file_put_contents($this->tempDir . '/dist/about/index.html', '<html></html>');
 
     $config  = new Config();
-    $sitemap = new Sitemap($config);
+    $sitemap = new Sitemap($config, new FilesystemManager($config));
     $sitemap->write();
 
     expect(file_exists($this->tempDir . '/dist/sitemap.xml'))->toBeTrue();
@@ -36,7 +37,7 @@ test('sitemap only includes html and php files', function (): void {
     file_put_contents($this->tempDir . '/dist/page.php', '<?php');
 
     $config  = new Config();
-    $sitemap = new Sitemap($config);
+    $sitemap = new Sitemap($config, new FilesystemManager($config));
     $sitemap->write();
 
     $content = file_get_contents($this->tempDir . '/dist/sitemap.xml');
@@ -51,7 +52,7 @@ test('sitemap uses configured domain', function (): void {
     file_put_contents($this->tempDir . '/dist/index.html', '<html></html>');
 
     $config  = new Config();
-    $sitemap = new Sitemap($config);
+    $sitemap = new Sitemap($config, new FilesystemManager($config));
     $sitemap->write();
 
     $content = file_get_contents($this->tempDir . '/dist/sitemap.xml');

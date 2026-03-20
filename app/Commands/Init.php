@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Proton\Config;
 use App\Proton\FilesystemManager;
 use App\Proton\TerminalCommand;
 use LaravelZero\Framework\Commands\Command;
@@ -30,11 +31,12 @@ class Init extends Command
      */
     public function handle(): void
     {
-        $config = new \App\Proton\Config();
+        $config    = app(Config::class);
+        $fsManager = app(FilesystemManager::class);
 
         $templateOption = $this->option('template');
         if (is_string($templateOption)) {
-            $clone = \App\Proton\Config::SITES_TEMPLATE;
+            $clone = Config::SITES_TEMPLATE;
             if ($templateOption !== 'sites') {
                 $clone = $templateOption;
             }
@@ -58,7 +60,6 @@ class Init extends Command
         }
 
         // Setup Folders
-        $fsManager = new FilesystemManager($config);
         $this->info('Initiating Proton Folders');
         $fsManager->initPaths();
         $this->info('Folders Created:');

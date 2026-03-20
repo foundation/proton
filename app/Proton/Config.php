@@ -2,6 +2,7 @@
 
 namespace App\Proton;
 
+use App\Proton\Exceptions\ConfigException;
 use App\Proton\Settings\Settings;
 use Symfony\Component\Yaml\Yaml;
 
@@ -23,8 +24,11 @@ class Config
     public function initConfigFile(): bool
     {
         if (!$this->configFileExists()) {
-            $yaml = Yaml::dump($this->toArray($this->settings), 2, 4, Yaml::DUMP_OBJECT_AS_MAP);
-            file_put_contents(self::CONFIGFILES[0], $yaml);
+            $yaml   = Yaml::dump($this->toArray($this->settings), 2, 4, Yaml::DUMP_OBJECT_AS_MAP);
+            $result = file_put_contents(self::CONFIGFILES[0], $yaml);
+            if ($result === false) {
+                throw new ConfigException('Failed to write config file: ' . self::CONFIGFILES[0]);
+            }
 
             return true;
         }
@@ -48,7 +52,11 @@ class Config
 
         foreach (self::CONFIGFILES as $configFile) {
             if (file_exists($configFile)) {
-                $parsed = Yaml::parseFile($configFile);
+                try {
+                    $parsed = Yaml::parseFile($configFile);
+                } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+                    throw new ConfigException("Failed to parse config file '$configFile': " . $e->getMessage(), 0, $e);
+                }
                 if (is_array($parsed)) {
                     $config = $parsed;
                 }

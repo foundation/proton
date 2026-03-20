@@ -39,7 +39,7 @@ class DevServer implements ProcessInterface
         $this->process->start();
 
         if (!$this->process->isRunning()) {
-            throw new \Exception('Could not start PHP dev server. Error output: ' . $this->process->getErrorOutput());
+            throw new Exceptions\BuildException('Could not start PHP dev server. Error output: ' . $this->process->getErrorOutput());
         }
 
         $this->process->waitUntil(function ($type, $buffer): bool {

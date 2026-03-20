@@ -22,10 +22,13 @@ class PageWriter
     {
         $dest    = $this->config->settings->paths->dist . DIRECTORY_SEPARATOR . $this->path;
         $destDir = dirname($dest);
-        if (!file_exists($destDir)) {
-            mkdir($destDir, 0777, true);
+        if (!file_exists($destDir) && !mkdir($destDir, 0777, true)) {
+            throw new Exceptions\FilesystemException("Failed to create directory: $destDir");
         }
-        file_put_contents($dest, $this->output);
+        $result = file_put_contents($dest, $this->output);
+        if ($result === false) {
+            throw new Exceptions\FilesystemException("Failed to write page: $dest");
+        }
     }
 
     protected function formatOutput(): void

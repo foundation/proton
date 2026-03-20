@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Proton\Config;
+use App\Proton\Page;
 use LaravelZero\Framework\Commands\Command;
 
 class Data extends Command
@@ -27,15 +29,14 @@ class Data extends Command
      */
     public function handle(): void
     {
-        $config = new \App\Proton\Config();
-        $data   = new \App\Proton\Data($config);
+        $config = app(Config::class);
+        $data   = app(\App\Proton\Data::class);
 
-        // Create config file
         $pageOption = $this->option('page');
         if (is_string($pageOption)) {
             $pageName = $pageOption;
             $this->info("Loading data for $pageName");
-            $page = new \App\Proton\Page($pageName, $config, $data);
+            $page = new Page($pageName, $config, $data);
             $page->dumpData();
         } else {
             $this->info('Loading global data');

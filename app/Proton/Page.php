@@ -78,7 +78,7 @@ class Page
         $path = $this->config->settings->paths->pages . DIRECTORY_SEPARATOR . $this->name;
         $raw  = file_get_contents($path);
         if (!$raw) {
-            throw new \Exception("Error reading in page: $path");
+            throw new Exceptions\BuildException("Error reading in page: $path");
         }
 
         // Parse YAML front matter (--- delimited)

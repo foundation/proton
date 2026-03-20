@@ -2,6 +2,7 @@
 
 namespace App\Proton;
 
+use App\Proton\Exceptions\FilesystemException;
 use App\Proton\Settings\Paths;
 
 class FilesystemManager
@@ -71,14 +72,14 @@ class FilesystemManager
         if ($this->pathsExist()) {
             return true;
         }
-        throw new \Exception('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
+        throw new FilesystemException('Not all required paths exist to build site. You can run `proton init` to ensure everything is setup.');
     }
 
     public function initPaths(): void
     {
         foreach ($this->getPathMap() as $path) {
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
+            if (!file_exists($path) && !mkdir($path, 0777, true)) {
+                throw new FilesystemException("Failed to create directory: $path");
             }
         }
     }

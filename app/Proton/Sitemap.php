@@ -10,16 +10,15 @@ class Sitemap
     public const SITEMAP = 'sitemap.xml';
     public const EXTS    = ['html', 'php'];
 
-    public function __construct(protected Config $config)
+    public function __construct(protected Config $config, protected FilesystemManager $fsManager)
     {
     }
 
     public function write(): void
     {
-        $dir       = $this->config->settings->paths->dist;
-        $fsManager = new FilesystemManager($this->config);
+        $dir = $this->config->settings->paths->dist;
 
-        $assets = array_filter($fsManager->getAllFiles($dir), function (string $file): bool {
+        $assets = array_filter($this->fsManager->getAllFiles($dir), function (string $file): bool {
             $ext = pathinfo($file, PATHINFO_EXTENSION);
 
             return in_array($ext, self::EXTS);

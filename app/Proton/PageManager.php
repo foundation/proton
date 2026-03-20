@@ -15,7 +15,7 @@ class PageManager
     protected FilesystemLoader $templateLoader;
     protected Paths $paths;
 
-    public function __construct(protected Config $config, protected Data $data)
+    public function __construct(protected Config $config, protected Data $data, protected FilesystemManager $fsManager)
     {
         $this->paths          = $this->config->settings->paths;
         $this->templateLoader = $this->initTemplateLoader();
@@ -23,9 +23,7 @@ class PageManager
 
     public function compilePages(): void
     {
-        $fsManager = new FilesystemManager($this->config);
-        // $fsManager->clearCache();
-        $pages = $fsManager->getAllFiles($this->paths->pages);
+        $pages = $this->fsManager->getAllFiles($this->paths->pages);
         foreach ($pages as $pageName) {
             $page   = new Page($pageName, $this->config, $this->data);
             $loader = $this->createPageLoader($pageName, $page->content);

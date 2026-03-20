@@ -2,6 +2,7 @@
 
 use App\Proton\AssetManager;
 use App\Proton\Config;
+use App\Proton\FilesystemManager;
 use Tests\Helpers\TestFixtures;
 
 uses(TestFixtures::class);
@@ -19,7 +20,7 @@ test('copies assets to dist', function (): void {
     $this->createAsset('script.js', 'console.log("hi")');
 
     $config       = new Config();
-    $assetManager = new AssetManager($config);
+    $assetManager = new AssetManager($config, new FilesystemManager($config));
     $assetManager->copyAssets();
 
     expect(file_exists($this->tempDir . '/dist/style.css'))->toBeTrue();
@@ -32,7 +33,7 @@ test('preserves directory structure in dist', function (): void {
     $this->createAsset('js/app.js', 'var x = 1;');
 
     $config       = new Config();
-    $assetManager = new AssetManager($config);
+    $assetManager = new AssetManager($config, new FilesystemManager($config));
     $assetManager->copyAssets();
 
     expect(file_exists($this->tempDir . '/dist/css/main.css'))->toBeTrue();
@@ -43,7 +44,7 @@ test('creates dist subdirectories as needed', function (): void {
     $this->createAsset('images/photos/hero.jpg', 'fake-image-data');
 
     $config       = new Config();
-    $assetManager = new AssetManager($config);
+    $assetManager = new AssetManager($config, new FilesystemManager($config));
     $assetManager->copyAssets();
 
     expect(file_exists($this->tempDir . '/dist/images/photos/hero.jpg'))->toBeTrue();
