@@ -55,10 +55,10 @@ git merge --no-ff "release/$TAG" -m "Merge branch 'release/$TAG'"
 echo "==> Tagging $TAG..."
 git tag -a "$TAG" -m "$TAG"
 
-# Merge back into develop
+# Merge master (which carries the tag) back into develop
 echo "==> Merging back into develop..."
 git checkout develop
-git merge --no-ff "release/$TAG" -m "Merge branch 'release/$TAG' into develop"
+git merge --no-ff master -m "Merge tag '$TAG' into develop"
 
 # Delete the release branch
 echo "==> Cleaning up release branch..."
