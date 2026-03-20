@@ -106,3 +106,17 @@ test('default layouts are configured', function (): void {
 
     expect($config->settings->layouts->default)->toBe('default.html');
 });
+
+test('default port is 8000', function (): void {
+    $config = new Config();
+
+    expect($config->settings->port)->toBe(8000);
+});
+
+test('port can be configured', function (): void {
+    $this->createConfigFile(['port' => 3000]);
+
+    $config = new Config();
+
+    expect($config->settings->port)->toBe(3000);
+});

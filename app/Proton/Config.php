@@ -82,6 +82,7 @@ class Config
             'sitemap'    => $settings->sitemap,
             'npmBuild'   => $settings->npmBuild,
             'devserver'  => $settings->devserver,
+            'port'       => $settings->port,
             'layouts'    => [
                 'default' => $settings->layouts->default,
                 'rules'   => $settings->layouts->rules,

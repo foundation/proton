@@ -18,6 +18,7 @@ pretty: false
 minify: true
 sitemap: true
 npmBuild: yarn build
+port: 3000
 layouts:
   default: default.html
   rules:
@@ -44,6 +45,7 @@ paths:
 | `sitemap` | bool | `true` | Generates a `sitemap.xml` in the dist directory after each build. |
 | `npmBuild` | string | `yarn build` | A shell command to run after pages are compiled. Typically used for CSS/JS bundling. Set to an empty string to disable. |
 | `devserver` | string | `php` | The dev server used during `proton watch`. |
+| `port` | int | `8000` | The port the dev server listens on during `proton watch`. |
 
 ### Layouts
 

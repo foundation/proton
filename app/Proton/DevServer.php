@@ -13,13 +13,13 @@ class DevServer implements ProcessInterface
     public Process $process;
     protected string $reloadFile;
 
-    public function __construct(public string $path)
+    public function __construct(public string $path, public int $port = 8000)
     {
         $this->reloadFile = sys_get_temp_dir() . '/proton_reload_' . getmypid();
 
         $command = [
             new ExecutableFinder()->find('php'),
-            '-S', 'localhost:8000',
+            '-S', "localhost:{$this->port}",
             '-t', $this->path,
             realpath(__DIR__ . '/../bin/router.php'),
         ];

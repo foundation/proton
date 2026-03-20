@@ -44,7 +44,7 @@ class Watch extends Command
 
         $builder = new Builder($output, $config, $data, $fsManager, $pageManager, $assetManager);
         $scanner = new FileScanner([$config->settings->paths->watch]);
-        $server  = new DevServer($config->settings->paths->dist);
+        $server  = new DevServer($config->settings->paths->dist, $config->settings->port);
 
         $watcher = new Watcher($output, $config, $builder, $fsManager, $scanner, $server);
         $watcher->watch();

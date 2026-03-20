@@ -14,6 +14,7 @@ class Settings
         public bool $sitemap = true,
         public string $npmBuild = 'yarn build',
         public string $devserver = 'php',
+        public int $port = 8000,
         public Layouts $layouts = new Layouts(),
         public Paths $paths = new Paths(),
     ) {
@@ -34,6 +35,7 @@ class Settings
             sitemap: (bool)($data['sitemap'] ?? true),
             npmBuild: (string)($data['npmBuild'] ?? 'yarn build'),
             devserver: (string)($data['devserver'] ?? 'php'),
+            port: (int)($data['port'] ?? 8000),
             layouts: Layouts::fromArray((array)($data['layouts'] ?? [])),
             paths: Paths::fromArray((array)($data['paths'] ?? [])),
         );
