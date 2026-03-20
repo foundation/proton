@@ -49,3 +49,13 @@ test('creates dist subdirectories as needed', function (): void {
 
     expect(file_exists($this->tempDir . '/dist/images/photos/hero.jpg'))->toBeTrue();
 });
+
+test('empty assets directory copies nothing', function (): void {
+    $config       = new Config();
+    $assetManager = new AssetManager($config, new FilesystemManager($config));
+    $assetManager->copyAssets();
+
+    // dist dir exists but has no asset files
+    $files = glob($this->tempDir . '/dist/*');
+    expect($files)->toBe([]);
+});

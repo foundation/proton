@@ -122,3 +122,60 @@ test('rm_rf handles non-existent directory', function (): void {
     // Should not throw
     expect(true)->toBeTrue();
 });
+
+test('deleteFromDist removes file from dist', function (): void {
+    file_put_contents($this->tempDir . '/dist/page.html', '<html></html>');
+
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+    $result    = $fsManager->deleteFromDist('page.html');
+
+    expect($result)->toBeTrue();
+    expect(file_exists($this->tempDir . '/dist/page.html'))->toBeFalse();
+});
+
+test('deleteFromDist returns true for non-existent file', function (): void {
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+    $result    = $fsManager->deleteFromDist('nonexistent.html');
+
+    expect($result)->toBeTrue();
+});
+
+test('deleteFromDist handles nested paths', function (): void {
+    mkdir($this->tempDir . '/dist/blog', 0777, true);
+    file_put_contents($this->tempDir . '/dist/blog/post.html', '<html></html>');
+
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+    $result    = $fsManager->deleteFromDist('blog/post.html');
+
+    expect($result)->toBeTrue();
+    expect(file_exists($this->tempDir . '/dist/blog/post.html'))->toBeFalse();
+});
+
+test('pathChecker returns true when all paths exist', function (): void {
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+
+    expect($fsManager->pathChecker())->toBeTrue();
+});
+
+test('initPaths does not error when all paths already exist', function (): void {
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+    $fsManager->initPaths();
+
+    expect($fsManager->pathsExist())->toBeTrue();
+});
+
+test('clearCache removes proton cache directory', function (): void {
+    mkdir($this->tempDir . '/.proton-cache', 0777, true);
+    file_put_contents($this->tempDir . '/.proton-cache/twig.php', '<?php');
+
+    $config    = new Config();
+    $fsManager = new FilesystemManager($config);
+    $fsManager->clearCache();
+
+    expect(is_dir($this->tempDir . '/.proton-cache'))->toBeFalse();
+});

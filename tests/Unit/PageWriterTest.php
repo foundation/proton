@@ -165,3 +165,70 @@ test('pretty output indents html', function (): void {
     // Pretty output should contain indentation
     expect($output)->toContain("\n");
 });
+
+test('minified output removes whitespace', function (): void {
+    $this->createConfigFile(['minify' => true, 'pretty' => false]);
+    $this->createDataFile('data.yml', ['title' => 'Test Site']);
+    $this->createPage('index.html', "<html>\n<body>\n  <div>\n    <p>Hello</p>\n  </div>\n</body>\n</html>", ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    // Minified output should not have leading indentation
+    expect($output)->not->toContain('  <div>');
+});
+
+test('non-pretty non-minified output passes through unchanged', function (): void {
+    $this->createConfigFile(['minify' => false, 'pretty' => false]);
+    $this->createDataFile('data.yml', ['title' => 'Test Site']);
+    $this->createPage('index.html', '<p>Hello</p>', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toBe('<p>Hello</p>');
+});
+
+test('custom extension is preserved in output path', function (): void {
+    $this->createConfigFile(['autoindex' => false]);
+    $this->createDataFile('data.yml', ['title' => 'Test Site']);
+    $this->createPage('robots.txt', 'User-agent: *', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('robots.txt', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    expect(file_exists($this->tempDir . '/dist/robots.txt'))->toBeTrue();
+});
+
+test('index page is not double-indexed with autoindex', function (): void {
+    $this->createPage('blog/index.html', '<h1>Blog</h1>', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('blog/index.html', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    expect(file_exists($this->tempDir . '/dist/blog/index.html'))->toBeTrue();
+    // Should NOT create blog/index/index.html
+    expect(file_exists($this->tempDir . '/dist/blog/index/index.html'))->toBeFalse();
+});

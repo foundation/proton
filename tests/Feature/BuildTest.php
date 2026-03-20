@@ -5,7 +5,7 @@ use Tests\Helpers\TestFixtures;
 uses(TestFixtures::class);
 
 beforeEach(function (): void {
-    $this->setUpTempProject();
+    $this->setUpTempProject(['npmBuild' => '']);
     $this->createDataFile('data.yml', ['title' => 'Test']);
     $this->createPage('index.html', '<h1>Home</h1>', ['layout' => 'none']);
 });

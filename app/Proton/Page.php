@@ -76,8 +76,11 @@ class Page
     private function processPage(Data $data): void
     {
         $path = $this->config->settings->paths->pages . DIRECTORY_SEPARATOR . $this->name;
-        $raw  = file_get_contents($path);
-        if (!$raw) {
+        if (!file_exists($path)) {
+            throw new Exceptions\BuildException("Error reading in page: $path");
+        }
+        $raw = file_get_contents($path);
+        if ($raw === false) {
             throw new Exceptions\BuildException("Error reading in page: $path");
         }
 

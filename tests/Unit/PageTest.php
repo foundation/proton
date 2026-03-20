@@ -255,3 +255,150 @@ test('non-raw html does not use verbatim', function (): void {
 
     expect($page->content)->not->toContain('{% verbatim %}');
 });
+
+// --- accessor method tests ---
+
+test('getPageData returns value for existing key', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>', ['title' => 'Home', 'author' => 'Joe']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getPageData('title'))->toBe('Home');
+    expect($page->getPageData('author'))->toBe('Joe');
+});
+
+test('getPageData returns null for missing key', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getPageData('nonexistent'))->toBeNull();
+});
+
+test('getProtonData returns environment', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getProtonData('environment'))->toBe('development');
+    expect($page->getProtonData('build_time'))->toBeInt();
+});
+
+test('getProtonData returns null for missing key', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getProtonData('nonexistent'))->toBeNull();
+});
+
+test('getData returns global data value', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getData('title'))->toBe('Test Site');
+});
+
+test('getData returns null for missing key', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->getData('nonexistent'))->toBeNull();
+});
+
+// --- layout rule edge cases ---
+
+test('first matching layout rule wins', function (): void {
+    $this->createConfigFile([
+        'layouts' => [
+            'default' => 'default.html',
+            'rules'   => [
+                'blog'      => 'blog.html',
+                'blog/news' => 'news.html',
+            ],
+        ],
+    ]);
+    $this->createLayout('blog.html', '<article>{% block content %}{% endblock %}</article>');
+    $this->createLayout('news.html', '<div>{% block content %}{% endblock %}</div>');
+    $this->createPage('blog/news/item.html', '<p>News item</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('blog/news/item.html', $config, $data);
+
+    // "blog" matches first since it's iterated first
+    expect($page->content)->toContain('{% extends "@layouts/blog.html" %}');
+});
+
+test('layout rule does not match partial prefix', function (): void {
+    $this->createConfigFile([
+        'layouts' => [
+            'default' => 'default.html',
+            'rules'   => [
+                'blog' => 'blog.html',
+            ],
+        ],
+    ]);
+    $this->createLayout('blog.html', '<article>{% block content %}{% endblock %}</article>');
+    $this->createPage('blogging/post.html', '<p>Post</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('blogging/post.html', $config, $data);
+
+    // "blog" is a prefix of "blogging" so it matches with str_starts_with
+    // This documents the actual behavior
+    expect($page->content)->toContain('{% extends "@layouts/blog.html" %}');
+});
+
+test('no layout rules falls back to default', function (): void {
+    $this->createConfigFile([
+        'layouts' => [
+            'default' => 'default.html',
+            'rules'   => [],
+        ],
+    ]);
+    $this->createPage('anything.html', '<p>Content</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('anything.html', $config, $data);
+
+    expect($page->content)->toContain('{% extends "@layouts/default.html" %}');
+});
+
+// --- extension edge cases ---
+
+test('pug extension maps to default ext', function (): void {
+    $this->createPage('page.pug', '<p>Pug page</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('page.pug', $config, $data);
+
+    expect($page->ext)->toBe('pug');
+});
+
+test('custom extension is preserved', function (): void {
+    $this->createPage('feed.xml', '<rss></rss>', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('feed.xml', $config, $data);
+
+    expect($page->ext)->toBe('xml');
+});

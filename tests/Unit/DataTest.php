@@ -116,3 +116,44 @@ test('multiple data files merge at root for default name', function (): void {
     expect($data->data['title'])->toBe('Site');
     expect($data->data['version'])->toBe('1.0');
 });
+
+test('multiple data files coexist', function (): void {
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+    $this->createDataFile('extra.yml', ['color' => 'blue']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['title'])->toBe('Site');
+    expect($data->data['extra'])->toBe(['color' => 'blue']);
+});
+
+test('deeply nested data files create hierarchy', function (): void {
+    $this->createDataFile('a/b/c.yml', ['deep' => true]);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['a']['b']['c'])->toBe(['deep' => true]);
+});
+
+test('env data includes build time', function (): void {
+    $this->createDataFile('data.yml', ['key' => 'value']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->env)->toHaveKey('build_time');
+    expect($data->env['build_time'])->toBeInt();
+});
+
+test('generatePageData with empty page data', function (): void {
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $result = $data->generatePageData([]);
+
+    expect($result['page'])->toBe([]);
+    expect($result['data']['title'])->toBe('Site');
+});
