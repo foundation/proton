@@ -9,7 +9,7 @@ nav_order: 3
 
 Storing data inside Proton is very flexible to work with many different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. Proton supports `.yml`, `.yaml`, and `.json` extensions — any other file types in the data directory are ignored. The data folder is configurable via `paths.data` in your config.
 
-### Default data.yml/json
+## Default data.yml/json
 
 Data stored in the in the `data.yml` or `data.json` files are special in that they are stored at the top level of that global data structure. For example, let's look at this YAML data.
 
@@ -20,7 +20,7 @@ version: 1.0.0
 
 You will be able to insert this data into your page content via standard mustache syntax: `{{ project }}` and `{{ version }}`
 
-### Data Hierarchy
+## Data Hierarchy
 
 There are many ways to create hierarchy within your data.
 
@@ -58,7 +58,7 @@ For all of the example above you can access the data just like you would traditi
 
 Twig provides many logic based functions like `for` loops that allow you iterate through data to create content dynamically.
 
-### Front Matter Data
+## Front Matter Data
 
 You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored.
 
@@ -79,7 +79,7 @@ title: My awesome webpage
 My Page Content...
 ```
 
-### Debugging Data
+## Debugging Data
 
 You can use the `data` command with proton to analyze the data that proton will use to build your pages. This can help you visualize how proton builds the data strucute. You can also pass an optional `--page` parameter in order to take into account a page's front matter so you can see the exact data strcutre used to build a single page.
 
@@ -88,6 +88,6 @@ $ proton data
 $ proton data --page=subfolder/index.html
 ```
 
-### Tips
+## Tips
 
 * You cannot use a data variable on a page that has a page content block that uses the same name. For example, if you had a variable `{{ title }}` on a page, you cannot also use the content block `{% block title %}{% endblock %}` since both use the ID of `title`.
