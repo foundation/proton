@@ -27,7 +27,7 @@ class Sitemap
         $domain  = $this->config->settings->domain;
         $sitemap = new \samdark\sitemap\Sitemap($dir . DIRECTORY_SEPARATOR . self::SITEMAP);
         foreach ($assets as $asset) {
-            $url = $domain . '/' . $asset;
+            $url = $domain . '/' . preg_replace('#index\.(?:html?|php)$#', '', $asset);
             $sitemap->addItem($url);
         }
         $sitemap->write();
