@@ -184,6 +184,22 @@ test('minified output removes whitespace', function (): void {
     expect($output)->not->toContain('  <div>');
 });
 
+test('pretty output preserves newlines inside pre blocks', function (): void {
+    $preContent = "<html><body><pre><code>line1\nline2\nline3</code></pre></body></html>";
+    $this->createPage('index.html', $preContent, ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toContain("line1\nline2\nline3");
+});
+
 test('non-pretty non-minified output passes through unchanged', function (): void {
     $this->createConfigFile(['minify' => false, 'pretty' => false]);
     $this->createDataFile('data.yml', ['title' => 'Test Site']);
