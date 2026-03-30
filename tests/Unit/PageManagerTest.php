@@ -264,3 +264,60 @@ test('compilePages provides count filter', function (): void {
     $output = file_get_contents($this->tempDir . '/dist/index.html');
     expect($output)->toBe('3');
 });
+
+test('draft pages are excluded in production', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=production');
+
+    $this->createPage('index.html', '<h1>Home</h1>', ['layout' => 'none']);
+    $this->createPage('secret.html', '<h1>Secret</h1>', ['layout' => 'none', 'draft' => true]);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $count       = $pageManager->compilePages();
+
+    expect($count)->toBe(1);
+    expect(file_exists($this->tempDir . '/dist/index.html'))->toBeTrue();
+    expect(file_exists($this->tempDir . '/dist/secret/index.html'))->toBeFalse();
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});
+
+test('draft pages are included in development', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=development');
+
+    $this->createPage('index.html', '<h1>Home</h1>', ['layout' => 'none']);
+    $this->createPage('secret.html', '<h1>Secret</h1>', ['layout' => 'none', 'draft' => true]);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $count       = $pageManager->compilePages();
+
+    expect($count)->toBe(2);
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});
+
+test('draft pages are excluded from proton.pages in production', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=production');
+
+    $this->createPage('index.html', '{{ proton.pages|length }}', ['layout' => 'none']);
+    $this->createPage('draft-post.html', '<h1>Draft</h1>', ['layout' => 'none', 'draft' => true]);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toBe('1');
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});

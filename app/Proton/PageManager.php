@@ -3,6 +3,7 @@
 namespace App\Proton;
 
 use App\Proton\Settings\Paths;
+use Symfony\Component\Yaml\Yaml;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\Loader\FilesystemLoader;
@@ -26,6 +27,11 @@ class PageManager
     public function compilePages(): int
     {
         $pages = $this->fsManager->getAllFiles($this->paths->pages);
+
+        if ($this->data->env['environment'] !== 'development') {
+            $pages = $this->filterDrafts($pages);
+        }
+
         $this->data->setPages(PageCollection::collect($pages, $this->config));
         foreach ($pages as $pageName) {
             $this->markdownConverter->resetToc();
@@ -110,6 +116,28 @@ class PageManager
         $loader->addPath($this->paths->layouts, 'layouts');
 
         return $loader;
+    }
+
+    /**
+     * @param string[] $pages
+     * @return string[]
+     */
+    private function filterDrafts(array $pages): array
+    {
+        $pagesDir = $this->paths->pages;
+
+        return array_values(array_filter($pages, function (string $pageName) use ($pagesDir): bool {
+            $path = $pagesDir . DIRECTORY_SEPARATOR . $pageName;
+            $raw  = file_get_contents($path);
+            if ($raw !== false && preg_match('/\A---\s*\n(.*?)\n---\s*\n/s', $raw, $matches)) {
+                $yaml = Yaml::parse($matches[1]);
+                if (is_array($yaml) && ($yaml['draft'] ?? false) === true) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
     }
 
     public function refreshData(): void
