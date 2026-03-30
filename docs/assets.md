@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Assets Overview"
+nav_group: "Core Concepts"
+nav_order: 4
 ---
 
 # Assets Overview

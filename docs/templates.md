@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Template Overview"
+nav_group: "Core Concepts"
+nav_order: 2
 ---
 
 # Template Overview

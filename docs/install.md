@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Installation"
+nav_group: "Getting Started"
+nav_order: 1
 ---
 
 # Installation

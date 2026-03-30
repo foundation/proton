@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Data Overview"
+nav_group: "Core Concepts"
+nav_order: 3
 ---
 
 # Data Overview

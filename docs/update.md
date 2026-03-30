@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Updating Proton"
+nav_group: "Reference"
+nav_order: 2
 ---
 
 # Updating Proton

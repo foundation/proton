@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Generating a Sitemap"
+nav_group: "Reference"
+nav_order: 1
 ---
 
 # Generating a Sitemap
