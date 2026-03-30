@@ -107,10 +107,11 @@ class PageManager
 
     private function initTemplateLoader(): FilesystemLoader
     {
-        $loader = new FilesystemLoader([
-            $this->paths->partials,
-            $this->paths->macros,
-        ]);
+        $paths = array_filter(
+            [$this->paths->partials, $this->paths->macros],
+            'is_dir',
+        );
+        $loader = new FilesystemLoader($paths);
         $loader->addPath($this->paths->pages, 'pages');
         $loader->addPath($this->paths->layouts, 'layouts');
 

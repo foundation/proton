@@ -2,6 +2,11 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.10.3] - 2026-03-30
+
+### Fixed
+- No longer crash when `src/macros` or `src/partials` directories don't exist in a project.
+
 ## [0.10.2] - 2026-03-30
 
 ### Fixed
