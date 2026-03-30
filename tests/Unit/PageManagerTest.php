@@ -303,6 +303,76 @@ test('draft pages are included in development', function (): void {
     putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
 });
 
+test('draft false pages are not filtered in production', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=production');
+
+    $this->createPage('index.html', '<h1>Home</h1>', ['layout' => 'none']);
+    $this->createPage('visible.html', '<h1>Visible</h1>', ['layout' => 'none', 'draft' => false]);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $count       = $pageManager->compilePages();
+
+    expect($count)->toBe(2);
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});
+
+test('non-boolean draft values are not treated as drafts', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=production');
+
+    $this->createPage('index.html', '<h1>Home</h1>', ['layout' => 'none']);
+    $this->createPage('truthy.html', '<h1>Truthy</h1>', ['layout' => 'none', 'draft' => 'yes']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $count       = $pageManager->compilePages();
+
+    expect($count)->toBe(2);
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});
+
+test('pages without front matter are not filtered as drafts', function (): void {
+    $originalEnv = getenv('PROTON_ENV');
+    putenv('PROTON_ENV=production');
+
+    $this->createPage('index.html', '<h1>Home</h1>');
+    $this->createPage('plain.html', '<h1>No front matter</h1>');
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $count       = $pageManager->compilePages();
+
+    expect($count)->toBe(2);
+
+    putenv($originalEnv !== false ? "PROTON_ENV=$originalEnv" : 'PROTON_ENV');
+});
+
+test('debug mode enables dump function', function (): void {
+    $this->createConfigFile(['debug' => true]);
+    $this->createDataFile('data.yml', ['title' => 'Test']);
+    $this->createPage('index.html', '{{ dump() }}', ['layout' => 'none']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    // dump() should produce some output (array representation)
+    expect($output)->not->toBeEmpty();
+});
+
 test('draft pages are excluded from proton.pages in production', function (): void {
     $originalEnv = getenv('PROTON_ENV');
     putenv('PROTON_ENV=production');

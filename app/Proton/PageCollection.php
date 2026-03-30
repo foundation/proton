@@ -2,8 +2,6 @@
 
 namespace App\Proton;
 
-use Symfony\Component\Yaml\Yaml;
-
 class PageCollection
 {
     /**
@@ -22,16 +20,8 @@ class PageCollection
                 continue;
             }
 
-            $raw       = file_get_contents($path);
-            $pageData  = [];
-
-            // Parse YAML front matter
-            if ($raw !== false && preg_match('/\A---\s*\n(.*?)\n---\s*\n/s', $raw, $matches)) {
-                $yaml = Yaml::parse($matches[1]);
-                if (is_array($yaml)) {
-                    $pageData = $yaml;
-                }
-            }
+            $raw      = file_get_contents($path);
+            $pageData = $raw !== false ? FrontMatterParser::parseDataOnly($raw) : [];
 
             $info     = pathinfo($pageName);
             $filename = $info['filename'];
@@ -89,8 +79,7 @@ class PageCollection
         $parts[] = $filename;
 
         // Resolve extension
-        $revertToDefaultExt = ['md', 'pug', 'twig', null];
-        $outputExt          = in_array($ext, $revertToDefaultExt, true)
+        $outputExt = in_array($ext, PageWriter::TEMPLATE_EXTENSIONS, true)
             ? $config->settings->defaultExt
             : ($ext ?? $config->settings->defaultExt);
 

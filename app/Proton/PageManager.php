@@ -3,7 +3,6 @@
 namespace App\Proton;
 
 use App\Proton\Settings\Paths;
-use Symfony\Component\Yaml\Yaml;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
 use Twig\Loader\FilesystemLoader;
@@ -129,9 +128,9 @@ class PageManager
         return array_values(array_filter($pages, function (string $pageName) use ($pagesDir): bool {
             $path = $pagesDir . DIRECTORY_SEPARATOR . $pageName;
             $raw  = file_get_contents($path);
-            if ($raw !== false && preg_match('/\A---\s*\n(.*?)\n---\s*\n/s', $raw, $matches)) {
-                $yaml = Yaml::parse($matches[1]);
-                if (is_array($yaml) && ($yaml['draft'] ?? false) === true) {
+            if ($raw !== false) {
+                $data = FrontMatterParser::parseDataOnly($raw);
+                if (($data['draft'] ?? false) === true) {
                     return false;
                 }
             }

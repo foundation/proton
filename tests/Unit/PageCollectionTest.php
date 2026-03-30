@@ -122,3 +122,54 @@ test('generates flat URL when autoindex disabled', function (): void {
 
     expect($pages[0]['url'])->toBe('/about.html');
 });
+
+test('template extensions revert to default ext in URL', function (): void {
+    $this->createPage('page.twig', '<p>Twig</p>');
+    $this->createPage('doc.pug', '<p>Pug</p>');
+
+    $config = new Config();
+    $pages  = PageCollection::collect(['page.twig', 'doc.pug'], $config);
+
+    // Both twig and pug should produce clean URLs (autoindex on by default)
+    expect($pages[0]['url'])->toBe('/page/');
+    expect($pages[1]['url'])->toBe('/doc/');
+});
+
+test('custom file extension is preserved in URL', function (): void {
+    $this->createConfigFile(['autoindex' => false]);
+    $this->createPage('robots.txt', 'User-agent: *');
+
+    $config = new Config();
+    $pages  = PageCollection::collect(['robots.txt'], $config);
+
+    expect($pages[0]['url'])->toBe('/robots.txt');
+});
+
+test('page with empty front matter collects correctly', function (): void {
+    $path = $this->tempDir . '/src/pages/empty-fm.html';
+    file_put_contents($path, "---\n\n---\n<h1>Content</h1>");
+
+    $config = new Config();
+    $pages  = PageCollection::collect(['empty-fm.html'], $config);
+
+    expect($pages)->toHaveCount(1);
+    expect($pages[0]['filename'])->toBe('empty-fm');
+});
+
+test('empty page list returns empty array', function (): void {
+    $config = new Config();
+    $pages  = PageCollection::collect([], $config);
+
+    expect($pages)->toBeEmpty();
+});
+
+test('draft pages are collected normally by PageCollection', function (): void {
+    $this->createPage('draft.html', '<h1>Draft</h1>', ['draft' => true, 'title' => 'My Draft']);
+
+    $config = new Config();
+    $pages  = PageCollection::collect(['draft.html'], $config);
+
+    expect($pages)->toHaveCount(1);
+    expect($pages[0]['draft'])->toBeTrue();
+    expect($pages[0]['title'])->toBe('My Draft');
+});

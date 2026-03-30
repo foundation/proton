@@ -3,7 +3,6 @@
 /.idea
 /.vscode
 /.vagrant
-/ray.php
 .phpunit.result.cache
 .php-cs-fixer.cache
 composer.lock
@@ -13,3 +12,4 @@ composer.lock
 /.phpunit.cache
 
 .DS_Store
+ROADMAP.md

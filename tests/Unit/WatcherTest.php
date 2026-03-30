@@ -91,3 +91,177 @@ test('isTemplatesPath returns false for non-template paths', function (): void {
     expect($watcher->isTemplatesPath('node_modules/foo.js'))->toBeFalse();
     expect($watcher->isTemplatesPath('webpack.config.js'))->toBeFalse();
 });
+
+// --- processBatch tests ---
+
+test('processBatch triggers data refresh for data changes', function (): void {
+    $this->createPage('index.html', '<h1>Home</h1>');
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('refreshData')->once();
+    $builder->shouldNotReceive('compilePages');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/data/data.yml'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers asset copy for asset changes', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('copyAssets')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('compilePages');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/assets/style.css'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers page compile for template changes', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('compilePages')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/layouts/default.html'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers page compile for page update', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('compilePages')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/pages/index.html'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers sitemap rebuild for new page', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('compilePages')->once();
+    $builder->shouldReceive('buildSitemap')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_CREATED, 'path' => 'src/pages/new-page.html'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers sitemap rebuild and page delete for deleted page', function (): void {
+    // Create dist file so deleteFromDist works
+    mkdir($this->tempDir . '/dist/pages', 0777, true);
+    file_put_contents($this->tempDir . '/dist/pages/old.html', '<h1>Old</h1>');
+
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('buildSitemap')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('compilePages');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_DELETED, 'path' => 'src/pages/old.html'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch triggers npm build for unknown file changes', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('runNPMBuild')->once();
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('compilePages');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('buildSitemap');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'webpack.config.js'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch deduplicates actions for multiple changes of same type', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('compilePages')->once(); // only once despite 3 template changes
+    $builder->shouldNotReceive('refreshData');
+    $builder->shouldNotReceive('copyAssets');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/layouts/default.html'],
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/partials/header.html'],
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/pages/index.html'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});
+
+test('processBatch handles mixed change types', function (): void {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('refreshData')->once();
+    $builder->shouldReceive('copyAssets')->once();
+    $builder->shouldNotReceive('compilePages');
+    $builder->shouldNotReceive('buildSitemap');
+    $builder->shouldNotReceive('runNPMBuild');
+
+    $watcher = new Watcher($this->output, $this->config, $builder, $this->fsManager, $this->scanner, $this->server);
+
+    $changes = [
+        ['type' => FileScanner::EVENT_FILE_UPDATED, 'path' => 'src/data/data.yml'],
+        ['type' => FileScanner::EVENT_FILE_CREATED, 'path' => 'src/assets/new.css'],
+    ];
+
+    $reflection = new ReflectionMethod($watcher, 'processBatch');
+    $reflection->invoke($watcher, $changes);
+});

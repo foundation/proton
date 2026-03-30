@@ -7,6 +7,9 @@ namespace App\Proton;
 // ---------------------------------------------------------------------------------
 class PageWriter
 {
+    /** @var array<int, string|null> Extensions that map to the configured defaultExt */
+    public const TEMPLATE_EXTENSIONS = ['md', 'pug', 'twig', null];
+
     protected string $output;
     protected string $path;
 
@@ -104,9 +107,8 @@ class PageWriter
 
     protected function findExtension(): string
     {
-        $ext                = $this->page->ext;
-        $revertToDefaultExt = ['md', 'pug', 'twig', null];
-        if (in_array($ext, $revertToDefaultExt, true)) {
+        $ext = $this->page->ext;
+        if (in_array($ext, self::TEMPLATE_EXTENSIONS, true)) {
             return $this->config->settings->defaultExt;
         }
 

@@ -233,6 +233,34 @@ test('custom extension is preserved in output path', function (): void {
     expect(file_exists($this->tempDir . '/dist/robots.txt'))->toBeTrue();
 });
 
+test('pug extension maps to default ext', function (): void {
+    $this->createPage('page.pug', '<p>Pug page</p>', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('page.pug', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    expect(file_exists($this->tempDir . '/dist/page/index.html'))->toBeTrue();
+});
+
+test('deeply nested page preserves full directory path', function (): void {
+    $this->createPage('docs/api/v2/endpoints.html', '<p>Endpoints</p>', ['layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('docs/api/v2/endpoints.html', $config, $data);
+    $twig   = createTwig($config, $page);
+
+    $writer = new PageWriter($page, $twig, $config);
+    $writer->savePage();
+
+    expect(file_exists($this->tempDir . '/dist/docs/api/v2/endpoints/index.html'))->toBeTrue();
+});
+
 test('index page is not double-indexed with autoindex', function (): void {
     $this->createPage('blog/index.html', '<h1>Blog</h1>', ['layout' => 'none']);
 

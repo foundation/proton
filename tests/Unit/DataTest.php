@@ -216,3 +216,50 @@ test('unsupported data file extensions are ignored', function (): void {
     expect($data->data)->not->toHaveKey('readme');
     expect($data->data['title'])->toBe('Site');
 });
+
+test('invalid yaml data file throws ConfigException', function (): void {
+    file_put_contents($this->tempDir . '/src/data/bad.yml', "invalid: yaml: content:\n  - broken\n    indentation");
+
+    $config = new Config();
+
+    // Invalid YAML may parse as a string or throw depending on the content
+    // Use clearly broken YAML
+    file_put_contents($this->tempDir . '/src/data/bad.yml', "key: value\n  bad indent: here\n    worse: there");
+
+    expect(fn (): Data => new Data($config))->toThrow(App\Proton\Exceptions\ConfigException::class);
+});
+
+test('empty yaml data file does not crash', function (): void {
+    $this->createDataFile('data.yml', ['title' => 'Site']);
+    file_put_contents($this->tempDir . '/src/data/empty.yml', '');
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    // Should load without error, empty file produces no data
+    expect($data->data['title'])->toBe('Site');
+});
+
+test('setPages makes pages available in env', function (): void {
+    $this->createDataFile('data.yml', ['key' => 'value']);
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    $pages = [['url' => '/about/', 'title' => 'About']];
+    $data->setPages($pages);
+
+    expect($data->env['pages'])->toBe($pages);
+});
+
+test('yaml extension variants are supported', function (): void {
+    $this->createDataFile('data.yml', ['from_yml' => true]);
+    // Create a .yaml file manually
+    file_put_contents($this->tempDir . '/src/data/extra.yaml', "from_yaml: true\n");
+
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect($data->data['from_yml'])->toBeTrue();
+    expect($data->data['extra'])->toBe(['from_yaml' => true]);
+});
