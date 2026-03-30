@@ -61,6 +61,30 @@ Raw mode works with both `.md` and `.html` pages:
 
 Note: When using `raw: true`, you cannot use Twig variables or includes within the page content. Use front matter for page metadata (like `title`) and access it in your layout with `{{ page.title }}`.
 
+## Heading IDs
+
+All headings in markdown pages automatically get `id` attributes generated from the heading text. For example, `## Getting Started` becomes `<h2 id="getting-started">Getting Started</h2>`. This enables anchor links like `#getting-started`.
+
+IDs are created by lowercasing the text, replacing spaces with hyphens, and stripping non-alphanumeric characters. Headings that start with a number are prefixed with `h-` to ensure valid IDs.
+
+## Table of Contents
+
+Proton provides a `toc()` function that returns the H2 headings extracted from the current page's markdown content. Each entry has `id`, `text`, and `level` properties. This is useful for building on-page navigation:
+
+```twig
+{% set page_toc = toc() %}
+{% if page_toc|length > 1 %}
+<nav>
+  <h4>On this page</h4>
+  {% for item in page_toc %}
+    <a href="#{{ item.id }}">{{ item.text }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+```
+
+The TOC is only populated for markdown pages. HTML pages will return an empty array.
+
 ## Pug
 
 You can process a template using Pug simply by giving the file that `pug` extension. Example: `template.pug`

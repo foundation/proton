@@ -58,6 +58,43 @@ For all of the example above you can access the data just like you would traditi
 
 Twig provides many logic based functions like `for` loops that allow you iterate through data to create content dynamically.
 
+## Pages Collection
+
+Proton automatically collects metadata about all pages and makes it available as `proton.pages`. Each entry includes the page's URL, title, filename, directory, source extension, and any custom front matter fields. This enables dynamic navigation without hardcoding links.
+
+```twig
+{% for p in proton.pages|filter(p => p.dirname == 'docs') %}
+  <a href="{{ p.url }}">{{ p.title }}</a>
+{% endfor %}
+```
+
+You can add custom front matter fields like `nav_group` and `nav_order` to organize pages into groups:
+
+```yaml
+---
+title: "Configuration"
+nav_group: "Core Concepts"
+nav_order: 1
+---
+```
+
+Then build grouped navigation in your layout:
+
+```twig
+{% set nav_groups = ["Getting Started", "Core Concepts", "Reference"] %}
+{% set nav_pages = proton.pages|filter(p => p.dirname == 'docs' and p.nav_group is defined)|sort((a, b) => a.nav_order <=> b.nav_order) %}
+{% for group in nav_groups %}
+<div>
+  <h3>{{ group }}</h3>
+  {% for p in nav_pages|filter(p => p.nav_group == group) %}
+    <a href="{{ p.url }}">{{ p.title }}</a>
+  {% endfor %}
+</div>
+{% endfor %}
+```
+
+Pages without a `title` in their front matter will use a title generated from the filename (e.g., `getting-started.md` becomes "Getting started").
+
 ## Front Matter Data
 
 You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored.
