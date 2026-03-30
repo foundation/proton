@@ -5,7 +5,6 @@ namespace App\Proton;
 use App\Proton\Settings\Paths;
 use Twig\Extra\Markdown\MarkdownExtension;
 use Twig\Extra\Markdown\MarkdownRuntime;
-use Twig\Extra\Markdown\MichelfMarkdown;
 use Twig\Loader\FilesystemLoader;
 use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
@@ -14,9 +13,12 @@ class PageManager
     public const CACHEDIR = '.proton-cache';
     protected FilesystemLoader $templateLoader;
     protected Paths $paths;
-
-    public function __construct(protected Config $config, protected Data $data, protected FilesystemManager $fsManager)
-    {
+    public function __construct(
+        protected Config $config,
+        protected Data $data,
+        protected FilesystemManager $fsManager,
+        protected MarkdownConverter $markdownConverter = new MarkdownConverter(),
+    ) {
         $this->paths          = $this->config->settings->paths;
         $this->templateLoader = $this->initTemplateLoader();
     }
@@ -25,6 +27,7 @@ class PageManager
     {
         $pages = $this->fsManager->getAllFiles($this->paths->pages);
         foreach ($pages as $pageName) {
+            $this->markdownConverter->resetToc();
             $page   = new Page($pageName, $this->config, $this->data);
             $loader = $this->createPageLoader($pageName, $page->content);
             if ($page->isBatch()) {
@@ -54,16 +57,24 @@ class PageManager
         }
         // Markdown Support
         $twig->addExtension(new MarkdownExtension());
-        $twig->addRuntimeLoader(new class implements RuntimeLoaderInterface {
+        $converter = $this->markdownConverter;
+        $twig->addRuntimeLoader(new class($converter) implements RuntimeLoaderInterface {
+            public function __construct(private MarkdownConverter $converter)
+            {
+            }
+
             public function load(string $class): ?object
             {
                 if ($class === MarkdownRuntime::class) {
-                    return new MarkdownRuntime(new MichelfMarkdown());
+                    return new MarkdownRuntime($this->converter);
                 }
 
                 return null;
             }
         });
+
+        // TOC function — returns headings extracted during markdown rendering
+        $twig->addFunction(new \Twig\TwigFunction('toc', fn (): array => $converter->getToc()));
 
         // ksort the twig variables
         $filter = new \Twig\TwigFilter('ksort', function ($array): array {

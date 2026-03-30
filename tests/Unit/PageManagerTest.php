@@ -96,7 +96,7 @@ test('compilePages handles markdown pages', function (): void {
     $pageManager->compilePages();
 
     $output = file_get_contents($this->tempDir . '/dist/page/index.html');
-    expect($output)->toContain('<h1>Hello World</h1>');
+    expect($output)->toContain('<h1 id="hello-world">Hello World</h1>');
 });
 
 test('compilePages handles batch pages', function (): void {
