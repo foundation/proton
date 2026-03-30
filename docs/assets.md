@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Assets Overview"
+nav_group: "Core Concepts"
+nav_order: 4
 ---
 
 # Assets Overview
@@ -17,7 +19,7 @@ The assets folder is a perfect place to store all of your site assets.
 * favicons
 * So much more...
 
-### Cache Busting
+## Cache Busting
 
 Proton provides a `proton.build_time` variable containing a Unix timestamp that changes on every build. Use it to append cache-busting query strings to your asset URLs so browsers always load the latest version after a deploy:
 

@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Template Overview"
+nav_group: "Core Concepts"
+nav_order: 2
 ---
 
 # Template Overview
@@ -15,11 +17,11 @@ Lastly, macros are basically functions that allow you to pass parameters in orde
 
 **Make sure that you thoroughly review the [Twig for Template Designers](https://twig.symfony.com/doc/3.x/templates.html) documentation.**
 
-### Default Content Block
+## Default Content Block
 
 If no content blocks are defined in your page template, a default `content` block will be added so that you can leverage the content inside of your layouts.
 
-### Markdown
+## Markdown
 
 In order to process content as markdown inside of a template, you simple need to make sure that the file extension of the template is `md`. Example: `template.md`
 
@@ -33,7 +35,7 @@ This is my content
 {% endmarkdown %}
 ```
 
-### Raw Mode
+## Raw Mode
 
 When your markdown content contains template syntax like `{{ variable }}` or `{% tag %}` (for example, documentation about Twig or other template engines), Proton's Twig processor will try to evaluate those expressions and fail.
 
@@ -59,22 +61,46 @@ Raw mode works with both `.md` and `.html` pages:
 
 Note: When using `raw: true`, you cannot use Twig variables or includes within the page content. Use front matter for page metadata (like `title`) and access it in your layout with `{{ page.title }}`.
 
-### Pug
+## Heading IDs
+
+All headings in markdown pages automatically get `id` attributes generated from the heading text. For example, `## Getting Started` becomes `<h2 id="getting-started">Getting Started</h2>`. This enables anchor links like `#getting-started`.
+
+IDs are created by lowercasing the text, replacing spaces with hyphens, and stripping non-alphanumeric characters. Headings that start with a number are prefixed with `h-` to ensure valid IDs.
+
+## Table of Contents
+
+Proton provides a `toc()` function that returns the H2 headings extracted from the current page's markdown content. Each entry has `id`, `text`, and `level` properties. This is useful for building on-page navigation:
+
+```twig
+{% set page_toc = toc() %}
+{% if page_toc|length > 1 %}
+<nav>
+  <h4>On this page</h4>
+  {% for item in page_toc %}
+    <a href="#{{ item.id }}">{{ item.text }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+```
+
+The TOC is only populated for markdown pages. HTML pages will return an empty array.
+
+## Pug
 
 You can process a template using Pug simply by giving the file that `pug` extension. Example: `template.pug`
 
-### Page Destinations
+## Page Destinations
 
 All templates will be named the exact same name in the exact same folder structure inside of the configured `dist` folder. There are the following exceptions:
 
 * All templates with `pug`, `twig` and `md` extensions will become `html` files by default. You can change this with the `defaultExt` configuration value.
 * You can customize the path and filename that a page gets output to via the `output` parameter set inside of a page's frontmatter.
 
-### Page Formatting
+## Page Formatting
 
 You can use the `pretty` and `minify` configuration values to determine if the output of a page's HTML will be minified or indented to look "pretty".
 
-### Clear Template Cache
+## Clear Template Cache
 
 If you are experiencing issues with pages not compiling as you expect, you may need to clear the template cache. You can do this with the `--clear-cache` or `--cc` option when you build.
 

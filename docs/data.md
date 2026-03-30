@@ -1,13 +1,15 @@
 ---
 raw: true
 title: "Data Overview"
+nav_group: "Core Concepts"
+nav_order: 3
 ---
 
 # Data Overview
 
 Storing data inside Proton is very flexible to work with many different workflows. By default, data is stored in YAML and JSON files inside of the `data` folder. Proton supports `.yml`, `.yaml`, and `.json` extensions — any other file types in the data directory are ignored. The data folder is configurable via `paths.data` in your config.
 
-### Default data.yml/json
+## Default data.yml/json
 
 Data stored in the in the `data.yml` or `data.json` files are special in that they are stored at the top level of that global data structure. For example, let's look at this YAML data.
 
@@ -18,7 +20,7 @@ version: 1.0.0
 
 You will be able to insert this data into your page content via standard mustache syntax: `{{ project }}` and `{{ version }}`
 
-### Data Hierarchy
+## Data Hierarchy
 
 There are many ways to create hierarchy within your data.
 
@@ -56,7 +58,44 @@ For all of the example above you can access the data just like you would traditi
 
 Twig provides many logic based functions like `for` loops that allow you iterate through data to create content dynamically.
 
-### Front Matter Data
+## Pages Collection
+
+Proton automatically collects metadata about all pages and makes it available as `proton.pages`. Each entry includes the page's URL, title, filename, directory, source extension, and any custom front matter fields. This enables dynamic navigation without hardcoding links.
+
+```twig
+{% for p in proton.pages|filter(p => p.dirname == 'docs') %}
+  <a href="{{ p.url }}">{{ p.title }}</a>
+{% endfor %}
+```
+
+You can add custom front matter fields like `nav_group` and `nav_order` to organize pages into groups:
+
+```yaml
+---
+title: "Configuration"
+nav_group: "Core Concepts"
+nav_order: 1
+---
+```
+
+Then build grouped navigation in your layout:
+
+```twig
+{% set nav_groups = ["Getting Started", "Core Concepts", "Reference"] %}
+{% set nav_pages = proton.pages|filter(p => p.dirname == 'docs' and p.nav_group is defined)|sort((a, b) => a.nav_order <=> b.nav_order) %}
+{% for group in nav_groups %}
+<div>
+  <h3>{{ group }}</h3>
+  {% for p in nav_pages|filter(p => p.nav_group == group) %}
+    <a href="{{ p.url }}">{{ p.title }}</a>
+  {% endfor %}
+</div>
+{% endfor %}
+```
+
+Pages without a `title` in their front matter will use a title generated from the filename (e.g., `getting-started.md` becomes "Getting started").
+
+## Front Matter Data
 
 You can define data via YAML as frontmatter on any page. Data defined inside of the frontmatter is specific to just that page. Any values defined will overwrite any global data stored.
 
@@ -77,7 +116,7 @@ title: My awesome webpage
 My Page Content...
 ```
 
-### Debugging Data
+## Debugging Data
 
 You can use the `data` command with proton to analyze the data that proton will use to build your pages. This can help you visualize how proton builds the data strucute. You can also pass an optional `--page` parameter in order to take into account a page's front matter so you can see the exact data strcutre used to build a single page.
 
@@ -86,6 +125,6 @@ $ proton data
 $ proton data --page=subfolder/index.html
 ```
 
-### Tips
+## Tips
 
 * You cannot use a data variable on a page that has a page content block that uses the same name. For example, if you had a variable `{{ title }}` on a page, you cannot also use the content block `{% block title %}{% endblock %}` since both use the ID of `title`.

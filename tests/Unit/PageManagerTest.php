@@ -96,7 +96,7 @@ test('compilePages handles markdown pages', function (): void {
     $pageManager->compilePages();
 
     $output = file_get_contents($this->tempDir . '/dist/page/index.html');
-    expect($output)->toContain('<h1>Hello World</h1>');
+    expect($output)->toContain('<h1 id="hello-world">Hello World</h1>');
 });
 
 test('compilePages handles batch pages', function (): void {
@@ -136,6 +136,79 @@ test('refreshData reloads data from disk', function (): void {
     $pageManager->refreshData();
 
     expect($data->data['title'])->toBe('Updated');
+});
+
+test('toc function returns empty array for html pages', function (): void {
+    $this->createPage('index.html', '{{ toc()|length }}', ['layout' => 'none']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toBe('0');
+});
+
+test('toc function returns headings for markdown pages', function (): void {
+    $this->createLayout('default.html', '{{ toc()|length }}{% block content %}{% endblock %}');
+    $this->createPage('page.md', "## First\n\nText\n\n## Second");
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/page/index.html');
+    expect($output)->toContain('2');
+});
+
+test('toc is not carried over between pages', function (): void {
+    $this->createPage('a-markdown.md', "## Heading One\n\n## Heading Two");
+    $this->createPage('b-html.html', '{{ toc()|length }}', ['layout' => 'none']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/b-html/index.html');
+    expect($output)->toBe('0');
+});
+
+test('proton.pages is available in templates', function (): void {
+    $this->createPage('index.html', '{{ proton.pages|length }}', ['layout' => 'none']);
+    $this->createPage('about.html', '<h1>About</h1>', ['layout' => 'none']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toBe('2');
+});
+
+test('proton.pages includes frontmatter fields', function (): void {
+    $this->createPage('docs/install.md', '# Install', [
+        'title'     => 'Installation',
+        'nav_group' => 'Getting Started',
+        'layout'    => 'none',
+    ]);
+    $this->createPage('index.html', '{% for p in proton.pages|filter(p => p.nav_group is defined) %}{{ p.nav_group }}{% endfor %}', ['layout' => 'none']);
+
+    $config      = new Config();
+    $data        = new Data($config);
+    $fsManager   = new FilesystemManager($config);
+    $pageManager = new PageManager($config, $data, $fsManager);
+    $pageManager->compilePages();
+
+    $output = file_get_contents($this->tempDir . '/dist/index.html');
+    expect($output)->toContain('Getting Started');
 });
 
 test('compilePages provides ksort filter', function (): void {

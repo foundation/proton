@@ -37,6 +37,15 @@ class PageWriter
             $parser       = \WyriHaximus\HtmlCompress\Factory::constructSmallest();
             $this->output = $parser->compress($this->output);
         } elseif ($this->config->settings->pretty) {
+            // Preserve <pre> block content before indenting (Dindent strips internal newlines)
+            $preBlocks = [];
+            $this->output = preg_replace_callback('/<pre\b[^>]*>.*?<\/pre>/si', function ($match) use (&$preBlocks): string {
+                $placeholder             = '<!--PRE_BLOCK_' . count($preBlocks) . '-->';
+                $preBlocks[$placeholder] = $match[0];
+
+                return $placeholder;
+            }, $this->output) ?? $this->output;
+
             $indenter = new \Gajus\Dindent\Indenter();
             // Set headers to inline style for nicer pretty output
             $inline = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
@@ -44,6 +53,9 @@ class PageWriter
                 $indenter->setElementType($tag, \Gajus\Dindent\Indenter::ELEMENT_TYPE_INLINE); // @phpstan-ignore argument.type (library PHPDoc incorrectly types the constant)
             }
             $this->output = $indenter->indent($this->output);
+
+            // Restore <pre> blocks
+            $this->output = str_replace(array_keys($preBlocks), array_values($preBlocks), $this->output);
         }
     }
 

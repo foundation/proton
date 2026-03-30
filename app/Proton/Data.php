@@ -139,6 +139,14 @@ class Data
     }
 
     /**
+     * @param array<int, array<string, mixed>> $pages
+     */
+    public function setPages(array $pages): void
+    {
+        $this->env['pages'] = $pages;
+    }
+
+    /**
      * @param array<string, mixed> $pageData
      *
      * @return array<string, mixed>

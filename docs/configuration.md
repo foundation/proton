@@ -1,6 +1,8 @@
 ---
 raw: true
 title: "Configuration"
+nav_group: "Core Concepts"
+nav_order: 1
 ---
 
 # Configuration
