@@ -402,3 +402,107 @@ test('custom extension is preserved', function (): void {
 
     expect($page->ext)->toBe('xml');
 });
+
+// --- front matter edge cases ---
+
+test('non-existent page throws BuildException', function (): void {
+    $config = new Config();
+    $data   = new Data($config);
+
+    expect(fn () => new Page('nonexistent.html', $config, $data))
+        ->toThrow(App\Proton\Exceptions\BuildException::class);
+});
+
+test('page with empty front matter has empty page data', function (): void {
+    // Write file manually with empty front matter block
+    $path = $this->tempDir . '/src/pages/empty-fm.html';
+    file_put_contents($path, "---\n\n---\n<h1>Content</h1>");
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('empty-fm.html', $config, $data);
+
+    expect($page->data['page'])->toBeEmpty();
+    expect($page->content)->toContain('Content');
+});
+
+test('page with only content and no front matter delimiters works', function (): void {
+    $this->createPage('plain.html', '<p>Just content, no front matter at all</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('plain.html', $config, $data);
+
+    expect($page->data['page'])->toBeEmpty();
+    expect($page->content)->toContain('Just content');
+});
+
+test('draft front matter key is preserved in page data', function (): void {
+    $this->createPage('draft.html', '<h1>Draft</h1>', ['draft' => true]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('draft.html', $config, $data);
+
+    expect($page->getPageData('draft'))->toBeTrue();
+});
+
+test('front matter with non-boolean draft is preserved as-is', function (): void {
+    $this->createPage('draft.html', '<h1>Draft</h1>', ['draft' => 'yes']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('draft.html', $config, $data);
+
+    expect($page->getPageData('draft'))->toBe('yes');
+});
+
+// --- markdown formatting edge cases ---
+
+test('markdown with user-defined blocks gets markdown filter on each block', function (): void {
+    $content = "{% block sidebar %}## Sidebar{% endblock %}{% block content %}## Main{% endblock %}";
+    $this->createPage('multi.md', $content);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('multi.md', $config, $data);
+
+    expect(substr_count($page->content, '{% apply markdown_to_html %}'))->toBe(2);
+    expect(substr_count($page->content, '{% endapply %}'))->toBe(2);
+});
+
+test('raw markdown with layout preserves extends tag', function (): void {
+    $this->createPage('doc.md', '# Raw Doc', ['raw' => true]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('doc.md', $config, $data);
+
+    expect($page->content)->toContain('{% extends "@layouts/default.html" %}');
+    expect($page->content)->toContain('{% verbatim %}');
+    expect($page->content)->toContain('{% apply markdown_to_html %}');
+});
+
+test('raw markdown with layout none has no extends', function (): void {
+    $this->createPage('doc.md', '# Raw No Layout', ['raw' => true, 'layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('doc.md', $config, $data);
+
+    expect($page->content)->not->toContain('{% extends');
+    expect($page->content)->toContain('{% verbatim %}');
+});
+
+// --- raw HTML edge cases ---
+
+test('raw html without explicit blocks gets verbatim in auto content block', function (): void {
+    $this->createPage('doc.html', '<p>Hello {{ name }}</p>', ['raw' => true]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('doc.html', $config, $data);
+
+    expect($page->content)->toContain('{% verbatim %}');
+    expect($page->content)->toContain('{% endverbatim %}');
+});
