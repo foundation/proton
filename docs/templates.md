@@ -35,6 +35,21 @@ This is my content
 {% endmarkdown %}
 ```
 
+## Syntax Highlighting
+
+Fenced code blocks with a language identifier automatically get syntax highlighting at build time — no client-side JavaScript required. Proton uses [Tempest Highlight](https://github.com/tempestphp/highlight) and supports PHP, JavaScript, HTML, CSS, Twig, YAML, JSON, SQL, Python, Markdown, Dockerfile, and more.
+
+````markdown
+```php
+$greeting = 'Hello, world!';
+echo $greeting;
+```
+````
+
+The highlighter outputs CSS classes (e.g., `hl-keyword`, `hl-variable`). Include a highlight theme CSS file in your layout to style them. Theme files ship with the package at `vendor/tempest/highlight/src/Themes/Css/` — popular choices include `github-dark.css`, `monokai.css`, and `nord.css`.
+
+Code blocks without a language identifier or with an unrecognized language are rendered as plain escaped text.
+
 ## Raw Mode
 
 When your markdown content contains template syntax like `{{ variable }}` or `{% tag %}` (for example, documentation about Twig or other template engines), Proton's Twig processor will try to evaluate those expressions and fail.

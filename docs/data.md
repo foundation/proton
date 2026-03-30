@@ -104,16 +104,36 @@ There are a few special variables that can be defined inside of your frontmatter
 * `layout`: defines the layout to use for the page. If no layout is defined the default layout defined in the configuration will be used. You can set this to `none` in order to have no default layout set.
 * `output`: This sets the destination name of the page when it gets compiled into the configured `dist` folder.
 * `batch`: Batch create pages based on an array of items in your data. This could allow you to create multiple items (such as products) based on the same page but with different data defined within your data.
+* `draft`: When set to `true`, the page is excluded from the build output, the sitemap, and `proton.pages` — unless `PROTON_ENV` is set to `development`. This lets you work on pages locally without publishing them.
 
 Example:
 
-```
+```yaml
 ---
 layout: default.html
 title: My awesome webpage
 ---
 
 My Page Content...
+```
+
+## Draft Pages
+
+Mark a page as a draft by adding `draft: true` to its front matter:
+
+```yaml
+---
+title: "Work in Progress"
+draft: true
+---
+```
+
+Draft pages are **included** when `PROTON_ENV` is `development` (the default) and **excluded** from the build output, sitemap, and `proton.pages` in all other environments. This means drafts are visible during local development but hidden in production builds.
+
+To build without drafts locally, set the environment variable before running the build:
+
+```sh
+PROTON_ENV=production proton build
 ```
 
 ## Debugging Data
