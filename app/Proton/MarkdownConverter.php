@@ -3,6 +3,7 @@
 namespace App\Proton;
 
 use Michelf\MarkdownExtra;
+use Tempest\Highlight\Highlighter;
 use Twig\Extra\Markdown\MarkdownInterface;
 
 class MarkdownConverter implements MarkdownInterface
@@ -16,6 +17,19 @@ class MarkdownConverter implements MarkdownInterface
     {
         $this->converter            = new MarkdownExtra();
         $this->converter->hard_wrap = true;
+
+        $highlighter = new Highlighter();
+        $this->converter->code_block_content_func = function (string $code, string $language) use ($highlighter): string {
+            if ($language === '') {
+                return htmlspecialchars($code, ENT_NOQUOTES);
+            }
+
+            try {
+                return $highlighter->parse($code, $language);
+            } catch (\Throwable) {
+                return htmlspecialchars($code, ENT_NOQUOTES);
+            }
+        };
 
         $this->converter->header_id_func = function (string $heading): string {
             $slug = strtolower(trim($heading));

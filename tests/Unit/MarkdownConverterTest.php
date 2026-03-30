@@ -90,3 +90,25 @@ test('resetToc clears the TOC', function (): void {
 
     expect($converter->getToc())->toBeEmpty();
 });
+
+test('fenced code blocks with a language get syntax highlighting', function (): void {
+    $converter = new MarkdownConverter();
+    $html      = $converter->convert("```php\n\$foo = 'bar';\n```");
+
+    expect($html)->toContain('hl-');
+});
+
+test('fenced code blocks without a language get no highlighting', function (): void {
+    $converter = new MarkdownConverter();
+    $html      = $converter->convert("```\nplain text\n```");
+
+    expect($html)->not->toContain('hl-');
+    expect($html)->toContain('plain text');
+});
+
+test('fenced code blocks with unknown language fall back gracefully', function (): void {
+    $converter = new MarkdownConverter();
+    $html      = $converter->convert("```unknownlang\nsome code\n```");
+
+    expect($html)->toContain('some code');
+});
