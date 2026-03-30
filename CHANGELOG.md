@@ -2,6 +2,12 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.10.2] - 2026-03-30
+
+### Fixed
+- Asset copying now includes dot files (e.g., `.htaccess`). Previously all dot-prefixed files were skipped.
+- Sitemap URLs now use clean paths, stripping `index.html`, `index.htm`, and `index.php` suffixes.
+
 ## [0.10.1] - 2026-03-30
 
 ### Changed
