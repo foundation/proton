@@ -26,6 +26,7 @@ class PageManager
     public function compilePages(): int
     {
         $pages = $this->fsManager->getAllFiles($this->paths->pages);
+        $this->data->setPages(PageCollection::collect($pages, $this->config));
         foreach ($pages as $pageName) {
             $this->markdownConverter->resetToc();
             $page   = new Page($pageName, $this->config, $this->data);
