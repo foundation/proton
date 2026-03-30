@@ -15,7 +15,7 @@ class AssetManager
 
     public function copyAssets(): void
     {
-        $assets = $this->fsManager->getAllFiles($this->paths->assets);
+        $assets = $this->fsManager->getAllFiles($this->paths->assets, includeDotFiles: true);
         foreach ($assets as $asset) {
             $from = $this->paths->assets . DIRECTORY_SEPARATOR . $asset;
             $to   = $this->paths->dist . DIRECTORY_SEPARATOR . $asset;

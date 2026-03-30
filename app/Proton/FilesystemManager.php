@@ -24,7 +24,7 @@ class FilesystemManager
     /**
      * @return array<int, string>
      */
-    public function getAllFiles(string $path): array
+    public function getAllFiles(string $path, bool $includeDotFiles = false): array
     {
         $directory = new \RecursiveDirectoryIterator($path);
         $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
@@ -33,8 +33,8 @@ class FilesystemManager
         // The length of the pages folder name + /
         $dirLength = strlen($path) + 1;
         foreach ($iterator as $info) {
-            // Skip dot files
-            if (!str_starts_with((string)$info->getFilename(), '.')) {
+            // Skip dot files unless explicitly included
+            if ($includeDotFiles || !str_starts_with((string)$info->getFilename(), '.')) {
                 // Remove the pages folder name from the file name
                 $files[] = substr_replace($info->getPathname(), '', 0, $dirLength);
             }
