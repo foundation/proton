@@ -8,7 +8,6 @@
 .php-cs-fixer.cache
 composer.lock
 /sample-dist
-/builds
 /.proton-cache
 /.claude
 /.phpunit.cache
