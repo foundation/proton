@@ -2,6 +2,15 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.10.1] - 2026-03-30
+
+### Changed
+- Extracted `FrontMatterParser` utility class, consolidating duplicated YAML front matter parsing from `Page`, `PageCollection`, and `PageManager` into a single location.
+- Extracted `PageWriter::TEMPLATE_EXTENSIONS` constant, shared with `PageCollection`, eliminating duplicated extension resolution logic.
+
+### Added
+- Expanded test suite from 225 to 232 tests covering front matter edge cases, draft filtering variations, watcher change processing, data loading errors, and page writer path building.
+
 ## [0.10.0] - 2026-03-30
 
 ### Added
