@@ -83,16 +83,9 @@ class Page
             throw new Exceptions\BuildException("Error reading in page: $path");
         }
 
-        // Parse YAML front matter (--- delimited)
-        $pageData = [];
-        $content  = $raw;
-        if (preg_match('/\A---\s*\n(.*?)\n---\s*\n(.*)\z/s', $raw, $matches)) {
-            $yaml = \Symfony\Component\Yaml\Yaml::parse($matches[1]);
-            if (is_array($yaml)) {
-                $pageData = $yaml;
-            }
-            $content = $matches[2];
-        }
+        $result   = FrontMatterParser::parseWithContent($raw);
+        $pageData = $result['data'];
+        $content  = $result['content'];
 
         $this->data    = $data->generatePageData($pageData);
         $this->content = $content ?: 'No Content Found';
