@@ -29,6 +29,8 @@ class Page
 
         // Setup $data + $content
         $this->processPage($data);
+        // Inject computed page metadata (frontmatter values take precedence)
+        $this->injectPageMetadata();
         // Apply Layout macros
         $this->applyLayout();
         $this->formatMarkdown();
@@ -89,6 +91,144 @@ class Page
 
         $this->data    = $data->generatePageData($pageData);
         $this->content = $content ?: 'No Content Found';
+    }
+
+    /**
+     * @param array<string, mixed> $pageData
+     */
+    public static function buildUrl(
+        string $filename,
+        ?string $dirname,
+        ?string $ext,
+        array $pageData,
+        Config $config,
+    ): string {
+        // If output name defined in page data, use that
+        if (isset($pageData[self::OUTPUTKEY])) {
+            return '/' . ltrim($pageData[self::OUTPUTKEY], '/');
+        }
+
+        $parts = [];
+        if ($dirname) {
+            $parts[] = $dirname;
+        }
+
+        $isIndex   = $filename === 'index';
+        $autoindex = $config->settings->autoindex;
+
+        if ($autoindex && !$isIndex) {
+            // autoindex: /dir/page/ (clean URL)
+            $parts[] = $filename;
+
+            return '/' . implode('/', $parts) . '/';
+        }
+
+        // Non-autoindex or index pages
+        $parts[] = $filename;
+
+        // Resolve extension
+        $outputExt = in_array($ext, PageWriter::TEMPLATE_EXTENSIONS, true)
+            ? $config->settings->defaultExt
+            : ($ext ?? $config->settings->defaultExt);
+
+        $path = '/' . implode('/', $parts) . '.' . $outputExt;
+
+        // For index files, provide clean URL: /dir/ instead of /dir/index.html
+        if ($isIndex) {
+            $path = '/' . ($dirname ? $dirname . '/' : '');
+        }
+
+        return $path;
+    }
+
+    /**
+     * @param array<string, mixed> $pageData
+     */
+    public static function buildOutputPath(
+        string $filename,
+        ?string $dirname,
+        ?string $ext,
+        array $pageData,
+        Config $config,
+    ): string {
+        if (isset($pageData[self::OUTPUTKEY])) {
+            return $pageData[self::OUTPUTKEY];
+        }
+
+        $parts = [];
+        if ($dirname) {
+            $parts[] = $dirname;
+        }
+        $parts[] = $filename;
+
+        if ($config->settings->autoindex && $filename !== 'index') {
+            $parts[] = 'index';
+        }
+
+        $outputExt = in_array($ext, PageWriter::TEMPLATE_EXTENSIONS, true)
+            ? $config->settings->defaultExt
+            : ($ext ?? $config->settings->defaultExt);
+
+        return implode('/', $parts) . '.' . $outputExt;
+    }
+
+    /**
+     * @param array<string, mixed> $pageData
+     */
+    public static function computeMetadata(
+        string $name,
+        string $filename,
+        ?string $dirname,
+        ?string $ext,
+        array $pageData,
+        Config $config,
+    ): array {
+        $url        = $pageData['url'] ?? self::buildUrl($filename, $dirname, $ext, $pageData, $config);
+        $domain     = rtrim($config->settings->domain, '/');
+        $isIndex    = $filename === 'index';
+        $depth      = $dirname ? substr_count($dirname, '/') + 1 : 0;
+
+        return [
+            'url'        => $url,
+            'canonical'  => $domain . $url,
+            'title'      => $pageData['title'] ?? ucfirst(str_replace('-', ' ', $filename)),
+            'filename'   => $filename,
+            'dirname'    => $dirname,
+            'ext'        => $ext,
+            'path'       => $name,
+            'outputPath' => self::buildOutputPath($filename, $dirname, $ext, $pageData, $config),
+            'depth'      => $depth,
+            'isIndex'    => $isIndex,
+            'parent'     => $dirname ? '/' . $dirname . '/' : '/',
+            'slug'       => strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', $filename)),
+        ];
+    }
+
+    private function injectPageMetadata(): void
+    {
+        $page = &$this->data['page'];
+
+        $computed = self::computeMetadata(
+            $this->name,
+            $this->filename,
+            $this->dirname,
+            $this->ext,
+            $page,
+            $this->config,
+        );
+
+        // Frontmatter values take precedence over computed values
+        foreach ($computed as $key => $value) {
+            if (!isset($page[$key])) {
+                $page[$key] = $value;
+            }
+        }
+
+        // These are always set from source, not overridable
+        $page['filename'] = $this->filename;
+        $page['dirname']  = $this->dirname;
+        $page['ext']      = $this->ext;
+        $page['path']     = $this->name;
     }
 
     private function applyLayout(): void

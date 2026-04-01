@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Getting Started"
+description: "Create your first Proton site. Scaffold the project structure, add pages, and build static HTML output."
 nav_group: "Getting Started"
 nav_order: 2
 ---

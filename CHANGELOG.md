@@ -2,6 +2,19 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.12.0] - 2026-04-01
+
+### Added
+- Rich page metadata: every page now exposes `page.canonical`, `page.path`, `page.outputPath`, `page.depth`, `page.isIndex`, `page.parent`, and `page.slug` in templates and layouts.
+- Pages collection (`proton.pages`) now includes all page metadata fields for full parity with per-page `page.*` variables.
+- New "Page Variables" reference section in the data documentation with a complete table of all `page.*` variables and usage examples.
+
+### Changed
+- Moved `buildUrl()` from `PageCollection` to `Page`, centralizing all page metadata computation in a single `Page::computeMetadata()` method shared by both `Page` and `PageCollection`.
+
+### Fixed
+- Index page detection now uses exact filename match (`index`) instead of substring matching. Previously, pages like `reindex.html` were incorrectly treated as index pages in both URL generation and output path building.
+
 ## [0.11.0] - 2026-04-01
 
 ### Added

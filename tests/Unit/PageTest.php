@@ -44,7 +44,59 @@ test('page without front matter works', function (): void {
     $page   = new Page('simple.html', $config, $data);
 
     expect($page->content)->toContain('No Front Matter');
-    expect($page->data['page'])->toBeEmpty();
+    expect($page->data['page'])->toHaveKeys(['url', 'title', 'filename', 'dirname', 'ext', 'canonical', 'path', 'outputPath', 'depth', 'isIndex', 'parent', 'slug']);
+});
+
+test('page metadata is automatically computed from filename', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['url'])->toBe('/about/')
+        ->and($page->data['page']['title'])->toBe('About')
+        ->and($page->data['page']['filename'])->toBe('about')
+        ->and($page->data['page']['dirname'])->toBeNull()
+        ->and($page->data['page']['ext'])->toBe('html')
+        ->and($page->data['page']['canonical'])->toContain('/about/')
+        ->and($page->data['page']['path'])->toBe('about.html')
+        ->and($page->data['page']['outputPath'])->toBe('about/index.html')
+        ->and($page->data['page']['depth'])->toBe(0)
+        ->and($page->data['page']['isIndex'])->toBeFalse()
+        ->and($page->data['page']['parent'])->toBe('/')
+        ->and($page->data['page']['slug'])->toBe('about');
+});
+
+test('page.url respects frontmatter url override', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>', ['url' => '/custom/']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['url'])->toBe('/custom/')
+        ->and($page->data['page']['canonical'])->toContain('/custom/');
+});
+
+test('page.title respects frontmatter title override', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>', ['title' => 'About Us']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['title'])->toBe('About Us');
+});
+
+test('page.canonical uses domain from config', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['canonical'])->toBe($config->settings->domain . '/about/');
 });
 
 test('default layout is applied', function (): void {
@@ -422,7 +474,7 @@ test('page with empty front matter has empty page data', function (): void {
     $data   = new Data($config);
     $page   = new Page('empty-fm.html', $config, $data);
 
-    expect($page->data['page'])->toBeEmpty();
+    expect($page->data['page'])->toHaveKeys(['url', 'title', 'filename', 'dirname', 'ext', 'canonical', 'path', 'outputPath', 'depth', 'isIndex', 'parent', 'slug']);
     expect($page->content)->toContain('Content');
 });
 
@@ -433,7 +485,7 @@ test('page with only content and no front matter delimiters works', function ():
     $data   = new Data($config);
     $page   = new Page('plain.html', $config, $data);
 
-    expect($page->data['page'])->toBeEmpty();
+    expect($page->data['page'])->toHaveKeys(['url', 'title', 'filename', 'dirname', 'ext', 'canonical', 'path', 'outputPath', 'depth', 'isIndex', 'parent', 'slug']);
     expect($page->content)->toContain('Just content');
 });
 
@@ -505,4 +557,137 @@ test('raw html without explicit blocks gets verbatim in auto content block', fun
 
     expect($page->content)->toContain('{% verbatim %}');
     expect($page->content)->toContain('{% endverbatim %}');
+});
+
+// --- new metadata fields ---
+
+test('page.path returns original source name', function (): void {
+    $this->createPage('blog/post.html', '<p>Post</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('blog/post.html', $config, $data);
+
+    expect($page->data['page']['path'])->toBe('blog/post.html');
+});
+
+test('page.outputPath reflects autoindex structure', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['outputPath'])->toBe('about/index.html');
+});
+
+test('page.outputPath for index page', function (): void {
+    $this->createPage('docs/index.html', '<h1>Docs</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('docs/index.html', $config, $data);
+
+    expect($page->data['page']['outputPath'])->toBe('docs/index.html');
+});
+
+test('page.outputPath uses output frontmatter when set', function (): void {
+    $this->createPage('feed.html', '<rss></rss>', ['output' => 'feed.xml', 'layout' => 'none']);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('feed.html', $config, $data);
+
+    expect($page->data['page']['outputPath'])->toBe('feed.xml');
+});
+
+test('page.outputPath without autoindex uses flat path', function (): void {
+    $this->createConfigFile(['autoindex' => false]);
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['outputPath'])->toBe('about.html');
+});
+
+test('page.depth is 0 for root pages', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['depth'])->toBe(0);
+});
+
+test('page.depth counts directory nesting', function (): void {
+    $this->createPage('docs/guides/intro.html', '<h1>Intro</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('docs/guides/intro.html', $config, $data);
+
+    expect($page->data['page']['depth'])->toBe(2);
+});
+
+test('page.isIndex is true for index pages', function (): void {
+    $this->createPage('index.html', '<h1>Home</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('index.html', $config, $data);
+
+    expect($page->data['page']['isIndex'])->toBeTrue();
+});
+
+test('page.isIndex is false for non-index pages', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['isIndex'])->toBeFalse();
+});
+
+test('page.isIndex is false for pages containing index in the name', function (): void {
+    $this->createPage('reindex.html', '<h1>Reindex</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('reindex.html', $config, $data);
+
+    expect($page->data['page']['isIndex'])->toBeFalse();
+});
+
+test('page.parent is / for root pages', function (): void {
+    $this->createPage('about.html', '<h1>About</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('about.html', $config, $data);
+
+    expect($page->data['page']['parent'])->toBe('/');
+});
+
+test('page.parent returns parent directory URL', function (): void {
+    $this->createPage('blog/post.html', '<p>Post</p>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('blog/post.html', $config, $data);
+
+    expect($page->data['page']['parent'])->toBe('/blog/');
+});
+
+test('page.slug normalizes filename', function (): void {
+    $this->createPage('my-cool_page.html', '<h1>Hi</h1>');
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('my-cool_page.html', $config, $data);
+
+    expect($page->data['page']['slug'])->toBe('my-cool-page');
 });

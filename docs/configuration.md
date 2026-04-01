@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Configuration"
+description: "Complete reference for proton.yml configuration — paths, output settings, layout rules, sitemap, minification, and more."
 nav_group: "Core Concepts"
 nav_order: 1
 ---

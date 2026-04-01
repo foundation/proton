@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Template Overview"
+description: "Proton's Twig-based template system — layouts, pages, partials, macros, content blocks, and Markdown support."
 nav_group: "Core Concepts"
 nav_order: 2
 ---

@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Updating Proton"
+description: "Update Proton to the latest version using the built-in self-update command."
 nav_group: "Reference"
 nav_order: 2
 ---

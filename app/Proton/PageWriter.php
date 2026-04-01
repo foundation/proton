@@ -102,7 +102,7 @@ class PageWriter
 
     protected function pageIsIndex(): bool
     {
-        return (bool)strstr($this->page->name, 'index');
+        return $this->page->filename === 'index';
     }
 
     protected function findExtension(): string

@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Generating a Sitemap"
+description: "Proton automatically generates sitemap.xml with last-modified dates. Configure the domain and toggle sitemap generation."
 nav_group: "Reference"
 nav_order: 1
 ---

@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Assets Overview"
+description: "Manage static assets in Proton — images, CSS, JavaScript, and favicons. Includes cache busting with file hashing."
 nav_group: "Core Concepts"
 nav_order: 4
 ---

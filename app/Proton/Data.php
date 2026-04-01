@@ -19,10 +19,12 @@ class Data
     /** @var array<string, mixed> */
     public array $env  = [];
     public string $dir;
+    public string $domain;
 
     public function __construct(Config $config)
     {
-        $this->dir = $config->settings->paths->data;
+        $this->dir    = $config->settings->paths->data;
+        $this->domain = $config->settings->domain;
         $this->initData();
     }
 
@@ -49,6 +51,7 @@ class Data
         $this->env = [
             'environment' => getenv('PROTON_ENV') ?: 'development',
             'build_time'  => time(),
+            'domain'      => rtrim($this->domain, '/'),
         ];
     }
 
