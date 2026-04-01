@@ -2,6 +2,13 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.12.1] - 2026-04-01
+
+### Fixed
+- Batch pages now recompute all `page.*` metadata per item. Previously, fields like `title`, `outputPath`, `filename`, and `isIndex` leaked from the template page instead of being derived from each batch key.
+- Custom frontmatter fields (e.g., `nav_group`) are now preserved through batch processing. Previously, recomputing metadata discarded all non-computed frontmatter.
+- Batch pages with an `index` key no longer produce a double-indexed output path (`index/index.html`).
+
 ## [0.12.0] - 2026-04-01
 
 ### Added
