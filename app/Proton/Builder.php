@@ -27,13 +27,13 @@ class Builder
             $this->output->info('Collected Data:');
             $this->data->dump();
         }
-        $this->compilePages();
+        $pageCount  = $this->compilePages();
         $this->buildSitemap();
-        $this->copyAssets();
+        $assetCount = $this->copyAssets();
         $this->runNPMBuild();
 
         $elapsed = round((microtime(true) - $start) * 1000);
-        $this->output->detail("Built in {$elapsed}ms");
+        $this->printBuildStats($pageCount, $assetCount, $elapsed);
     }
 
     public function runNPMBuild(): void
@@ -64,17 +64,43 @@ class Builder
         $this->fsManager->clearCache();
     }
 
-    public function copyAssets(): void
+    public function copyAssets(): int
     {
         $this->output->info('Copying Assets');
-        $this->assetManager->copyAssets();
+
+        return $this->assetManager->copyAssets();
     }
 
-    public function compilePages(): void
+    public function compilePages(): int
     {
         $this->output->info('Compiling Pages');
-        $count = $this->pageManager->compilePages();
-        $this->output->detail("Compiled $count page(s)");
+
+        return $this->pageManager->compilePages();
+    }
+
+    private function printBuildStats(int $pages, int $assets, float $elapsed): void
+    {
+        $distDir  = $this->config->settings->paths->dist;
+        $size     = FilesystemManager::getDirectorySize($distDir);
+        $sizeStr  = $this->formatBytes($size);
+
+        $this->output->info('Build Summary');
+        $this->output->detail("Pages:  $pages");
+        $this->output->detail("Assets: $assets");
+        $this->output->detail("Output: $sizeStr");
+        $this->output->detail("Time:   {$elapsed}ms");
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        if ($bytes < 1024) {
+            return "$bytes B";
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
+
+        return round($bytes / 1048576, 1) . ' MB';
     }
 
     public function refreshData(): void
