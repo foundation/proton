@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Installation"
+description: "Install Proton via Homebrew or Composer. Available on macOS and Linux with automatic updates."
 nav_group: "Getting Started"
 nav_order: 1
 ---

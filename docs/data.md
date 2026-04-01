@@ -1,6 +1,7 @@
 ---
 raw: true
 title: "Data Overview"
+description: "Store and access data in Proton using YAML and JSON files. Includes front matter, global data, the pages collection, and batch pages."
 nav_group: "Core Concepts"
 nav_order: 3
 ---
