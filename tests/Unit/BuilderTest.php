@@ -137,3 +137,36 @@ test('NullOutput does not throw', function (): void {
 
     expect(true)->toBeTrue();
 });
+
+test('build prints build summary', function (): void {
+    $this->createPage('index.html', '<h1>Hello</h1>');
+    $this->createAsset('style.css', 'body{}');
+
+    $messages = [];
+    $output   = new class($messages) implements App\Proton\Output {
+        /** @param string[] $messages */
+        public function __construct(private array &$messages)
+        {
+        }
+
+        public function info(string $message): void
+        {
+            $this->messages[] = $message;
+        }
+
+        public function detail(string $message): void
+        {
+            $this->messages[] = $message;
+        }
+    };
+
+    $builder = new Builder($output, $this->config, $this->data, $this->fsManager, $this->pageManager, $this->assetManager);
+    $builder->build();
+
+    $joined = implode("\n", $messages);
+    expect($joined)->toContain('Build Summary');
+    expect($joined)->toContain('Pages:  1');
+    expect($joined)->toContain('Assets: 1');
+    expect($joined)->toContain('Output:');
+    expect($joined)->toContain('Time:');
+});

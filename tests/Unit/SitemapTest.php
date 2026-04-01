@@ -75,3 +75,17 @@ test('sitemap uses configured domain', function (): void {
     $content = file_get_contents($this->tempDir . '/dist/sitemap.xml');
     expect($content)->toContain('https://mysite.com');
 });
+
+test('sitemap includes lastmod from dist file mtime', function (): void {
+    file_put_contents($this->tempDir . '/dist/index.html', '<html></html>');
+    // Set a known mtime in the past
+    touch($this->tempDir . '/dist/index.html', mktime(0, 0, 0, 6, 15, 2025));
+
+    $config  = new Config();
+    $sitemap = new Sitemap($config, new FilesystemManager($config));
+    $sitemap->write();
+
+    $content = file_get_contents($this->tempDir . '/dist/sitemap.xml');
+    expect($content)->toContain('<lastmod>');
+    expect($content)->toContain('2025-06-15');
+});

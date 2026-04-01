@@ -112,6 +112,26 @@ class FilesystemManager
         }
     }
 
+    public static function getDirectorySize(string $dir): int
+    {
+        if (!is_dir($dir)) {
+            return 0;
+        }
+
+        $size       = 0;
+        $directory  = new \RecursiveDirectoryIterator($dir);
+        $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator   = new \RecursiveIteratorIterator($directory);
+
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $size += $file->getSize();
+            }
+        }
+
+        return $size;
+    }
+
     /**
      * @return array<string, string>
      */

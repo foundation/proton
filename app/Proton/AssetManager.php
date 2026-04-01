@@ -13,7 +13,7 @@ class AssetManager
         $this->paths = $this->config->settings->paths;
     }
 
-    public function copyAssets(): void
+    public function copyAssets(): int
     {
         $assets = $this->fsManager->getAllFiles($this->paths->assets, includeDotFiles: true);
         foreach ($assets as $asset) {
@@ -27,5 +27,7 @@ class AssetManager
                 throw new Exceptions\FilesystemException("Failed to copy asset: $from -> $to");
             }
         }
+
+        return count($assets);
     }
 }
