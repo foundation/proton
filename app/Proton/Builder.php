@@ -27,10 +27,10 @@ class Builder
             $this->output->info('Collected Data:');
             $this->data->dump();
         }
-        $pageCount  = $this->compilePages();
-        $this->buildSitemap();
         $assetCount = $this->copyAssets();
         $this->runNPMBuild();
+        $pageCount  = $this->compilePages();
+        $this->buildSitemap();
 
         $elapsed = round((microtime(true) - $start) * 1000);
         $this->printBuildStats($pageCount, $assetCount, $elapsed);
