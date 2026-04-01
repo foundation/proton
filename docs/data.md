@@ -59,9 +59,32 @@ For all of the example above you can access the data just like you would traditi
 
 Twig provides many logic based functions like `for` loops that allow you iterate through data to create content dynamically.
 
+## Page Variables
+
+Every page has access to a `page` object containing metadata about the current page. These variables are available in both page templates and layouts via `{{ page.* }}`.
+
+| Variable | Type | Description |
+|---|---|---|
+| `page.url` | string | The page's URL path (e.g., `/about/` or `/docs/install/`) |
+| `page.canonical` | string | Full canonical URL including the configured domain (e.g., `https://example.com/about/`) |
+| `page.title` | string | The page title. Falls back to a title generated from the filename (e.g., `getting-started` becomes "Getting started") |
+| `page.filename` | string | The source filename without extension (e.g., `about`, `index`) |
+| `page.ext` | string | The source file extension (e.g., `html`, `md`) |
+| `page.dirname` | string\|null | The directory relative to the pages folder, or `null` for root-level pages (e.g., `docs`, `blog/news`) |
+| `page.path` | string | The full source path relative to the pages folder (e.g., `blog/post.html`) |
+| `page.outputPath` | string | The resolved output file path relative to the dist folder (e.g., `about/index.html`) |
+| `page.depth` | int | Directory nesting level. `0` for root pages, `1` for `blog/post.html`, `2` for `blog/news/item.html`, etc. |
+| `page.isIndex` | bool | Whether the page is an index page (filename is exactly `index`) |
+| `page.parent` | string | The parent directory URL (e.g., `/blog/` for `blog/post.html`, `/` for root pages) |
+| `page.slug` | string | URL-safe normalized filename (lowercased, non-alphanumeric characters replaced with hyphens) |
+
+Any front matter field you define is also available on the `page` object. For example, `author: Joe` in front matter is accessible as `{{ page.author }}`.
+
+The `url`, `title`, `canonical`, and `slug` fields can be overridden via front matter. Structural fields like `filename`, `dirname`, `ext`, and `path` are always derived from the source file.
+
 ## Pages Collection
 
-Proton automatically collects metadata about all pages and makes it available as `proton.pages`. Each entry includes the page's URL, title, filename, directory, source extension, and any custom front matter fields. This enables dynamic navigation without hardcoding links.
+Proton automatically collects metadata about all pages and makes it available as `proton.pages`. Each entry includes all of the page variables listed above, plus any custom front matter fields. This enables dynamic navigation without hardcoding links.
 
 ```twig
 {% for p in proton.pages|filter(p => p.dirname == 'docs') %}
@@ -91,6 +114,26 @@ Then build grouped navigation in your layout:
     <a href="{{ p.url }}">{{ p.title }}</a>
   {% endfor %}
 </div>
+{% endfor %}
+```
+
+Here are a few more examples using the page variables:
+
+```twig
+{# Breadcrumb navigation using depth and parent #}
+{% if page.depth > 0 %}
+  <a href="{{ page.parent }}">Back</a> / {{ page.title }}
+{% endif %}
+
+{# Canonical link tag in your layout head #}
+<link rel="canonical" href="{{ page.canonical }}">
+
+{# Active nav highlighting using path #}
+<a href="/about/" {% if page.path == 'about.html' %}class="active"{% endif %}>About</a>
+
+{# Filter collection to only index pages #}
+{% for p in proton.pages|filter(p => p.isIndex) %}
+  <a href="{{ p.url }}">{{ p.title }}</a>
 {% endfor %}
 ```
 
