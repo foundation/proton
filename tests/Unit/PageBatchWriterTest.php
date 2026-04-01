@@ -87,6 +87,149 @@ test('batch pages contain correct data', function (): void {
     expect($janeContent)->toContain('Jane Doe');
 });
 
+test('batch pages have correct page metadata per item', function (): void {
+    $this->createConfigFile(['domain' => 'https://test.com']);
+    $this->createDataFile('data.yml', [
+        'title'  => 'Test',
+        'people' => [
+            'john' => ['name' => 'John Doe'],
+            'jane' => ['name' => 'Jane Doe'],
+        ],
+    ]);
+    $this->createPage('person.html', '{{ page.canonical }}|{{ page.url }}', [
+        'layout' => 'none',
+        'batch'  => 'people',
+    ]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('person.html', $config, $data);
+    $twig   = createBatchTwig($config, $page);
+
+    $writer = new PageBatchWriter($page, $twig, $config);
+    $writer->processBatch();
+
+    $johnContent = file_get_contents($this->tempDir . '/dist/john/index.html');
+    $janeContent = file_get_contents($this->tempDir . '/dist/jane/index.html');
+
+    expect($johnContent)->toContain('https://test.com/john/');
+    expect($johnContent)->toContain('/john/');
+    expect($janeContent)->toContain('https://test.com/jane/');
+    expect($janeContent)->toContain('/jane/');
+});
+
+test('batch pages have correct title per item', function (): void {
+    $this->createDataFile('data.yml', [
+        'title'  => 'Test',
+        'people' => [
+            'john' => ['name' => 'John Doe'],
+            'jane' => ['name' => 'Jane Doe'],
+        ],
+    ]);
+    $this->createPage('person.html', '{{ page.title }}', [
+        'layout' => 'none',
+        'batch'  => 'people',
+    ]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('person.html', $config, $data);
+    $twig   = createBatchTwig($config, $page);
+
+    $writer = new PageBatchWriter($page, $twig, $config);
+    $writer->processBatch();
+
+    $johnContent = file_get_contents($this->tempDir . '/dist/john/index.html');
+    $janeContent = file_get_contents($this->tempDir . '/dist/jane/index.html');
+
+    // Title should be derived from batch key, not template filename
+    expect($johnContent)->toContain('John');
+    expect($janeContent)->toContain('Jane');
+    expect($johnContent)->not->toContain('Person');
+    expect($janeContent)->not->toContain('Person');
+});
+
+test('batch pages have correct outputPath per item', function (): void {
+    $this->createDataFile('data.yml', [
+        'title'  => 'Test',
+        'people' => [
+            'john' => ['name' => 'John Doe'],
+        ],
+    ]);
+    $this->createPage('person.html', '{{ page.outputPath }}|{{ page.filename }}|{{ page.isIndex }}', [
+        'layout' => 'none',
+        'batch'  => 'people',
+    ]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('person.html', $config, $data);
+    $twig   = createBatchTwig($config, $page);
+
+    $writer = new PageBatchWriter($page, $twig, $config);
+    $writer->processBatch();
+
+    $content = file_get_contents($this->tempDir . '/dist/john/index.html');
+
+    expect($content)->toContain('john/index.html');
+    expect($content)->toContain('|john|');
+    // isIndex should be false (batch key is "john", not "index")
+    expect($content)->not->toContain('|1');
+});
+
+test('batch pages preserve custom frontmatter fields', function (): void {
+    $this->createDataFile('data.yml', [
+        'title'  => 'Test',
+        'people' => [
+            'john' => ['name' => 'John Doe'],
+        ],
+    ]);
+    $this->createPage('person.html', '{{ page.nav_group }}|{{ page.custom }}', [
+        'layout'    => 'none',
+        'batch'     => 'people',
+        'nav_group' => 'Team',
+        'custom'    => 'hello',
+    ]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('person.html', $config, $data);
+    $twig   = createBatchTwig($config, $page);
+
+    $writer = new PageBatchWriter($page, $twig, $config);
+    $writer->processBatch();
+
+    $content = file_get_contents($this->tempDir . '/dist/john/index.html');
+
+    expect($content)->toContain('Team');
+    expect($content)->toContain('hello');
+});
+
+test('batch pages have correct depth and parent', function (): void {
+    $this->createDataFile('data.yml', [
+        'title' => 'Test',
+        'staff' => [
+            'alice' => ['name' => 'Alice'],
+        ],
+    ]);
+    $this->createPage('team/member.html', '{{ page.depth }}|{{ page.parent }}', [
+        'layout' => 'none',
+        'batch'  => 'staff',
+    ]);
+
+    $config = new Config();
+    $data   = new Data($config);
+    $page   = new Page('team/member.html', $config, $data);
+    $twig   = createBatchTwig($config, $page);
+
+    $writer = new PageBatchWriter($page, $twig, $config);
+    $writer->processBatch();
+
+    $content = file_get_contents($this->tempDir . '/dist/team/alice/index.html');
+
+    expect($content)->toContain('1|/team/');
+});
+
 test('batch writer with nested page directory', function (): void {
     $this->createDataFile('data.yml', [
         'title' => 'Test',
