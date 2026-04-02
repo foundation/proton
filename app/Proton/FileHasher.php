@@ -35,9 +35,9 @@ class FileHasher
         return $algo . '-' . base64_encode($digest);
     }
 
-    public function stylesheet(string $url): string
+    public function stylesheet(string $url, bool $integrity = false): string
     {
-        $attrs = $this->buildAttrs($url);
+        $attrs = $this->buildAttrs($url, $integrity);
         $href  = $attrs['src'];
 
         $tag = "<link href=\"$href\" rel=\"stylesheet\"";
@@ -48,21 +48,21 @@ class FileHasher
         return $tag . '>';
     }
 
-    public function stylesheetAsync(string $url): string
+    public function stylesheetAsync(string $url, bool $integrity = false): string
     {
-        $attrs     = $this->buildAttrs($url);
-        $href      = $attrs['src'];
-        $integrity = $attrs['integrity'];
+        $attrs         = $this->buildAttrs($url, $integrity);
+        $href          = $attrs['src'];
+        $integrityVal  = $attrs['integrity'];
 
-        $integrityAttr = $integrity !== '' ? " integrity=\"$integrity\"" : '';
+        $integrityAttr = $integrityVal !== '' ? " integrity=\"$integrityVal\"" : '';
 
         return "<link rel=\"stylesheet\" href=\"$href\" media=\"print\" onload=\"this.media='all';\"$integrityAttr>"
             . "\n<noscript><link rel=\"stylesheet\" href=\"$href\"$integrityAttr></noscript>";
     }
 
-    public function script(string $url): string
+    public function script(string $url, bool $integrity = false): string
     {
-        $attrs = $this->buildAttrs($url);
+        $attrs = $this->buildAttrs($url, $integrity);
 
         $tag = "<script src=\"{$attrs['src']}\"";
         if ($attrs['integrity'] !== '') {
@@ -75,13 +75,13 @@ class FileHasher
     /**
      * @return array{src: string, integrity: string}
      */
-    private function buildAttrs(string $url): array
+    private function buildAttrs(string $url, bool $integrity = false): array
     {
-        $hash      = $this->hash($url);
-        $integrity = $this->integrity($url);
-        $src       = $hash !== '' ? "$url?cache=$hash" : $url;
+        $hash = $this->hash($url);
+        $sri  = $integrity ? $this->integrity($url) : '';
+        $src  = $hash !== '' ? "$url?cache=$hash" : $url;
 
-        return ['src' => $src, 'integrity' => $integrity];
+        return ['src' => $src, 'integrity' => $sri];
     }
 
     private function resolve(string $path): ?string

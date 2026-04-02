@@ -75,12 +75,25 @@ test('hash resolves paths with leading slash', function (): void {
     expect($hasher->hash('/app.js'))->toBe($hasher->hash('app.js'));
 });
 
-test('stylesheet generates link tag with cache and integrity', function (): void {
+test('stylesheet generates link tag with cache but no integrity by default', function (): void {
     $content = 'body { color: red; }';
     file_put_contents($this->tempDir . '/style.css', $content);
 
     $hasher = new FileHasher($this->tempDir);
     $tag    = $hasher->stylesheet('style.css');
+
+    $hash = substr(md5($content), 0, 8);
+
+    expect($tag)->toBe("<link href=\"style.css?cache=$hash\" rel=\"stylesheet\">");
+    expect($tag)->not->toContain('integrity');
+});
+
+test('stylesheet includes integrity when enabled', function (): void {
+    $content = 'body { color: red; }';
+    file_put_contents($this->tempDir . '/style.css', $content);
+
+    $hasher = new FileHasher($this->tempDir);
+    $tag    = $hasher->stylesheet('style.css', true);
 
     $hash      = substr(md5($content), 0, 8);
     $integrity = 'sha384-' . base64_encode(hash('sha384', $content, true));
@@ -88,12 +101,25 @@ test('stylesheet generates link tag with cache and integrity', function (): void
     expect($tag)->toBe("<link href=\"style.css?cache=$hash\" rel=\"stylesheet\" integrity=\"$integrity\">");
 });
 
-test('script generates script tag with cache and integrity', function (): void {
+test('script generates script tag with cache but no integrity by default', function (): void {
     $content = 'console.log("hi")';
     file_put_contents($this->tempDir . '/app.js', $content);
 
     $hasher = new FileHasher($this->tempDir);
     $tag    = $hasher->script('app.js');
+
+    $hash = substr(md5($content), 0, 8);
+
+    expect($tag)->toBe("<script src=\"app.js?cache=$hash\"></script>");
+    expect($tag)->not->toContain('integrity');
+});
+
+test('script includes integrity when enabled', function (): void {
+    $content = 'console.log("hi")';
+    file_put_contents($this->tempDir . '/app.js', $content);
+
+    $hasher = new FileHasher($this->tempDir);
+    $tag    = $hasher->script('app.js', true);
 
     $hash      = substr(md5($content), 0, 8);
     $integrity = 'sha384-' . base64_encode(hash('sha384', $content, true));
@@ -117,18 +143,33 @@ test('script omits integrity for missing file', function (): void {
     expect($tag)->not->toContain('integrity');
 });
 
-test('stylesheetAsync generates async link with noscript fallback', function (): void {
+test('stylesheetAsync generates async link without integrity by default', function (): void {
     $content = 'body { color: red; }';
     file_put_contents($this->tempDir . '/style.css', $content);
 
     $hasher = new FileHasher($this->tempDir);
     $tag    = $hasher->stylesheetAsync('style.css');
 
+    $hash = substr(md5($content), 0, 8);
+
+    expect($tag)->toContain("media=\"print\"");
+    expect($tag)->toContain("onload=\"this.media='all';\"");
+    expect($tag)->toContain("cache=$hash");
+    expect($tag)->not->toContain('integrity');
+    expect($tag)->toContain('<noscript>');
+});
+
+test('stylesheetAsync includes integrity when enabled', function (): void {
+    $content = 'body { color: red; }';
+    file_put_contents($this->tempDir . '/style.css', $content);
+
+    $hasher = new FileHasher($this->tempDir);
+    $tag    = $hasher->stylesheetAsync('style.css', true);
+
     $hash      = substr(md5($content), 0, 8);
     $integrity = 'sha384-' . base64_encode(hash('sha384', $content, true));
 
     expect($tag)->toContain("media=\"print\"");
-    expect($tag)->toContain("onload=\"this.media='all';\"");
     expect($tag)->toContain("cache=$hash");
     expect($tag)->toContain("integrity=\"$integrity\"");
     expect($tag)->toContain('<noscript>');
