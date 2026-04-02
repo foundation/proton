@@ -2,6 +2,11 @@
 
 All notable changes to Proton are documented in this file.
 
+## [0.12.2] - 2026-04-01
+
+### Changed
+- Asset helper functions (`stylesheet()`, `stylesheetAsync()`, `script()`) no longer include SRI `integrity` attributes by default. Pass `true` as the second argument to opt in.
+
 ## [0.12.1] - 2026-04-01
 
 ### Fixed
