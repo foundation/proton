@@ -87,9 +87,9 @@ class PageManager
         $htmlSafe = ['is_safe' => ['html']];
         $twig->addFunction(new \Twig\TwigFunction('file_hash', fn (string $path): string => $hasher->hash($path)));
         $twig->addFunction(new \Twig\TwigFunction('file_integrity', fn (string $path, string $algo = 'sha384'): string => $hasher->integrity($path, $algo)));
-        $twig->addFunction(new \Twig\TwigFunction('stylesheet', fn (string $url): string => $hasher->stylesheet($url), $htmlSafe));
-        $twig->addFunction(new \Twig\TwigFunction('stylesheetAsync', fn (string $url): string => $hasher->stylesheetAsync($url), $htmlSafe));
-        $twig->addFunction(new \Twig\TwigFunction('script', fn (string $url): string => $hasher->script($url), $htmlSafe));
+        $twig->addFunction(new \Twig\TwigFunction('stylesheet', fn (string $url, bool $integrity = false): string => $hasher->stylesheet($url, $integrity), $htmlSafe));
+        $twig->addFunction(new \Twig\TwigFunction('stylesheetAsync', fn (string $url, bool $integrity = false): string => $hasher->stylesheetAsync($url, $integrity), $htmlSafe));
+        $twig->addFunction(new \Twig\TwigFunction('script', fn (string $url, bool $integrity = false): string => $hasher->script($url, $integrity), $htmlSafe));
 
         // ksort the twig variables
         $filter = new \Twig\TwigFilter('ksort', function ($array): array {

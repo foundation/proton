@@ -103,14 +103,24 @@ The TOC is only populated for markdown pages. HTML pages will return an empty ar
 
 ## Asset Helpers
 
-Proton provides helper functions for including CSS and JavaScript files with cache busting and [subresource integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (SRI) attributes.
+Proton provides helper functions for including CSS and JavaScript files with automatic cache busting. Optionally, you can enable [subresource integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (SRI) attributes.
 
 ### stylesheet
 
-Generates a `<link>` tag with a cache-busting query string and `integrity` attribute.
+Generates a `<link>` tag with a cache-busting query string.
 
 ```twig
 {{ stylesheet('/assets/css/app.css') }}
+```
+
+```html
+<link href="/assets/css/app.css?cache=a1b2c3d4" rel="stylesheet">
+```
+
+Pass `true` as the second argument to include an `integrity` attribute:
+
+```twig
+{{ stylesheet('/assets/css/app.css', true) }}
 ```
 
 ```html
@@ -126,16 +136,37 @@ Generates a non-render-blocking `<link>` tag with a `<noscript>` fallback. Usefu
 ```
 
 ```html
+<link rel="stylesheet" href="/assets/css/fonts.css?cache=a1b2c3d4" media="print" onload="this.media='all';">
+<noscript><link rel="stylesheet" href="/assets/css/fonts.css?cache=a1b2c3d4"></noscript>
+```
+
+Pass `true` as the second argument to include `integrity` attributes:
+
+```twig
+{{ stylesheetAsync('/assets/css/fonts.css', true) }}
+```
+
+```html
 <link rel="stylesheet" href="/assets/css/fonts.css?cache=a1b2c3d4" media="print" onload="this.media='all';" integrity="sha384-...">
 <noscript><link rel="stylesheet" href="/assets/css/fonts.css?cache=a1b2c3d4" integrity="sha384-..."></noscript>
 ```
 
 ### script
 
-Generates a `<script>` tag with a cache-busting query string and `integrity` attribute.
+Generates a `<script>` tag with a cache-busting query string.
 
 ```twig
 {{ script('/assets/js/site.js') }}
+```
+
+```html
+<script src="/assets/js/site.js?cache=a1b2c3d4"></script>
+```
+
+Pass `true` as the second argument to include an `integrity` attribute:
+
+```twig
+{{ script('/assets/js/site.js', true) }}
 ```
 
 ```html
